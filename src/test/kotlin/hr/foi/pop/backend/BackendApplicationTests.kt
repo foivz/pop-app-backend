@@ -18,7 +18,7 @@ class BackendApplicationTests {
 	fun insertMockDataInH2_20ProductsInserted_True() {
 		val connection: Connection = DriverManager.getConnection(url, username, password)
 		val statement: Statement = connection.createStatement()
-		val query = "SELECT COUNT(*) as products_count FROM MYDB.PRODUCTS "
+		val query = "SELECT COUNT(*) as products_count FROM POPAPP_DB.PRODUCTS "
 
 		val result: ResultSet = statement.executeQuery(query)
 		result.next()

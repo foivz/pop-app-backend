@@ -1,19 +1,19 @@
-CREATE SCHEMA IF NOT EXISTS `mydb`;
-SET SCHEMA `mydb`;
+CREATE SCHEMA IF NOT EXISTS `popapp_db`;
+SET SCHEMA `popapp_db`;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`roles` (
+CREATE TABLE IF NOT EXISTS `popapp_db`.`roles` (
   `id_role` INT NOT NULL AUTO_INCREMENT,
   `role_name` VARCHAR(50) NOT NULL,
   PRIMARY KEY (`id_role`));
 
-CREATE TABLE IF NOT EXISTS `mydb`.`events` (
+CREATE TABLE IF NOT EXISTS `popapp_db`.`events` (
   `id_event` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
   `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `is_active` TINYINT NOT NULL DEFAULT 0,
   PRIMARY KEY (`id_event`));
 
-CREATE TABLE IF NOT EXISTS `mydb`.`stores` (
+CREATE TABLE IF NOT EXISTS `popapp_db`.`stores` (
     `id_store` INT NOT NULL AUTO_INCREMENT,
     `events_id_event` INT NOT NULL,
     `store_name` VARCHAR(255) NOT NULL,
@@ -21,14 +21,14 @@ CREATE TABLE IF NOT EXISTS `mydb`.`stores` (
     PRIMARY KEY (`id_store`),
     CONSTRAINT `fk_stores_events1`
       FOREIGN KEY (`events_id_event`)
-      REFERENCES `mydb`.`events` (`id_event`)
+      REFERENCES `popapp_db`.`events` (`id_event`)
       ON DELETE NO ACTION
       ON UPDATE NO ACTION);
 
---CREATE INDEX `fk_stores_events1_idx` ON `mydb`.`stores`(events_id_event);
+--CREATE INDEX `fk_stores_events1_idx` ON `popapp_db`.`stores`(events_id_event);
 
 
-CREATE TABLE IF NOT EXISTS `mydb`.`users` (
+CREATE TABLE IF NOT EXISTS `popapp_db`.`users` (
   `id_user` INT NOT NULL AUTO_INCREMENT,
   `roles_id_role` INT NOT NULL,
   `events_id_event` INT NULL,
@@ -45,25 +45,25 @@ CREATE TABLE IF NOT EXISTS `mydb`.`users` (
   PRIMARY KEY (`id_user`),
   CONSTRAINT `fk_users_stores1`
     FOREIGN KEY (`stores_id_store`)
-    REFERENCES `mydb`.`stores` (`id_store`)
+    REFERENCES `popapp_db`.`stores` (`id_store`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_users_events1`
     FOREIGN KEY (`events_id_event`)
-    REFERENCES `mydb`.`events` (`id_event`)
+    REFERENCES `popapp_db`.`events` (`id_event`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_users_roles1`
     FOREIGN KEY (`roles_id_role`)
-    REFERENCES `mydb`.`roles` (`id_role`)
+    REFERENCES `popapp_db`.`roles` (`id_role`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
---CREATE INDEX `fk_users_stores1_idx` ON `mydb`.`users`(stores_id_store);
---CREATE INDEX `fk_users_events1_idx` ON `mydb`.`users`(events_id_event);
---CREATE INDEX `fk_users_roles1_idx` ON `mydb`.`users`(roles_id_role);
+--CREATE INDEX `fk_users_stores1_idx` ON `popapp_db`.`users`(stores_id_store);
+--CREATE INDEX `fk_users_events1_idx` ON `popapp_db`.`users`(events_id_event);
+--CREATE INDEX `fk_users_roles1_idx` ON `popapp_db`.`users`(roles_id_role);
 
-CREATE TABLE IF NOT EXISTS `mydb`.`invoices` (
+CREATE TABLE IF NOT EXISTS `popapp_db`.`invoices` (
   `id_invoice` INT NOT NULL AUTO_INCREMENT,
   `stores_id_store` INT NOT NULL,
   `users_id_user` INT NOT NULL,
@@ -74,19 +74,19 @@ CREATE TABLE IF NOT EXISTS `mydb`.`invoices` (
   PRIMARY KEY (`id_invoice`),
   CONSTRAINT `fk_invoices_stores1`
     FOREIGN KEY (`stores_id_store`)
-    REFERENCES `mydb`.`stores` (`id_store`)
+    REFERENCES `popapp_db`.`stores` (`id_store`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_invoices_users1`
     FOREIGN KEY (`users_id_user`)
-    REFERENCES `mydb`.`users` (`id_user`)
+    REFERENCES `popapp_db`.`users` (`id_user`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
---CREATE INDEX `fk_invoices_stores1_idx` ON `mydb`.`invoices`(stores_id_store);
---CREATE INDEX `fk_invoices_users1_idx` ON `mydb`.`invoices`(users_id_user);
+--CREATE INDEX `fk_invoices_stores1_idx` ON `popapp_db`.`invoices`(stores_id_store);
+--CREATE INDEX `fk_invoices_users1_idx` ON `popapp_db`.`invoices`(users_id_user);
 
-CREATE TABLE IF NOT EXISTS `mydb`.`products` (
+CREATE TABLE IF NOT EXISTS `popapp_db`.`products` (
   `id_product` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
   `description` TEXT NOT NULL,
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`products` (
   `quantity` INT NOT NULL DEFAULT 0,
   PRIMARY KEY (`id_product`));
 
-CREATE TABLE IF NOT EXISTS `mydb`.`packages` (
+CREATE TABLE IF NOT EXISTS `popapp_db`.`packages` (
   `id_package` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
   `description` TEXT NOT NULL,
@@ -104,58 +104,58 @@ CREATE TABLE IF NOT EXISTS `mydb`.`packages` (
   `amount` INT NULL,
   PRIMARY KEY (`id_package`));
 
-CREATE TABLE IF NOT EXISTS `mydb`.`packages_has_products` (
+CREATE TABLE IF NOT EXISTS `popapp_db`.`packages_has_products` (
   `packages_id_package` INT NOT NULL,
   `products_id_product` INT NOT NULL,
   PRIMARY KEY (`packages_id_package`, `products_id_product`),
   CONSTRAINT `fk_packages_has_products_packages1`
     FOREIGN KEY (`packages_id_package`)
-    REFERENCES `mydb`.`packages` (`id_package`)
+    REFERENCES `popapp_db`.`packages` (`id_package`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_packages_has_products_products1`
     FOREIGN KEY (`products_id_product`)
-    REFERENCES `mydb`.`products` (`id_product`)
+    REFERENCES `popapp_db`.`products` (`id_product`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
---CREATE INDEX `fk_packages_has_products_products1_idx` ON `mydb`.`packages_has_products`(products_id_product);
---CREATE INDEX `fk_packages_has_products_packages1_idx` ON `mydb`.`packages_has_products`(packages_id_package);
+--CREATE INDEX `fk_packages_has_products_products1_idx` ON `popapp_db`.`packages_has_products`(products_id_product);
+--CREATE INDEX `fk_packages_has_products_packages1_idx` ON `popapp_db`.`packages_has_products`(packages_id_package);
 
-CREATE TABLE IF NOT EXISTS `mydb`.`invoices_has_packages` (
+CREATE TABLE IF NOT EXISTS `popapp_db`.`invoices_has_packages` (
   `invoices_id_invoice` INT NOT NULL,
   `packages_id_package` INT NOT NULL,
   `amount` INT NOT NULL,
   PRIMARY KEY (`invoices_id_invoice`, `packages_id_package`),
   CONSTRAINT `fk_invoices_has_packages_invoices1`
     FOREIGN KEY (`invoices_id_invoice`)
-    REFERENCES `mydb`.`invoices` (`id_invoice`)
+    REFERENCES `popapp_db`.`invoices` (`id_invoice`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_invoices_has_packages_packages1`
     FOREIGN KEY (`packages_id_package`)
-    REFERENCES `mydb`.`packages` (`id_package`)
+    REFERENCES `popapp_db`.`packages` (`id_package`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
---CREATE INDEX `fk_invoices_has_packages_invoices1_idx` ON `mydb`.`invoices_has_packages`(invoices_id_invoice);
---CREATE INDEX `fk_invoices_has_packages_packages1_idx` ON `mydb`.`invoices_has_packages`(packages_id_package);
+--CREATE INDEX `fk_invoices_has_packages_invoices1_idx` ON `popapp_db`.`invoices_has_packages`(invoices_id_invoice);
+--CREATE INDEX `fk_invoices_has_packages_packages1_idx` ON `popapp_db`.`invoices_has_packages`(packages_id_package);
 
-CREATE TABLE IF NOT EXISTS `mydb`.`invoices_has_products` (
+CREATE TABLE IF NOT EXISTS `popapp_db`.`invoices_has_products` (
   `invoices_id_invoice` INT NOT NULL,
   `products_id_product` INT NOT NULL,
   `amount` INT NOT NULL,
   PRIMARY KEY (`invoices_id_invoice`, `products_id_product`),
   CONSTRAINT `fk_invoices_has_products_invoices1`
     FOREIGN KEY (`invoices_id_invoice`)
-    REFERENCES `mydb`.`invoices` (`id_invoice`)
+    REFERENCES `popapp_db`.`invoices` (`id_invoice`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_invoices_has_products_products1`
     FOREIGN KEY (`products_id_product`)
-    REFERENCES `mydb`.`products` (`id_product`)
+    REFERENCES `popapp_db`.`products` (`id_product`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
---CREATE INDEX `fk_invoices_has_products_products1_idx` ON `mydb`.`invoices_has_products`(products_id_product);
---CREATE INDEX `fk_invoices_has_products_invoices1_idx` ON `mydb`.`invoices_has_products`(invoices_id_invoice);
+--CREATE INDEX `fk_invoices_has_products_products1_idx` ON `popapp_db`.`invoices_has_products`(products_id_product);
+--CREATE INDEX `fk_invoices_has_products_invoices1_idx` ON `popapp_db`.`invoices_has_products`(invoices_id_invoice);

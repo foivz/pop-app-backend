@@ -1,20 +1,20 @@
 -- INSERT VALUES INTO DATABASE --
-INSERT INTO `mydb`.`events` (`name`, `date_created`, `is_active`)
+INSERT INTO `popapp_db`.`events` (`name`, `date_created`, `is_active`)
 VALUES ('Event 1', CURRENT_TIMESTAMP(), 1);
-INSERT INTO `mydb`.`events` (`name`, `date_created`, `is_active`)
+INSERT INTO `popapp_db`.`events` (`name`, `date_created`, `is_active`)
 VALUES ('Event 2', CURRENT_TIMESTAMP(), 1);;
 
-INSERT INTO `mydb`.`stores` (`events_id_event`, `store_name`, `balance`)
+INSERT INTO `popapp_db`.`stores` (`events_id_event`, `store_name`, `balance`)
 VALUES (1, 'Store 1', 0),
        (1, 'Store 2', 0),
        (2, 'Store 3', 0);
 
-INSERT INTO `mydb`.`roles` (`role_name`)
+INSERT INTO `popapp_db`.`roles` (`role_name`)
 VALUES ('buyer'),
        ('seller'),
        ('admin');
 
-INSERT INTO `mydb`.`users` (`roles_id_role`, `events_id_event`, `stores_id_store`, `name`, `surname`, `email`,
+INSERT INTO `popapp_db`.`users` (`roles_id_role`, `events_id_event`, `stores_id_store`, `name`, `surname`, `email`,
                             `username`, `password_salt`, `password_hash`, `date_registered`, `balance`, `is_accepted`)
 VALUES (3, 1, 1, 'Catherine', 'Velasquez', 'cvelasquez@pop.app', 'cvelasquez', '55f312f84e7785aa1efa552acbf251db', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', CURRENT_TIMESTAMP(), 1000, 1),
        (1, 1, 1, 'Dayton', 'Huff', 'dhuff@pop.app', 'dhuff', 'd125a874318684c7d491a20acbd3b879', '937e8d5fbb48bd4949536cd65b8d35c426b80d2f830c5c308e2cdec422ae2244', CURRENT_TIMESTAMP(), 300, 1),
@@ -38,7 +38,7 @@ VALUES (3, 1, 1, 'Catherine', 'Velasquez', 'cvelasquez@pop.app', 'cvelasquez', '
        (2, 2, 3, 'Haven', 'Arroyo', 'harroyo@pop.app', 'harroyo', 'a394664f9ae7066d4cafba639423de48', '937e8d5fbb48bd4949536cd65b8d35c426b80d2f830c5c308e2cdec422ae2244', CURRENT_TIMESTAMP(), 0,
         0);
 
-INSERT INTO `mydb`.`products` (`name`, `description`, `image`, `price`, `quantity`)
+INSERT INTO `popapp_db`.`products` (`name`, `description`, `image`, `price`, `quantity`)
 VALUES ('Product 1', 'Description 1', 'image1.jpg', 10, 100),
        ('Product 2', 'Description 2', 'image2.jpg', 20, 200),
        ('Product 3', 'Description 3', 'image3.jpg', 30, 300),
@@ -60,14 +60,14 @@ VALUES ('Product 1', 'Description 1', 'image1.jpg', 10, 100),
        ('Product 19', 'Description 19', 'image19.jpg', 190, 1900),
        ('Product 20', 'Description 20', 'image20.jpg', 200, 2000);
 
-INSERT INTO `mydb`.`packages` (`name`, `description`, `image`, `discount_on_items`, `amount`)
+INSERT INTO `popapp_db`.`packages` (`name`, `description`, `image`, `discount_on_items`, `amount`)
 VALUES ('Package 1', 'Description 1', 'package1.jpg', 5, 100),
        ('Package 2', 'Description 2', 'package2.jpg', 10, 200),
        ('Package 3', 'Description 3', 'package3.jpg', 15, 300),
        ('Package 4', 'Description 4', 'package4.jpg', 20, 400),
        ('Package 5', 'Description 5', 'package5.jpg', 25, 500);
 
-INSERT INTO `mydb`.`packages_has_products` (`packages_id_package`, `products_id_product`)
+INSERT INTO `popapp_db`.`packages_has_products` (`packages_id_package`, `products_id_product`)
 VALUES (1, 1),
        (1, 2),
        (1, 3),
@@ -84,14 +84,14 @@ VALUES (1, 1),
        (5, 14),
        (5, 15);
 
-INSERT INTO `mydb`.`invoices` (`stores_id_store`, `users_id_user`, `code`, `date_issued`, `discount`, `total`)
+INSERT INTO `popapp_db`.`invoices` (`stores_id_store`, `users_id_user`, `code`, `date_issued`, `discount`, `total`)
 VALUES (1, 1, 'INV001', CURRENT_TIMESTAMP(), 0, 150),
        (2, 2, 'INV002', CURRENT_TIMESTAMP(), 10, 250),
        (3, 3, 'INV003', CURRENT_TIMESTAMP(), 20, 350),
        (1, 4, 'INV004', CURRENT_TIMESTAMP(), 0, 450),
        (2, 5, 'INV005', CURRENT_TIMESTAMP(), 5, 550);
 
-INSERT INTO `mydb`.`invoices_has_products` (`invoices_id_invoice`, `products_id_product`, `amount`)
+INSERT INTO `popapp_db`.`invoices_has_products` (`invoices_id_invoice`, `products_id_product`, `amount`)
 VALUES (1, 1, 2),
        (1, 2, 3),
        (1, 3, 4),
@@ -108,7 +108,7 @@ VALUES (1, 1, 2),
        (5, 14, 15),
        (5, 15, 16);
 
-INSERT INTO `mydb`.`invoices_has_packages` (`invoices_id_invoice`, `packages_id_package`, `amount`)
+INSERT INTO `popapp_db`.`invoices_has_packages` (`invoices_id_invoice`, `packages_id_package`, `amount`)
 VALUES (1, 1, 1),
        (1, 2, 1),
        (2, 2, 2),
