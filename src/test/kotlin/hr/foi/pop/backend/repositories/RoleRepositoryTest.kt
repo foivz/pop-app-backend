@@ -1,7 +1,6 @@
 package hr.foi.pop.backend.repositories
 
 import hr.foi.pop.backend.models.role.Role
-import hr.foi.pop.backend.repository.RoleRepository
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

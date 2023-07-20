@@ -1,4 +1,4 @@
-package hr.foi.pop.backend.repository
+package hr.foi.pop.backend.repositories
 
 import hr.foi.pop.backend.models.role.Role
 import org.springframework.data.jpa.repository.JpaRepository
