@@ -10,7 +10,7 @@ import jakarta.persistence.Table
 class Product {
     @Id
     @Column(name = "id_product")
-    var id: Int? = null
+    var id: Int = 0
 
     @Column(name = "name")
     lateinit var name: String

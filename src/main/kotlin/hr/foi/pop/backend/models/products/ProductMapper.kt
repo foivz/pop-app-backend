@@ -4,7 +4,7 @@ import hr.foi.pop.backend.utils.GenericMapper
 
 class ProductMapper : GenericMapper<ProductDTO, Product> {
     override fun mapDto(e: Product): ProductDTO {
-        return ProductDTO(e.id!!, e.name, e.description, e.imageUrl, e.price, e.quantity)
+        return ProductDTO(e.id, e.name, e.description, e.imageUrl, e.price, e.quantity)
     }
 
     override fun map(d: ProductDTO): Product {
