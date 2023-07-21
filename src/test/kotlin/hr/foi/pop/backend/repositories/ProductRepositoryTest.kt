@@ -1,7 +1,6 @@
 package hr.foi.pop.backend.repositories
 
 import hr.foi.pop.backend.models.products.Product
-import hr.foi.pop.backend.repository.ProductRepository
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
