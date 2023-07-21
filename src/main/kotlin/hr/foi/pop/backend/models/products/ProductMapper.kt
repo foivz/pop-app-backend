@@ -4,7 +4,8 @@ import hr.foi.pop.backend.utils.GenericMapper
 
 class ProductMapper : GenericMapper<ProductDTO, Product> {
     override fun mapDto(e: Product): ProductDTO {
-        return ProductDTO(e.id, e.name, e.description, e.imageUrl, e.price, e.quantity)
+        val imgUrl = e.imageUrl ?: "./img/default_product_image.png"
+        return ProductDTO(e.id, e.name, e.description, imgUrl, e.price, e.quantity)
     }
 
     override fun map(d: ProductDTO): Product {
