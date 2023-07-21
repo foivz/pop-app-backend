@@ -26,9 +26,15 @@ class PackageRepositoryTest {
         val products = packageEntity.products
 
         Assertions.assertTrue(products.size == 3)
-        Assertions.assertEquals(1, products.elementAt(0).id)
-        Assertions.assertEquals(2, products.elementAt(1).id)
-        Assertions.assertEquals(3, products.elementAt(2).id)
+        Assertions.assertNotNull(products.find {
+            it.id == 1
+        })
+        Assertions.assertNotNull(products.find {
+            it.id == 2
+        })
+        Assertions.assertNotNull(products.find {
+            it.id == 3
+        })
     }
 
 }
