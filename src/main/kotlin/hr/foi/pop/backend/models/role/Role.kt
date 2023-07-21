@@ -1,4 +1,4 @@
-package hr.foi.pop.backend.models.role;
+package hr.foi.pop.backend.models.role
 
 import jakarta.persistence.*
 
