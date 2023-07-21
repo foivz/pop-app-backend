@@ -19,7 +19,7 @@ class Product {
     lateinit var description: String
 
     @Column(name = "image")
-    lateinit var imageUrl: String
+    var imageUrl: String? = null
 
     @Column(name = "price")
     var price: Int = 0
