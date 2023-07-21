@@ -10,11 +10,11 @@ import org.springframework.boot.test.context.SpringBootTest
 class RoleRepositoryTest {
 
     @Autowired
-    lateinit var roleRepository : RoleRepository
+    lateinit var roleRepository: RoleRepository
 
     @Test
-    fun whenGetRoleById3_CheckRoleName_IsAdmin() {
-        val role : Role = roleRepository.getRoleById(3);
+    fun getRoleById_CheckRoleName_IsCorrect() {
+        val role: Role = roleRepository.getRoleById(3)
 
         Assertions.assertTrue(role.name == "admin")
     }
