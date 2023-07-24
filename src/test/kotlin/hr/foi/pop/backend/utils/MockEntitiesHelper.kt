@@ -2,6 +2,7 @@ package hr.foi.pop.backend.utils
 
 import hr.foi.pop.backend.models.event.Event
 import hr.foi.pop.backend.models.invoice.Invoice
+import hr.foi.pop.backend.models.packages.PackageEntity
 import hr.foi.pop.backend.models.products.Product
 import hr.foi.pop.backend.models.role.Role
 import hr.foi.pop.backend.models.store.Store
@@ -85,6 +86,35 @@ class MockEntitiesHelper {
                 imageUrl = null
                 price = 10
                 quantity = 3
+                store = generateStoreEntity()
+            }
+        }
+
+        fun generatePackageEntityWithoutProducts(): PackageEntity {
+            return PackageEntity().apply {
+                id = 1
+                name = "Package 1"
+                description = "Cool Test Package"
+                imageUrl = "./img/1/img_1_6_2_18:00:00_21-07-2023.png"
+                discount = 10
+                amount = 3
+                products = setOf()
+                store = generateStoreEntity()
+            }
+        }
+
+        fun generatePackageEntityWithTwoProducts(): PackageEntity {
+            return PackageEntity().apply {
+                id = 1
+                name = "Package 1"
+                description = "Cool Test Package"
+                imageUrl = "./img/1/img_1_6_2_18:00:00_21-07-2023.png"
+                discount = 10
+                amount = 3
+                products = setOf(
+                    generateProductEntity(),
+                    generateProductEntityWithNoImage()
+                )
                 store = generateStoreEntity()
             }
         }
