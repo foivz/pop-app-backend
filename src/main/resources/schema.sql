@@ -88,21 +88,33 @@ CREATE TABLE IF NOT EXISTS `popapp_db`.`invoices` (
 
 CREATE TABLE IF NOT EXISTS `popapp_db`.`products` (
   `id_product` INT NOT NULL AUTO_INCREMENT,
+  `stores_id_store` INT NOT NULL,
   `name` VARCHAR(255) NOT NULL,
   `description` TEXT NOT NULL,
   `image` VARCHAR(255) NULL,
   `price` INT NOT NULL,
   `quantity` INT NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id_product`));
+  PRIMARY KEY (`id_product`),
+    CONSTRAINT `fk_products_stores1`
+    FOREIGN KEY (`stores_id_store`)
+    REFERENCES `popapp_db`.`stores` (`id_store`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT);
 
 CREATE TABLE IF NOT EXISTS `popapp_db`.`packages` (
   `id_package` INT NOT NULL AUTO_INCREMENT,
+  `stores_id_store` INT NOT NULL,
   `name` VARCHAR(255) NOT NULL,
   `description` TEXT NOT NULL,
   `image` VARCHAR(255) NULL,
   `discount_on_items` INT NOT NULL,
   `amount` INT NULL,
-  PRIMARY KEY (`id_package`));
+  PRIMARY KEY (`id_package`),
+  CONSTRAINT `fk_packages_stores1`
+    FOREIGN KEY (`stores_id_store`)
+    REFERENCES `popapp_db`.`stores` (`id_store`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT);
 
 CREATE TABLE IF NOT EXISTS `popapp_db`.`packages_has_products` (
   `packages_id_package` INT NOT NULL,

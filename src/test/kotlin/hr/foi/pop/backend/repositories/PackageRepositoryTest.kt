@@ -37,4 +37,15 @@ class PackageRepositoryTest {
         })
     }
 
+
+    @Test
+    fun getPackagesById_CheckPackageStore_IsCorrect() {
+        val packageFromStore1: PackageEntity = packageRepository.getPackageById(1)
+        val packageFromStore2: PackageEntity = packageRepository.getPackageById(3)
+        val packageFromStore3: PackageEntity = packageRepository.getPackageById(5)
+
+        Assertions.assertTrue(packageFromStore1.store.id == 1)
+        Assertions.assertTrue(packageFromStore2.store.id == 2)
+        Assertions.assertTrue(packageFromStore3.store.id == 3)
+    }
 }

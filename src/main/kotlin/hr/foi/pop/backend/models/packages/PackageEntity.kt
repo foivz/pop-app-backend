@@ -1,6 +1,7 @@
 package hr.foi.pop.backend.models.packages
 
 import hr.foi.pop.backend.models.products.Product
+import hr.foi.pop.backend.models.store.Store
 import jakarta.persistence.*
 
 @Entity
@@ -9,6 +10,10 @@ class PackageEntity {
     @Id
     @Column(name = "id_package")
     var id: Int = 0
+
+    @ManyToOne
+    @JoinColumn(name = "stores_id_store")
+    lateinit var store: Store
 
     @Column(name = "name")
     lateinit var name: String
