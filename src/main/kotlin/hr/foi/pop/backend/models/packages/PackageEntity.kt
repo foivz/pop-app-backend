@@ -8,6 +8,7 @@ import jakarta.persistence.*
 @Table(name = "packages")
 class PackageEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id_package")
     var id: Int = 0
 
@@ -31,13 +32,13 @@ class PackageEntity {
     var amount: Int? = null
 
     @ManyToMany(
-            targetEntity = Product::class,
-            fetch = FetchType.EAGER
+        targetEntity = Product::class,
+        fetch = FetchType.EAGER
     )
     @JoinTable(
-            name = "packages_has_products",
-            joinColumns = [JoinColumn(name = "packages_id_package")],
-            inverseJoinColumns = [JoinColumn(name = "products_id_product")]
+        name = "packages_has_products",
+        joinColumns = [JoinColumn(name = "packages_id_package")],
+        inverseJoinColumns = [JoinColumn(name = "products_id_product")]
     )
     lateinit var products: Set<Product>
 }

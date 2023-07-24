@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 @Table(name = "invoices")
 class Invoice {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id_invoice")
     var id: Int = 0
 
