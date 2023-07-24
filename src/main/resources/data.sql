@@ -2,7 +2,7 @@
 INSERT INTO `popapp_db`.`events` (`name`, `date_created`, `is_active`)
 VALUES ('Event 1', CURRENT_TIMESTAMP(), 1);
 INSERT INTO `popapp_db`.`events` (`name`, `date_created`, `is_active`)
-VALUES ('Event 2', CURRENT_TIMESTAMP(), 1);;
+VALUES ('Event 2', CURRENT_TIMESTAMP(), 0);;
 
 INSERT INTO `popapp_db`.`stores` (`events_id_event`, `store_name`, `balance`)
 VALUES (1, 'Store 1', 0),
@@ -103,7 +103,7 @@ VALUES (1, 1),
 INSERT INTO `popapp_db`.`invoices` (`stores_id_store`, `users_id_user`, `code`, `date_issued`, `discount`, `total`)
 VALUES (1, 1, 'INV001', CURRENT_TIMESTAMP(), 0, 150),
        (2, 2, 'INV002', CURRENT_TIMESTAMP(), 10, 250),
-       (3, 3, 'INV003', CURRENT_TIMESTAMP(), 20, 350),
+       (1, 3, 'INV003', CURRENT_TIMESTAMP(), 20, 350),
        (1, 4, 'INV004', CURRENT_TIMESTAMP(), 0, 450),
        (2, 5, 'INV005', CURRENT_TIMESTAMP(), 5, 550);
 
