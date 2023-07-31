@@ -30,12 +30,12 @@ class MockEntitiesHelper {
         fun generateUserEntity(): User {
             return User().apply {
                 this.id = 3
-                this.name = "Dayton"
-                this.surname = "Huff"
-                this.email = "dhuff@pop.app"
+                this.name = "Tester"
+                this.surname = "Testermann"
+                this.email = "tester@test.com"
                 this.passwordSalt = "d125a874318684c7d491a20acbd3b879"
                 this.passwordHash = "937e8d5fbb48bd4949536cd65b8d35c426b80d2f830c5c308e2cdec422ae2244"
-                this.username = "dhuff"
+                this.username = "testerUsername"
                 this.isAccepted = true
                 this.balance = 300
                 this.role = generateRoleEntity()
