@@ -3,6 +3,7 @@ package hr.foi.pop.backend.utils
 import hr.foi.pop.backend.exceptions.UserCheckException
 import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
@@ -11,9 +12,19 @@ import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
 class UserCheckerTest(@Autowired userRepository: UserRepository) :
-    UserChecker(RegisterRequestBody("", "", "", "", "", ""), userRepository) {
+    UserChecker(
+        RegisterRequestBody(
+            "Tester",
+            "Testermann",
+            "tester",
+            "tester@test.com",
+            "test123",
+            "buyer"
+        ),
+        userRepository
+    ) {
 
-    @Test
+    @BeforeEach
     fun ifUserOk_WhenChecked_NothingHappens() {
         assertDoesNotThrow { super.validateUserProperties() }
     }
