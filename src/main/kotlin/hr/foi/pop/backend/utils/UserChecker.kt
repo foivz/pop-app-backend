@@ -2,10 +2,10 @@ package hr.foi.pop.backend.utils
 
 import hr.foi.pop.backend.errors.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.UserCheckException
-import hr.foi.pop.backend.models.user.UserDTO
 import hr.foi.pop.backend.repositories.UserRepository
+import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 
-open class UserChecker(protected var user: UserDTO, protected val userRepository: UserRepository) {
+open class UserChecker(protected var user: RegisterRequestBody, protected val userRepository: UserRepository) {
     fun validateUserProperties() {
         validateUsername()
         validatePassword()

@@ -1,20 +1,17 @@
 package hr.foi.pop.backend.utils
 
 import hr.foi.pop.backend.exceptions.UserCheckException
-import hr.foi.pop.backend.models.user.User
-import hr.foi.pop.backend.models.user.UserMapper
 import hr.foi.pop.backend.repositories.UserRepository
+import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
-private val mapper = UserMapper()
-
 @SpringBootTest
 class UserCheckerTest(@Autowired userRepository: UserRepository) :
-    UserChecker(mapper.mapDto(MockEntitiesHelper.generateUserEntity()), userRepository) {
+    UserChecker(RegisterRequestBody("", "", "", "", "", ""), userRepository) {
 
     @Test
     fun ifUserOk_WhenChecked_NothingHappens() {
@@ -23,10 +20,8 @@ class UserCheckerTest(@Autowired userRepository: UserRepository) :
 
     @Test
     fun ifUserHasBadUsername_WhenChecked_ThrowsUserCheckException() {
-        changeUserProperty { user ->
-            val usernameSmallerThan4Chars = "bad"
-            user.username = usernameSmallerThan4Chars
-        }
+        val usernameSmallerThan4Chars = "bad"
+        super.user = super.user.copy(username = usernameSmallerThan4Chars)
 
         assertThrows<UserCheckException> { super.validateUsername() }
     }
@@ -34,19 +29,9 @@ class UserCheckerTest(@Autowired userRepository: UserRepository) :
     @Test
     fun ifUserHasUsernameAlreadyInUse_WhenChecked_ThrowsUserCheckException() {
         val firstUser = super.userRepository.findAll()[0]
-
-        changeUserProperty { user ->
-            val mockUsernameInUse = firstUser.username
-            user.username = mockUsernameInUse
-        }
+        val mockUsernameInUse = firstUser.username
+        super.user = super.user.copy(username = mockUsernameInUse)
 
         assertThrows<UserCheckException> { super.validateUsername() }
-    }
-
-    private fun changeUserProperty(changeProperty: (user: User) -> Unit) {
-        val userEntity = mapper.map(super.user)
-        changeProperty(userEntity)
-        val userDto = UserMapper().mapDto(userEntity)
-        super.user = userDto
     }
 }
