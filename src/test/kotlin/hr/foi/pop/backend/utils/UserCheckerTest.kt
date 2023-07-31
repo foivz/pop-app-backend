@@ -22,7 +22,7 @@ class UserCheckerTest(@Autowired userRepository: UserRepository) :
     }
 
     @Test
-    fun ifUserHasBadUsername_WhenChecked_ThrowsBadUserException() {
+    fun ifUserHasBadUsername_WhenChecked_ThrowsUserCheckException() {
         changeUserProperty { user ->
             val usernameSmallerThan4Chars = "bad"
             user.username = usernameSmallerThan4Chars
@@ -32,7 +32,7 @@ class UserCheckerTest(@Autowired userRepository: UserRepository) :
     }
 
     @Test
-    fun ifUserHasUsernameAlreadyInUse_WhenChecked_ThrowsBadUserException() {
+    fun ifUserHasUsernameAlreadyInUse_WhenChecked_ThrowsUserCheckException() {
         val firstUser = super.userRepository.findAll()[0]
 
         changeUserProperty { user ->
