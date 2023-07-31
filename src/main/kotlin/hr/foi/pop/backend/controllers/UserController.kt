@@ -1,6 +1,6 @@
 package hr.foi.pop.backend.controllers
 
-import hr.foi.pop.backend.errors.ApplicationErrorType
+import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.responses.ErrorResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

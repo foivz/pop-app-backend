@@ -1,6 +1,6 @@
 package hr.foi.pop.backend.responses
 
-import hr.foi.pop.backend.errors.ApplicationErrorType
+import hr.foi.pop.backend.definitions.ApplicationErrorType
 
 class ErrorResponse(
     success: Boolean, message: String, error: ApplicationErrorType

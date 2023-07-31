@@ -1,4 +1,4 @@
-package hr.foi.pop.backend.errors
+package hr.foi.pop.backend.definitions
 
 enum class ApplicationErrorType(val code: Int) {
     ERR_JWT_EXPIRED(1),
