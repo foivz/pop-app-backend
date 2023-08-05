@@ -39,9 +39,6 @@ class User {
     @Column(name = "username")
     lateinit var username: String
 
-    @Column(name = "password_salt")
-    lateinit var passwordSalt: String
-
     @Column(name = "password_hash")
     lateinit var passwordHash: String
 

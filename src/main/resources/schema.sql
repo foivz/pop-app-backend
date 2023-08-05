@@ -37,7 +37,6 @@ CREATE TABLE IF NOT EXISTS `popapp_db`.`users` (
   `surname` VARCHAR(45) NOT NULL,
   `email` VARCHAR(45) NOT NULL,
   `username` VARCHAR(45) NOT NULL,
-  `password_salt` NCHAR(32) NOT NULL,
   `password_hash` NCHAR(64) NOT NULL,
   `date_registered` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `balance` INT NOT NULL DEFAULT 0,
