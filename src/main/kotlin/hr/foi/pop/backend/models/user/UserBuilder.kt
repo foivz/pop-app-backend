@@ -1,6 +1,7 @@
 package hr.foi.pop.backend.models.user
 
 import hr.foi.pop.backend.exceptions.UserBuilderException
+import hr.foi.pop.backend.models.event.Event
 import hr.foi.pop.backend.models.role.Role
 import hr.foi.pop.backend.utils.encoder
 import org.springframework.util.StringUtils
@@ -24,13 +25,23 @@ class UserBuilder {
         return this
     }
 
-    fun setPassword(password: String): UserBuilder {
-        user.passwordHash = encoder().encode(password)
+    fun setEmail(email: String): UserBuilder {
+        user.email = email
         return this
     }
 
     fun setRole(role: Role): UserBuilder {
         user.role = role
+        return this
+    }
+
+    fun setCurrentEvent(currentEvent: Event): UserBuilder {
+        user.event = currentEvent
+        return this
+    }
+
+    fun setPassword(password: String): UserBuilder {
+        user.passwordHash = encoder().encode(password)
         return this
     }
 
@@ -58,6 +69,7 @@ class UserBuilder {
             checkIfBadStringProperty(user.surname, "last name")
             checkIfBadStringProperty(user.username, "username")
             checkIfBadStringProperty(user.passwordHash, "passwordHash")
+            if (user.event == null) appendBadPropertyName("event")
             if (!user.isRoleInitialized) appendBadPropertyName("role")
         } catch (ex: UninitializedPropertyAccessException) {
             val message = ex.message!!

@@ -1,16 +1,21 @@
 package hr.foi.pop.backend.models.user
 
 import hr.foi.pop.backend.exceptions.UserBuilderException
+import hr.foi.pop.backend.repositories.EventRepository
 import hr.foi.pop.backend.utils.MockEntitiesHelper
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
 class UserBuilderTest {
     private val userBuilder = UserBuilder()
     private val mockedUser = MockEntitiesHelper.generateUserEntity()
+
+    @Autowired
+    lateinit var eventRepository: EventRepository
 
     @Test
     fun givenCorrectUserInfo_WhenBuiltViaBuilder_PropertiesEqual() {
@@ -20,6 +25,7 @@ class UserBuilderTest {
         Assertions.assertEquals(mockedUser.username, user.username)
         Assertions.assertEquals(mockedUser.name, user.name)
         Assertions.assertEquals(mockedUser.surname, user.surname)
+        Assertions.assertEquals(mockedUser.email, user.email)
         Assertions.assertEquals(mockedUser.role, user.role)
         assertIsBCryptHash(user.passwordHash)
     }
@@ -29,8 +35,10 @@ class UserBuilderTest {
             .setUsername(mockedUser.username)
             .setFirstName(mockedUser.name)
             .setLastName(mockedUser.surname)
-            .setPassword("readable_password")
+            .setEmail(mockedUser.email)
             .setRole(mockedUser.role)
+            .setCurrentEvent(eventRepository.getEventByIsActiveTrue())
+            .setPassword("readable_password")
 
     private fun assertIsBCryptHash(password: String) {
         Assertions.assertTrue(password.startsWith("\$2a\$10\$"))
