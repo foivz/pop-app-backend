@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 @Table(name = "users")
 class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_user")
     var id: Int = 0
 

@@ -4,7 +4,7 @@ import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.UserCheckException
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.repositories.UserRepository
-import hr.foi.pop.backend.request_bodies.RegisterRequestBody
+import hr.foi.pop.backend.services.templateRequestBodyForTesting
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
@@ -12,14 +12,6 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
-val templateRequestBodyForTesting = RegisterRequestBody(
-    "Tester",
-    "Testermann",
-    "usercheckertest",
-    "tester@usercheckertest.com",
-    "test123",
-    "buyer"
-)
 
 @SpringBootTest
 class UserCheckerTest(@Autowired userRepository: UserRepository) :
