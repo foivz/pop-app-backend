@@ -17,6 +17,7 @@ class User {
     @ManyToOne
     @JoinColumn(name = "roles_id_role")
     lateinit var role: Role
+    val isRoleInitialized get() = ::role.isInitialized
 
     @ManyToOne
     @JoinColumn(name = "stores_id_store")
