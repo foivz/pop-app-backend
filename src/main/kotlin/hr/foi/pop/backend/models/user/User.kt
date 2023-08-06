@@ -25,7 +25,7 @@ class User {
 
     @ManyToOne
     @JoinColumn(name = "events_id_event")
-    var event: Event? = null
+    lateinit var event: Event
 
     @Column(name = "name")
     lateinit var name: String
