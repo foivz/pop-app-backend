@@ -26,6 +26,7 @@ class User {
     @ManyToOne
     @JoinColumn(name = "events_id_event")
     lateinit var event: Event
+    val isEventInitialized get() = ::event.isInitialized
 
     @Column(name = "first_name")
     lateinit var firstName: String

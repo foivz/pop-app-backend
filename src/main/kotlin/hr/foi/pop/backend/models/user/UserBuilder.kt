@@ -69,7 +69,7 @@ class UserBuilder {
             checkIfBadStringProperty(user.lastName, "last name")
             checkIfBadStringProperty(user.username, "username")
             checkIfBadStringProperty(user.passwordHash, "passwordHash")
-            if (user.event == null) appendBadPropertyName("event")
+            if (!user.isEventInitialized) appendBadPropertyName("event")
             if (!user.isRoleInitialized) appendBadPropertyName("role")
         } catch (ex: UninitializedPropertyAccessException) {
             val message = ex.message!!
