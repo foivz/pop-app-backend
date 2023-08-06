@@ -28,6 +28,32 @@ class UserCheckerTest(@Autowired userRepository: UserRepository) :
     }
 
     @Test
+    fun ifUserHasBadFirstName_WhenChecked_Throws() {
+        val firstNameOf1Char = "a"
+        super.user = super.user.copy(firstName = firstNameOf1Char)
+
+        val thrownException = assertThrows<UserCheckException> { super.validateFirstName() }
+        assertExceptionIndicatesFirstNameInvalid(thrownException)
+    }
+
+    private fun assertExceptionIndicatesFirstNameInvalid(ex: UserCheckException) {
+        assertExceptionErrorType(ex, ApplicationErrorType.ERR_FIRSTNAME_INVALID)
+    }
+
+    @Test
+    fun ifUserHasBadLastName_WhenChecked_Throws() {
+        val lastNameOf1Char = "b"
+        super.user = super.user.copy(lastName = lastNameOf1Char)
+
+        val thrownException = assertThrows<UserCheckException> { super.validateLastName() }
+        assertExceptionIndicatesLastNameInvalid(thrownException)
+    }
+
+    private fun assertExceptionIndicatesLastNameInvalid(ex: UserCheckException) {
+        assertExceptionErrorType(ex, ApplicationErrorType.ERR_LASTNAME_INVALID)
+    }
+
+    @Test
     fun ifUserHasBadUsername_WhenChecked_Throws() {
         val usernameSmallerThan4Chars = "bad"
         super.user = super.user.copy(username = usernameSmallerThan4Chars)

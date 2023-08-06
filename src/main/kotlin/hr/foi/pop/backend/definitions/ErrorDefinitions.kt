@@ -10,4 +10,6 @@ enum class ApplicationErrorType(val code: Int) {
     ERR_EMAIL_USED(104),
     ERR_PASSWORD_INVALID(105),
     ERR_ROLE_INVALID(106),
+    ERR_LASTNAME_INVALID(108),
+    ERR_FIRSTNAME_INVALID(107)
 }

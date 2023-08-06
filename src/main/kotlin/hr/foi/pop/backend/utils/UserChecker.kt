@@ -4,17 +4,35 @@ import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.UserCheckException
 import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
+import org.springframework.util.StringUtils
 
 open class UserChecker(protected var user: RegisterRequestBody, protected val userRepository: UserRepository) {
     fun validateUserProperties() {
+        validateFirstName()
+        validateLastName()
         validateUsername()
         validatePassword()
         validateEmail()
         validateRole()
     }
 
+    protected fun validateFirstName() {
+        if (isTooShort(user.firstName, 2) || !hasTextAndNoDigits(user.firstName)) {
+            throw UserCheckException(ApplicationErrorType.ERR_FIRSTNAME_INVALID)
+        }
+    }
+
+    protected fun validateLastName() {
+        if (isTooShort(user.lastName, 2) || !hasTextAndNoDigits(user.lastName)) {
+            throw UserCheckException(ApplicationErrorType.ERR_LASTNAME_INVALID)
+        }
+    }
+
+    private fun isTooShort(string: String, minLength: Int) = string.length < minLength
+    private fun hasTextAndNoDigits(string: String) = StringUtils.hasText(string) && !containsNumbers(string)
+
     protected fun validateUsername() {
-        if (isUsernameTooShort(4) || isUsernameWithoutCharacters()) {
+        if (isUsernameTooShort(4) || isUsernameWithoutLetters()) {
             throw UserCheckException(ApplicationErrorType.ERR_USERNAME_INVALID)
         }
         if (isUsernameUsed()) {
@@ -23,7 +41,7 @@ open class UserChecker(protected var user: RegisterRequestBody, protected val us
     }
 
     private fun isUsernameTooShort(minLength: Int) = user.username.length < minLength
-    private fun isUsernameWithoutCharacters() = !user.username.contains(Regex("[a-zA-Z]"))
+    private fun isUsernameWithoutLetters() = !user.username.contains(Regex("[a-zA-Z]"))
     private fun isUsernameUsed() = userRepository.existsByUsername(user.username)
 
 
@@ -34,8 +52,9 @@ open class UserChecker(protected var user: RegisterRequestBody, protected val us
     }
 
     private fun isPasswordTooShort(minLength: Int) = user.password.length < minLength
-    private fun isPasswordWithoutNumbers() = !user.password.contains(Regex("[0-9]"))
+    private fun isPasswordWithoutNumbers() = !containsNumbers(user.password)
 
+    private fun containsNumbers(string: String) = string.contains(Regex("[0-9]"))
 
     protected fun validateEmail() {
         if (isEmailInvalid()) {
