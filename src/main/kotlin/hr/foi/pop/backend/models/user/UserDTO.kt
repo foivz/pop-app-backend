@@ -2,13 +2,13 @@ package hr.foi.pop.backend.models.user
 
 import java.time.LocalDateTime
 
-class UserDTO(
+data class UserDTO(
     val id: Int,
     val role: String,
     val store: Int?,
     val event: Int,
-    val name: String,
-    val surname: String,
+    val firstName: String,
+    val lastName: String,
     val email: String,
     val username: String,
     val dateOfRegister: LocalDateTime,

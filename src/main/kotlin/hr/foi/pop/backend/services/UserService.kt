@@ -21,7 +21,7 @@ class UserService {
     @Autowired
     lateinit var eventRepository: EventRepository
 
-    fun registerUser(userInfo: RegisterRequestBody) {
+    fun registerUser(userInfo: RegisterRequestBody): User {
         validateUser(userInfo)
 
         val desiredRole = roleRepository.getRoleByName(userInfo.roleValue!!.name.lowercase())
@@ -38,6 +38,7 @@ class UserService {
             .build()
 
         userRepository.save(user)
+        return user
     }
 
     protected fun validateUser(userInfo: RegisterRequestBody) {

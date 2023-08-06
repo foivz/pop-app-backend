@@ -35,8 +35,8 @@ class UserMapper : GenericMapper<UserDTO, User> {
             role = roleRepository.getRoleByName(d.role)
             store = foundStore
             event = eventRepository.getEventById(d.event)
-            name = d.name
-            surname = d.surname
+            name = d.firstName
+            surname = d.lastName
             email = d.email
             username = d.username
             dateOfRegister = d.dateOfRegister

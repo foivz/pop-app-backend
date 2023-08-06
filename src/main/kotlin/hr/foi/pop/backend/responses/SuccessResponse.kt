@@ -1,5 +1,5 @@
 package hr.foi.pop.backend.responses
 
 class SuccessResponse(
-    success: Boolean, message: String, val data: List<*>
-) : Response(success, message)
+    message: String, vararg val data: Any
+) : Response(true, message)

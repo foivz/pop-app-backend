@@ -3,8 +3,8 @@ package hr.foi.pop.backend.responses
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 
 class ErrorResponse(
-    success: Boolean, message: String, error: ApplicationErrorType
-) : Response(success, message) {
+    message: String, error: ApplicationErrorType
+) : Response(false, message) {
 
     val errorCode: Int
     val errorMessage: String
