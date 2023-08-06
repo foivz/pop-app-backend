@@ -41,7 +41,11 @@ class UserBuilder {
     }
 
     fun setPassword(password: String): UserBuilder {
-        user.passwordHash = encoder().encode(password)
+        if (password.isNotBlank()) {
+            user.passwordHash = encoder().encode(password)
+        } else {
+            user.passwordHash = ""
+        }
         return this
     }
 
@@ -67,14 +71,15 @@ class UserBuilder {
         try {
             checkIfBadStringProperty(user.firstName, "first name")
             checkIfBadStringProperty(user.lastName, "last name")
+            checkIfBadStringProperty(user.email, "email")
             checkIfBadStringProperty(user.username, "username")
-            checkIfBadStringProperty(user.passwordHash, "passwordHash")
+            checkIfBadStringProperty(user.passwordHash, "password")
             if (!user.isEventInitialized) appendBadPropertyName("event")
             if (!user.isRoleInitialized) appendBadPropertyName("role")
         } catch (ex: UninitializedPropertyAccessException) {
             val message = ex.message!!
             val messageTrimmedAtStart = message.substringAfter("lateinit property ")
-            val propertyName = messageTrimmedAtStart.substringBefore("has not been initialized")
+            val propertyName = messageTrimmedAtStart.substringBefore(" has not been initialized")
 
             appendBadPropertyName(propertyName)
         }

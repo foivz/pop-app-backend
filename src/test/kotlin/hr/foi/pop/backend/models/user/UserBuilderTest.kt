@@ -11,7 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
 class UserBuilderTest {
-    private val userBuilder = UserBuilder()
     private val mockedUser = MockEntitiesHelper.generateUserEntityWithStore()
 
     @Autowired
@@ -31,7 +30,7 @@ class UserBuilderTest {
     }
 
     private fun getBuilderForMockUser(): UserBuilder =
-        userBuilder
+        UserBuilder()
             .setUsername(mockedUser.username)
             .setFirstName(mockedUser.firstName)
             .setLastName(mockedUser.lastName)
@@ -54,6 +53,32 @@ class UserBuilderTest {
         val thrownException = assertThrows<UserBuilderException> {
             userBuilder.build()
         }
-        assert(thrownException.message == "User has no last name, username set!")
+        Assertions.assertEquals("User has no last name, username set!", thrownException.message)
+    }
+
+    @Test
+    fun givenEmptyBuilder_OnAttemptToBuild_ThrowsUserBuilderExceptionAfterFirstNameAttribute() {
+        val thrownException = assertThrows<UserBuilderException> {
+            UserBuilder().build()
+        }
+        Assertions.assertEquals("User has no firstName set!", thrownException.message)
+    }
+
+    @Test
+    fun givenBuilderWithEmptyStrings_OnAttemptToBuild_ThrowsUserBuilderExceptionWithAllAttributesListed() {
+        val thrownException = assertThrows<UserBuilderException> {
+            UserBuilder()
+                .setFirstName("")
+                .setLastName("")
+                .setPassword("")
+                .setUsername("")
+                .setEmail("")
+                .setPassword("")
+                .build()
+        }
+        Assertions.assertEquals(
+            "User has no first name, last name, email, username, password, event, role set!",
+            thrownException.message
+        )
     }
 }
