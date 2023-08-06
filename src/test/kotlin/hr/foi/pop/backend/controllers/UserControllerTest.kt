@@ -72,8 +72,8 @@ class UserControllerTest {
             .`when`(userService.registerUser(userInfo = mockBodyAsObject))
             .thenReturn(User().apply {
                 id = userMockId
-                name = mockBodyAsObject.firstName
-                surname = mockBodyAsObject.lastName
+                firstName = mockBodyAsObject.firstName
+                lastName = mockBodyAsObject.lastName
                 username = mockBodyAsObject.username
                 email = mockBodyAsObject.email
                 event = Event().apply { id = userMockEventId }

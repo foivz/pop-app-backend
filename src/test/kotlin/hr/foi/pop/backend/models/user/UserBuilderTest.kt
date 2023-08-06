@@ -23,8 +23,8 @@ class UserBuilderTest {
         val user = userBuilder.build()
 
         Assertions.assertEquals(mockedUser.username, user.username)
-        Assertions.assertEquals(mockedUser.name, user.name)
-        Assertions.assertEquals(mockedUser.surname, user.surname)
+        Assertions.assertEquals(mockedUser.firstName, user.firstName)
+        Assertions.assertEquals(mockedUser.lastName, user.lastName)
         Assertions.assertEquals(mockedUser.email, user.email)
         Assertions.assertEquals(mockedUser.role, user.role)
         assertIsBCryptHash(user.passwordHash)
@@ -33,8 +33,8 @@ class UserBuilderTest {
     private fun getBuilderForMockUser(): UserBuilder =
         userBuilder
             .setUsername(mockedUser.username)
-            .setFirstName(mockedUser.name)
-            .setLastName(mockedUser.surname)
+            .setFirstName(mockedUser.firstName)
+            .setLastName(mockedUser.lastName)
             .setEmail(mockedUser.email)
             .setRole(mockedUser.role)
             .setCurrentEvent(eventRepository.getEventByIsActiveTrue())

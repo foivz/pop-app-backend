@@ -30,8 +30,8 @@ class MockEntitiesHelper {
         fun generateUserEntityWithStore(): User {
             return User().apply {
                 this.id = 3
-                this.name = "Tester"
-                this.surname = "Testermann"
+                this.firstName = "Tester"
+                this.lastName = "Testermann"
                 this.email = "tester@test.com"
                 this.passwordHash = "937e8d5fbb48bd4949536cd65b8d35c426b80d2f830c5c308e2cdec422ae2244"
                 this.username = "testerUsername"

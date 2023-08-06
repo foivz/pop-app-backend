@@ -27,11 +27,11 @@ class User {
     @JoinColumn(name = "events_id_event")
     lateinit var event: Event
 
-    @Column(name = "name")
-    lateinit var name: String
+    @Column(name = "first_name")
+    lateinit var firstName: String
 
-    @Column(name = "surname")
-    lateinit var surname: String
+    @Column(name = "last_name")
+    lateinit var lastName: String
 
     @Column(name = "email")
     lateinit var email: String

@@ -14,7 +14,8 @@ VALUES ('buyer'),
        ('seller'),
        ('admin');
 
-INSERT INTO `popapp_db`.`users` (`roles_id_role`, `events_id_event`, `stores_id_store`, `name`, `surname`, `email`,
+INSERT INTO `popapp_db`.`users` (`roles_id_role`, `events_id_event`, `stores_id_store`, `first_name`, `last_name`,
+                                 `email`,
                                  `username`, `password_hash`, `date_registered`, `balance`,
                                  `is_accepted`)
 VALUES (3, 1, 1, 'Catherine', 'Velasquez', 'cvelasquez@pop.app', 'cvelasquez',

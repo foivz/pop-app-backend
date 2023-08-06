@@ -11,12 +11,12 @@ class UserBuilder {
     private val user = User()
 
     fun setFirstName(firstName: String): UserBuilder {
-        user.name = firstName
+        user.firstName = firstName
         return this
     }
 
     fun setLastName(lastName: String): UserBuilder {
-        user.surname = lastName
+        user.lastName = lastName
         return this
     }
 
@@ -65,8 +65,8 @@ class UserBuilder {
         }
 
         try {
-            checkIfBadStringProperty(user.name, "first name")
-            checkIfBadStringProperty(user.surname, "last name")
+            checkIfBadStringProperty(user.firstName, "first name")
+            checkIfBadStringProperty(user.lastName, "last name")
             checkIfBadStringProperty(user.username, "username")
             checkIfBadStringProperty(user.passwordHash, "passwordHash")
             if (user.event == null) appendBadPropertyName("event")

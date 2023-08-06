@@ -16,6 +16,6 @@ class UserRepositoryTest {
     @Test
     fun findById_whenGivenIdOfOne_shouldReturnCatherineVelasquez() {
         val user: Optional<User> = userRepository.findById(1)
-        Assertions.assertTrue(user.isPresent && user.get().name == "Catherine" && user.get().surname == "Velasquez")
+        Assertions.assertTrue(user.isPresent && user.get().firstName == "Catherine" && user.get().lastName == "Velasquez")
     }
 }

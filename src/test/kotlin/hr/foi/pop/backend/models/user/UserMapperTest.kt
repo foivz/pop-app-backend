@@ -16,8 +16,8 @@ class UserMapperTest {
         val userDto = userMapper.mapDto(user)
 
         Assertions.assertEquals(user.id, userDto.id)
-        Assertions.assertEquals(user.name, userDto.firstName)
-        Assertions.assertEquals(user.surname, userDto.lastName)
+        Assertions.assertEquals(user.firstName, userDto.firstName)
+        Assertions.assertEquals(user.lastName, userDto.lastName)
         Assertions.assertEquals(user.email, userDto.email)
         Assertions.assertEquals(user.username, userDto.username)
         Assertions.assertEquals(user.dateOfRegister, userDto.dateOfRegister)
