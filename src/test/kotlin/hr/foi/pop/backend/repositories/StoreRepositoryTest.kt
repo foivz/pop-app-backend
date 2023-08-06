@@ -1,9 +1,11 @@
 package hr.foi.pop.backend.repositories
 
+import hr.foi.pop.backend.utils.MockEntitiesHelper
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest
 class StoreRepositoryTest {
@@ -16,5 +18,16 @@ class StoreRepositoryTest {
             it.event.isActive
         }
         Assertions.assertEquals(2, activeEvents)
+    }
+
+    @Test
+    @Transactional
+    fun givenStoreExists_WhenRetrievedById_ShouldReturnStore() {
+        val store = MockEntitiesHelper.generateStoreEntity()
+
+        storeRepository.save(store)
+
+        val retrievedStore = storeRepository.getStoreById(store.id)
+        Assertions.assertNotNull(retrievedStore)
     }
 }
