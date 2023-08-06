@@ -20,7 +20,7 @@ class UserMapper : GenericMapper<UserDTO, User> {
 
     override fun mapDto(e: User): UserDTO {
         return UserDTO(
-            e.id, e.role.id, e.store?.id, e.event.id, e.name, e.surname,
+            e.id, e.role.name, e.store?.id, e.event.id, e.name, e.surname,
             e.email, e.username, e.dateOfRegister, e.balance, e.isAccepted
         )
     }
@@ -32,7 +32,7 @@ class UserMapper : GenericMapper<UserDTO, User> {
         }
         return User().apply {
             id = d.id
-            role = roleRepository.getRoleById(d.role)
+            role = roleRepository.getRoleByName(d.role)
             store = foundStore
             event = eventRepository.getEventById(d.event)
             name = d.name

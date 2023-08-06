@@ -22,7 +22,7 @@ class UserMapperTest {
         Assertions.assertEquals(user.username, userDto.username)
         Assertions.assertEquals(user.dateOfRegister, userDto.dateOfRegister)
         Assertions.assertEquals(user.event.id, userDto.event)
-        Assertions.assertEquals(user.role.id, userDto.role)
+        Assertions.assertEquals(user.role.name, userDto.role)
         Assertions.assertEquals(user.store!!.id, userDto.store)
     }
 }

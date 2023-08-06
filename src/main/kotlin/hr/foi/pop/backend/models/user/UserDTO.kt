@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 
 class UserDTO(
     val id: Int,
-    val role: Int,
+    val role: String,
     val store: Int?,
     val event: Int,
     val name: String,
