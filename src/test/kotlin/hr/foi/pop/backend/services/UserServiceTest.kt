@@ -64,7 +64,7 @@ class UserServiceTest {
     private fun assertUserBelongsToCurrentEvent(user: User) {
         val currentEvent = eventRepository.getEventByIsActiveTrue()
 
-        Assertions.assertEquals(currentEvent.id, user.event?.id)
+        Assertions.assertEquals(currentEvent.id, user.event.id)
     }
 
     private fun assertUserRegisteredJustNow(user: User) {

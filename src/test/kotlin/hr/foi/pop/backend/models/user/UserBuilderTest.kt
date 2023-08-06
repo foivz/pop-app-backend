@@ -12,7 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest
 @SpringBootTest
 class UserBuilderTest {
     private val userBuilder = UserBuilder()
-    private val mockedUser = MockEntitiesHelper.generateUserEntity()
+    private val mockedUser = MockEntitiesHelper.generateUserEntityWithStore()
 
     @Autowired
     lateinit var eventRepository: EventRepository

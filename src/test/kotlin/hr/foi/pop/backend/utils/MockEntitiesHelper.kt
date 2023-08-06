@@ -27,7 +27,7 @@ class MockEntitiesHelper {
             }
         }
 
-        fun generateUserEntity(): User {
+        fun generateUserEntityWithStore(): User {
             return User().apply {
                 this.id = 3
                 this.name = "Tester"
@@ -58,7 +58,7 @@ class MockEntitiesHelper {
                 this.id = 3
                 this.code = "INV003"
                 this.dateIssue = LocalDateTime.now()
-                this.user = generateUserEntity()
+                this.user = generateUserEntityWithStore()
                 this.store = generateStoreEntity()
                 this.total = 20
                 this.discount = 350
