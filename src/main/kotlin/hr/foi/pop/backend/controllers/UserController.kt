@@ -33,7 +33,7 @@ class UserController {
 
         } catch (ex: NullPointerException) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse("User not in correct format!", ApplicationErrorType.ERR_BAD_REQUEST))
+                .body(ErrorResponse("User not in correct format!", ApplicationErrorType.ERR_BAD_BODY))
         }
 
     }
