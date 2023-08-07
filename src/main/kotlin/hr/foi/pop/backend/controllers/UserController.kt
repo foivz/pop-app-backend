@@ -39,7 +39,7 @@ class UserController {
                 .body(ErrorResponse("User not in correct format!", ApplicationErrorType.ERR_BAD_REQUEST))
         } catch (ex: UserCheckException) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse("Could not register passed user!", ex.error))
+                .body(ErrorResponse("Could not register user!", ex.error))
         }
 
     }
