@@ -10,10 +10,7 @@ import hr.foi.pop.backend.services.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v2/users")
@@ -37,11 +34,14 @@ class UserController {
         } catch (ex: NullPointerException) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse("User not in correct format!", ApplicationErrorType.ERR_BAD_REQUEST))
-        } catch (ex: UserCheckException) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse("Could not register user!", ex.error))
         }
 
+    }
+
+    @ExceptionHandler(UserCheckException::class)
+    fun handleBadRegistrationRequestBody(ex: UserCheckException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse("Could not register user!", ex.error))
     }
 
 }
