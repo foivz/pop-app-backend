@@ -1,5 +1,6 @@
 package hr.foi.pop.backend.request_bodies
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import hr.foi.pop.backend.definitions.RegisterAllowedRole
 
 data class RegisterRequestBody(
@@ -11,6 +12,7 @@ data class RegisterRequestBody(
     private val role: String
 ) {
 
+    @JsonProperty("role")
     val roleValue: RegisterAllowedRole?
 
     init {
