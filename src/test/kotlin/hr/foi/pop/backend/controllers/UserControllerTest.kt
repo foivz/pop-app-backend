@@ -9,8 +9,8 @@ import hr.foi.pop.backend.models.role.Role
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.services.UserService
+import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.matches
 import org.mockito.Mockito
 import org.mockito.kotlin.any
 import org.springframework.beans.factory.annotation.Autowired
@@ -88,20 +88,12 @@ class UserControllerTest {
 
         val request = getRequestObjectWithJSONBody(body)
 
-        val mockBodyAsObject = RegisterRequestBody(
-            "Ivan",
-            "Horvat",
-            "ihorvat",
-            "ihorvat@foi.hr",
-            "test123",
-            "buyer"
-        )
         val userMockId = 1
         val userMockEventId = 1
         val userMockDateOfRegister = LocalDateTime.now()
 
         Mockito
-            .`when`(userService.registerUser(userInfo = mockBodyAsObject))
+            .`when`(userService.registerUser(any()))
             .thenReturn(User().apply {
                 id = userMockId
                 firstName = mockBodyAsObject.firstName
@@ -116,7 +108,7 @@ class UserControllerTest {
         mockMvc.perform(request)
             .andExpect(status().isCreated)
             .andExpect(jsonPath("success").value(true))
-            .andExpect(jsonPath("message").value(matches("User \\\"ihorvat\\\" registered with ID $userMockId.")))
+            .andExpect(jsonPath("message").value(Matchers.matchesPattern("User \"ihorvat\" registered with ID $userMockId.")))
             .andExpect(jsonPath("data[0].id").isNumber)
             .andExpect(jsonPath("data[0].role").value("buyer"))
             .andExpect(jsonPath("data[0].store").value(null))
