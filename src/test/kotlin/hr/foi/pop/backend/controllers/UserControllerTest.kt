@@ -5,8 +5,9 @@ import hr.foi.pop.backend.models.role.Role
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.services.UserService
-import org.hamcrest.Matchers.matchesPattern
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.matches
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -84,7 +85,7 @@ class UserControllerTest {
         mockMvc.perform(request)
             .andExpect(status().isCreated)
             .andExpect(jsonPath("success").value(true))
-            .andExpect(jsonPath("message").value(matchesPattern("User \\\"ihorvat\\\" registered with ID $userMockId.")))
+            .andExpect(jsonPath("message").value(matches("User \\\"ihorvat\\\" registered with ID $userMockId.")))
             .andExpect(jsonPath("data[0].id").isNumber)
             .andExpect(jsonPath("data[0].role").value("buyer"))
             .andExpect(jsonPath("data[0].store").value(null))
