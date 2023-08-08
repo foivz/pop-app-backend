@@ -10,13 +10,14 @@ import java.time.LocalDateTime
 @Table(name = "users")
 class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_user")
     var id: Int = 0
 
     @ManyToOne
     @JoinColumn(name = "roles_id_role")
     lateinit var role: Role
+    val isRoleInitialized get() = ::role.isInitialized
 
     @ManyToOne
     @JoinColumn(name = "stores_id_store")
@@ -24,22 +25,20 @@ class User {
 
     @ManyToOne
     @JoinColumn(name = "events_id_event")
-    var event: Event? = null
+    lateinit var event: Event
+    val isEventInitialized get() = ::event.isInitialized
 
-    @Column(name = "name")
-    lateinit var name: String
+    @Column(name = "first_name")
+    lateinit var firstName: String
 
-    @Column(name = "surname")
-    lateinit var surname: String
+    @Column(name = "last_name")
+    lateinit var lastName: String
 
     @Column(name = "email")
     lateinit var email: String
 
     @Column(name = "username")
     lateinit var username: String
-
-    @Column(name = "password_salt")
-    lateinit var passwordSalt: String
 
     @Column(name = "password_hash")
     lateinit var passwordHash: String

@@ -27,15 +27,14 @@ class MockEntitiesHelper {
             }
         }
 
-        fun generateUserEntity(): User {
+        fun generateUserEntityWithStore(): User {
             return User().apply {
                 this.id = 3
-                this.name = "Dayton"
-                this.surname = "Huff"
-                this.email = "dhuff@pop.app"
-                this.passwordSalt = "d125a874318684c7d491a20acbd3b879"
+                this.firstName = "Tester"
+                this.lastName = "Testermann"
+                this.email = "tester@test.com"
                 this.passwordHash = "937e8d5fbb48bd4949536cd65b8d35c426b80d2f830c5c308e2cdec422ae2244"
-                this.username = "dhuff"
+                this.username = "testerUsername"
                 this.isAccepted = true
                 this.balance = 300
                 this.role = generateRoleEntity()
@@ -59,7 +58,7 @@ class MockEntitiesHelper {
                 this.id = 3
                 this.code = "INV003"
                 this.dateIssue = LocalDateTime.now()
-                this.user = generateUserEntity()
+                this.user = generateUserEntityWithStore()
                 this.store = generateStoreEntity()
                 this.total = 20
                 this.discount = 350

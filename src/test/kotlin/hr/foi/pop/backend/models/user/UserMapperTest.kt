@@ -11,18 +11,18 @@ class UserMapperTest {
 
     @Test
     fun whenUserDTOMapped_CheckUserAttributes_AreEqual() {
-        val user = MockEntitiesHelper.generateUserEntity()
+        val user = MockEntitiesHelper.generateUserEntityWithStore()
 
         val userDto = userMapper.mapDto(user)
 
-        Assertions.assertTrue(
-            user.id == userDto.id &&
-                    user.name == userDto.name &&
-                    user.surname == userDto.surname &&
-                    user.email == userDto.email &&
-                    user.username == userDto.username &&
-                    user.dateOfRegister == userDto.dateOfRegister &&
-                    userDto.role.id == 1
-        )
+        Assertions.assertEquals(user.id, userDto.id)
+        Assertions.assertEquals(user.firstName, userDto.firstName)
+        Assertions.assertEquals(user.lastName, userDto.lastName)
+        Assertions.assertEquals(user.email, userDto.email)
+        Assertions.assertEquals(user.username, userDto.username)
+        Assertions.assertEquals(user.dateOfRegister, userDto.dateOfRegister)
+        Assertions.assertEquals(user.event.id, userDto.event)
+        Assertions.assertEquals(user.role.name, userDto.role)
+        Assertions.assertEquals(user.store!!.id, userDto.store)
     }
 }
