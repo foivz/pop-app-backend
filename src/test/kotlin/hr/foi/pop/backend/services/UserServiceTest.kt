@@ -1,16 +1,14 @@
 package hr.foi.pop.backend.services
 
+import hr.foi.pop.backend.exceptions.UserAuthenticationException
 import hr.foi.pop.backend.exceptions.UserCheckException
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.repositories.EventRepository
 import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
 import java.time.LocalDateTime
 
@@ -24,6 +22,7 @@ val templateRequestBodyForTesting = RegisterRequestBody(
 )
 
 @SpringBootTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UserServiceTest {
     @Autowired
     private lateinit var userRepository: UserRepository
@@ -34,24 +33,13 @@ class UserServiceTest {
     @Autowired
     private lateinit var eventRepository: EventRepository
 
-    @Test
-    @Transactional
-    fun whenCorrectUserPassedIn_onRegister_NewRecordPersisted() {
+    @BeforeAll
+    fun givenValidUserInformation_OnRegister_NewRecordPersistedWithCorrectData() {
         Assertions.assertFalse(userRepository.existsByUsername(templateRequestBodyForTesting.username))
 
         userService.registerUser(templateRequestBodyForTesting)
-
-        Assertions.assertTrue(userRepository.existsByUsername(templateRequestBodyForTesting.username))
-    }
-
-    @Test
-    @Transactional
-    fun whenCorrectUserPassedIn_onRegister_InfoValid() {
-        Assertions.assertFalse(userRepository.existsByUsername(templateRequestBodyForTesting.username))
-
-        userService.registerUser(templateRequestBodyForTesting)
-
         val user = userRepository.getUserByUsername(templateRequestBodyForTesting.username)
+
         Assertions.assertNotNull(user)
         user?.let {
             assertUserBelongsToCurrentEvent(user)
@@ -83,6 +71,54 @@ class UserServiceTest {
 
     private fun assertUserNotAccepted(user: User) {
         Assertions.assertFalse(user.isAccepted)
+    }
+
+    @Test
+    fun whenUserWantsToLogInWithCorrectPassword_OnLogin_GetValidJWT() {
+        Assertions.assertTrue(userRepository.existsByUsername(templateRequestBodyForTesting.username))
+        val correctUsername = templateRequestBodyForTesting.username
+        val correctPassword = templateRequestBodyForTesting.password
+        val jwt: String = userService.authenticateAndGenerateJWT(correctUsername, correctPassword)
+        assertJwtLooksFine(jwt)
+    }
+
+    private fun assertJwtLooksFine(jwt: String) {
+        Assertions.assertTrue(jwt.length > 10)
+        val jwtParts = jwt.split('.')
+        Assertions.assertEquals(3, jwtParts.size, "JWT doesn't have 3 parts!")
+        Assertions.assertEquals(36, jwtParts[0].length, "JWT's first part incorrect in size!")
+        Assertions.assertFalse(jwtParts[1].length <= 10, "JWT's second part too short!")
+        Assertions.assertFalse(jwtParts[2].length <= 20, "JWT's third part too short!")
+    }
+
+    @Test
+    fun whenUserWantsToLogInWithIncorrectPassword_OnLoginAttempt_ThrowException() {
+        val correctUsername = templateRequestBodyForTesting.username
+        val badPassword = "bad password"
+
+        assertExceptionGetsThrownForBadLogin(correctUsername, badPassword)
+    }
+
+    @Test
+    fun whenNonExistentUserTriesToLogIn_OnLoginAttempt_ThrowException() {
+        val nonExistentUsername = "nonexistent tester user"
+        val password = "password of non existent user"
+
+        assertExceptionGetsThrownForBadLogin(nonExistentUsername, password)
+    }
+
+    private fun assertExceptionGetsThrownForBadLogin(username: String, password: String) {
+        val thrownException = assertThrows<UserAuthenticationException> {
+            userService.authenticateAndGenerateJWT(
+                username,
+                password
+            )
+        }
+        assertAuthenticationExceptionDescribesError(thrownException)
+    }
+
+    private fun assertAuthenticationExceptionDescribesError(ex: UserAuthenticationException) {
+        Assertions.assertEquals("Please check your credentials!", ex.message)
     }
 
     @Test
