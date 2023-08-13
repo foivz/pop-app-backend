@@ -10,27 +10,49 @@ import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.services.UserService
 import org.hamcrest.Matchers
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.mockito.Mockito
 import org.mockito.kotlin.any
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithAnonymousUser
+import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
+import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.web.context.WebApplicationContext
 import java.time.LocalDateTime
 
+
+@WithMockUser("tester")
 @WebMvcTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UserControllerTest {
     companion object {
         const val route = "/api/v2/users"
     }
 
     @Autowired
-    lateinit var mockMvc: MockMvc
+    lateinit var context: WebApplicationContext
+
+    private lateinit var mvc: MockMvc
+
+    @BeforeAll
+    fun setup() {
+        mvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply<DefaultMockMvcBuilder>(springSecurity())
+            .build()
+    }
 
     @MockBean
     lateinit var userService: UserService
@@ -45,9 +67,18 @@ class UserControllerTest {
     )
 
     @Test
+    @WithAnonymousUser
+    fun onAnonymousUser_triesToSendRequest_Status401() {
+        mvc.perform(
+            MockMvcRequestBuilders.post(route).with(csrf())
+        ).andExpect(status().isUnauthorized)
+    }
+
+    @Test
     fun onRegisterRequest_WhenNoRequestSent_Status400() {
-        mockMvc.perform(MockMvcRequestBuilders.post(route))
-            .andExpect(status().isBadRequest)
+        mvc.perform(
+            MockMvcRequestBuilders.post(route).with(csrf())
+        ).andExpect(status().isBadRequest)
     }
 
     @Test
@@ -56,7 +87,7 @@ class UserControllerTest {
 
         val request = getRequestObjectWithJSONBody(body)
 
-        mockMvc.perform(request).andExpect(status().isBadRequest)
+        mvc.perform(request).andExpect(status().isBadRequest)
     }
 
     @Test
@@ -73,7 +104,7 @@ class UserControllerTest {
             .`when`(userService.registerUser(any()))
             .thenThrow(UserCheckException(ApplicationErrorType.ERR_LASTNAME_INVALID))
 
-        mockMvc.perform(request)
+        mvc.perform(request)
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("success").value(false))
             .andExpect(jsonPath("error_code").value(ApplicationErrorType.ERR_LASTNAME_INVALID.code))
@@ -105,7 +136,7 @@ class UserControllerTest {
                 dateOfRegister = userMockDateOfRegister
             })
 
-        mockMvc.perform(request)
+        mvc.perform(request)
             .andExpect(status().isCreated)
             .andExpect(jsonPath("success").value(true))
             .andExpect(jsonPath("message").value(Matchers.matchesPattern("User \"ihorvat\" registered with ID $userMockId.")))
@@ -124,6 +155,7 @@ class UserControllerTest {
 
     private fun getRequestObjectWithJSONBody(jsonBody: String) = MockMvcRequestBuilders
         .post(route)
+        .with(csrf())
         .content(jsonBody)
         .contentType(MediaType.APPLICATION_JSON)
 }

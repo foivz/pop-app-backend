@@ -3,7 +3,7 @@ package hr.foi.pop.backend.models.user
 import hr.foi.pop.backend.exceptions.UserBuilderException
 import hr.foi.pop.backend.models.event.Event
 import hr.foi.pop.backend.models.role.Role
-import hr.foi.pop.backend.utils.encoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.util.StringUtils
 import java.time.LocalDateTime
 
@@ -40,9 +40,9 @@ class UserBuilder {
         return this
     }
 
-    fun setPassword(password: String): UserBuilder {
+    fun setPassword(password: String, encoder: PasswordEncoder): UserBuilder {
         if (password.isNotBlank()) {
-            user.passwordHash = encoder().encode(password)
+            user.passwordHash = encoder.encode(password)
         } else {
             user.passwordHash = ""
         }

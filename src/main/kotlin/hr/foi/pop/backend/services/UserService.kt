@@ -7,21 +7,31 @@ import hr.foi.pop.backend.repositories.EventRepository
 import hr.foi.pop.backend.repositories.RoleRepository
 import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
+import hr.foi.pop.backend.security.jwt.JwtUtils
 import hr.foi.pop.backend.utils.UserChecker
-import hr.foi.pop.backend.utils.encoder
+import hr.foi.pop.backend.utils.passwordEncoder
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.core.userdetails.UsernameNotFoundException
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
-class UserService {
+class UserService : UserDetailsService {
     @Autowired
-    lateinit var userRepository: UserRepository
+    private lateinit var userRepository: UserRepository
 
     @Autowired
-    lateinit var roleRepository: RoleRepository
+    private lateinit var roleRepository: RoleRepository
 
     @Autowired
-    lateinit var eventRepository: EventRepository
+    private lateinit var eventRepository: EventRepository
+
+    @Autowired
+    private lateinit var jwtUtils: JwtUtils
+
+    private val passwordEncoder: PasswordEncoder = passwordEncoder()
 
     fun registerUser(userInfo: RegisterRequestBody): User {
         validateUser(userInfo)
@@ -36,7 +46,7 @@ class UserService {
             .setEmail(userInfo.email)
             .setRole(desiredRole)
             .setCurrentEvent(currentEvent)
-            .setPassword(userInfo.password)
+            .setPassword(userInfo.password, passwordEncoder)
             .build()
 
         userRepository.save(user)
@@ -49,12 +59,12 @@ class UserService {
 
     fun authenticateAndGenerateJWT(username: String, password: String): String {
         val user = authenticate(username, password)
-        return generateJWT(user.id)
+        return generateJWT(user)
     }
 
     private fun authenticate(providedUsername: String, providedPassword: String): User {
         val user = userRepository.getUserByUsername(providedUsername) ?: throw UserAuthenticationException()
-        val encoder = encoder()
+        val encoder = passwordEncoder
 
         val isAuthenticated = encoder.matches(providedPassword, user.passwordHash)
 
@@ -65,8 +75,12 @@ class UserService {
         }
     }
 
-    private fun generateJWT(userId: Int): String {
-        // TODO Generate and return a valid JWT
-        return ""
+    private fun generateJWT(user: User): String {
+        return jwtUtils.generateJwtToken(user)
+    }
+
+    override fun loadUserByUsername(username: String): UserDetails {
+        return userRepository.getUserByUsername(username)
+            ?: throw UsernameNotFoundException("User '$username' not found!")
     }
 }
