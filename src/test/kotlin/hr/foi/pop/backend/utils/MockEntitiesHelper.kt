@@ -33,7 +33,7 @@ class MockEntitiesHelper {
                 this.firstName = "Tester"
                 this.lastName = "Testermann"
                 this.email = "tester@test.com"
-                this.passwordHash = "937e8d5fbb48bd4949536cd65b8d35c426b80d2f830c5c308e2cdec422ae2244"
+                this.passwordHash = "\$2a\$10\$FfiydZ0lGFvgs288gbAhmeOBaF9h.kfgjmtkJcowuWUTdLB1Tl4gG"
                 this.username = "testerUsername"
                 this.isAccepted = true
                 this.balance = 300
