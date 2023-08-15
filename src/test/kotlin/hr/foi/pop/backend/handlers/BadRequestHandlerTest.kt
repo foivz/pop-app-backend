@@ -36,6 +36,6 @@ class BadRequestHandlerTest {
     }
 
     private fun buildPostRequest(): MockHttpServletRequestBuilder {
-        return MockMvcRequestBuilders.post(UserControllerTest.route).with(csrf())
+        return MockMvcRequestBuilders.post(UserControllerTest.registerRoute).with(csrf())
     }
 }

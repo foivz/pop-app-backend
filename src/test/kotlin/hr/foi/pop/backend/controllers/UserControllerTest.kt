@@ -38,7 +38,7 @@ import java.time.LocalDateTime
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UserControllerTest {
     companion object {
-        const val route = "/api/v2/users"
+        const val registerRoute = "/api/v2/auth/register"
     }
 
     @Autowired
@@ -70,14 +70,14 @@ class UserControllerTest {
     @WithAnonymousUser
     fun onAnonymousUser_triesToSendRequest_Status401() {
         mvc.perform(
-            MockMvcRequestBuilders.post(route).with(csrf())
+            MockMvcRequestBuilders.post(registerRoute).with(csrf())
         ).andExpect(status().isUnauthorized)
     }
 
     @Test
     fun onRegisterRequest_WhenNoRequestSent_Status400() {
         mvc.perform(
-            MockMvcRequestBuilders.post(route).with(csrf())
+            MockMvcRequestBuilders.post(registerRoute).with(csrf())
         ).andExpect(status().isBadRequest)
     }
 
@@ -154,7 +154,7 @@ class UserControllerTest {
     }
 
     private fun getRequestObjectWithJSONBody(jsonBody: String) = MockMvcRequestBuilders
-        .post(route)
+        .post(registerRoute)
         .with(csrf())
         .content(jsonBody)
         .contentType(MediaType.APPLICATION_JSON)

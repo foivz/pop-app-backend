@@ -13,12 +13,12 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/v2/users")
+@RequestMapping("/api/v2/auth")
 class UserController {
     @Autowired
     lateinit var userService: UserService
 
-    @PostMapping
+    @PostMapping("register")
     fun registerUser(@RequestBody request: RegisterRequestBody?): ResponseEntity<*> {
 
         return try {
