@@ -1,7 +1,7 @@
 package hr.foi.pop.backend.handlers
 
 import hr.foi.pop.backend.controllers.UserController
-import hr.foi.pop.backend.controllers.UserControllerTest
+import hr.foi.pop.backend.controllers.UserControllerRegistrationTest
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.services.UserService
 import org.junit.jupiter.api.Test
@@ -38,6 +38,6 @@ class BadRequestHandlerTest {
     }
 
     private fun buildPostRequest(): MockHttpServletRequestBuilder {
-        return MockMvcRequestBuilders.post(UserControllerTest.registerRoute).with(csrf())
+        return MockMvcRequestBuilders.post(UserControllerRegistrationTest.registerRoute).with(csrf())
     }
 }

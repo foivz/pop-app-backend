@@ -3,7 +3,6 @@ package hr.foi.pop.backend.controllers
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import hr.foi.pop.backend.definitions.ApplicationErrorType
-import hr.foi.pop.backend.request_bodies.LoginRequestBody
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.utils.DateMatcher
 import org.hamcrest.Matchers
@@ -29,10 +28,18 @@ import java.time.LocalDateTime
 @WithMockUser("tester")
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class UserControllerTest {
+class UserControllerRegistrationTest {
     companion object {
         const val registerRoute = "/api/v2/auth/register"
-        const val loginRoute = "/api/v2/auth/login"
+
+        val mockRegisterBodyAsObject = RegisterRequestBody(
+            "Ivan",
+            "Horvat",
+            "ihorvat",
+            "ihorvat@foi.hr",
+            "test123",
+            "buyer"
+        )
     }
 
     @Autowired
@@ -47,20 +54,6 @@ class UserControllerTest {
             .apply<DefaultMockMvcBuilder>(springSecurity())
             .build()
     }
-
-    private val mockRegisterBodyAsObject = RegisterRequestBody(
-        "Ivan",
-        "Horvat",
-        "ihorvat",
-        "ihorvat@foi.hr",
-        "test123",
-        "buyer"
-    )
-
-    private val mockLoginBodyAsObject = LoginRequestBody(
-        mockRegisterBodyAsObject.username,
-        mockRegisterBodyAsObject.password
-    )
 
     private val badJSON = "{\"random\": \"Object\"}"
 
@@ -123,36 +116,9 @@ class UserControllerTest {
             .andExpect(jsonPath("data[0].is_accepted").value(false))
     }
 
-    private fun getRequestObjectWithJSONBody(jsonBody: String, route: String = registerRoute) = MockMvcRequestBuilders
-        .post(route)
+    private fun getRequestObjectWithJSONBody(jsonBody: String) = MockMvcRequestBuilders
+        .post(registerRoute)
         .with(csrf())
         .content(jsonBody)
         .contentType(MediaType.APPLICATION_JSON)
-
-    @Test
-    fun givenInvalidBodyJSON_whenLoginRouteHit_returnError400() {
-        val request = getRequestObjectWithJSONBody(badJSON, loginRoute)
-
-        mvc.perform(request).andExpect(status().isBadRequest)
-    }
-
-    @Test
-    fun givenNonAcceptedCorrectUser_whenLoginRouteHit_returnValidJWTAndWarningMessage() {
-        val body = getJsonFromObject(mockLoginBodyAsObject)
-        val request = getRequestObjectWithJSONBody(body, loginRoute)
-
-        mvc.perform(request)
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("message").value(Matchers.matchesPattern("User \"${mockRegisterBodyAsObject.username}\" logged in with warnings.")))
-            .andExpect(jsonPath("error_code").value(ApplicationErrorType.WARN_STORE_NOT_SET.code))
-            .andExpect(jsonPath("error_message").value(ApplicationErrorType.WARN_STORE_NOT_SET.name))
-            .andExpect(jsonPath("data[0].id").isNumber)
-            .andExpect(jsonPath("data[0].role").value("buyer"))
-            .andExpect(jsonPath("data[0].store").isEmpty)
-            .andExpect(jsonPath("data[0].first_name").value("Ivan"))
-            .andExpect(jsonPath("data[0].last_name").value("Horvat"))
-            .andExpect(jsonPath("data[0].email").value("ihorvat@foi.hr"))
-            .andExpect(jsonPath("data[0].username").value("ihorvat"))
-            .andExpect(jsonPath("data[0].is_accepted").value(true))
-    }
 }
