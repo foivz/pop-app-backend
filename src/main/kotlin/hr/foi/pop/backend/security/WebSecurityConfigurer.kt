@@ -63,8 +63,10 @@ class WebSecurityConfigurer {
             .exceptionHandling { exception -> exception.authenticationEntryPoint(unauthorizedHandler) }
             .sessionManagement { session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
-                auth.requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll()
-                auth.requestMatchers(HttpMethod.POST, "/api/v2/users").permitAll()
+                auth
+                    .requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/v2/auth/**").permitAll()
+                    .anyRequest().authenticated()
             }
 
         http.authenticationProvider(authenticationProvider())
