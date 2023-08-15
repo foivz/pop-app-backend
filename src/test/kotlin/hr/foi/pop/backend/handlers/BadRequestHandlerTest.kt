@@ -28,7 +28,9 @@ class BadRequestHandlerTest {
     @Test
     @WithMockUser("tester")
     fun givenNonParseableJsonObjectForUserRegistrationRequest_WhenCatched_ProperMessageReturned() {
-        mockMvc.perform(buildPostRequest())
+        val request = buildPostRequest()
+
+        mockMvc.perform(request)
             .andExpect(MockMvcResultMatchers.status().isBadRequest)
             .andExpect(MockMvcResultMatchers.jsonPath("success").value(false))
             .andExpect(MockMvcResultMatchers.jsonPath("error_code").value(ApplicationErrorType.ERR_BAD_BODY.code))
