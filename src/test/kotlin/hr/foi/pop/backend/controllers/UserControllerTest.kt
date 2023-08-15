@@ -121,20 +121,7 @@ class UserControllerTest {
 
         val userMockId = 1
         val userMockEventId = 1
-        val userMockDateOfRegister = LocalDateTime.now()
-
-        Mockito
-            .`when`(userService.registerUser(any()))
-            .thenReturn(User().apply {
-                id = userMockId
-                firstName = mockBodyAsObject.firstName
-                lastName = mockBodyAsObject.lastName
-                username = mockBodyAsObject.username
-                email = mockBodyAsObject.email
-                event = Event().apply { id = userMockEventId }
-                role = Role().apply { name = mockBodyAsObject.roleValue!!.name.lowercase() }
-                dateOfRegister = userMockDateOfRegister
-            })
+        val mockRegDate = LocalDateTime.now()
 
         mvc.perform(request)
             .andExpect(status().isCreated)
@@ -148,7 +135,7 @@ class UserControllerTest {
             .andExpect(jsonPath("data[0].last_name").value("Horvat"))
             .andExpect(jsonPath("data[0].email").value("ihorvat@foi.hr"))
             .andExpect(jsonPath("data[0].username").value("ihorvat"))
-            .andExpect(jsonPath("data[0].date_of_register").value(userMockDateOfRegister.toString().removeSuffix("00")))
+            .andExpect(jsonPath("data[0].date_of_register", DateMatcher(mockRegDate, 500)))
             .andExpect(jsonPath("data[0].balance").value(0))
             .andExpect(jsonPath("data[0].is_accepted").value(false))
     }
