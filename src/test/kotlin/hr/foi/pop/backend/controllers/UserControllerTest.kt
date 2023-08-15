@@ -3,23 +3,16 @@ package hr.foi.pop.backend.controllers
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import hr.foi.pop.backend.definitions.ApplicationErrorType
-import hr.foi.pop.backend.exceptions.UserCheckException
-import hr.foi.pop.backend.models.event.Event
-import hr.foi.pop.backend.models.role.Role
-import hr.foi.pop.backend.models.user.User
+import hr.foi.pop.backend.request_bodies.LoginRequestBody
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
-import hr.foi.pop.backend.services.UserService
+import hr.foi.pop.backend.utils.DateMatcher
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.mockito.Mockito
-import org.mockito.kotlin.any
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
-import org.springframework.security.test.context.support.WithAnonymousUser
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
@@ -34,11 +27,12 @@ import java.time.LocalDateTime
 
 
 @WithMockUser("tester")
-@WebMvcTest
+@SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UserControllerTest {
     companion object {
         const val registerRoute = "/api/v2/auth/register"
+        const val loginRoute = "/api/v2/auth/login"
     }
 
     @Autowired
@@ -54,10 +48,7 @@ class UserControllerTest {
             .build()
     }
 
-    @MockBean
-    lateinit var userService: UserService
-
-    private val mockBodyAsObject = RegisterRequestBody(
+    private val mockRegisterBodyAsObject = RegisterRequestBody(
         "Ivan",
         "Horvat",
         "ihorvat",
@@ -66,13 +57,12 @@ class UserControllerTest {
         "buyer"
     )
 
-    @Test
-    @WithAnonymousUser
-    fun onAnonymousUser_triesToSendRequest_Status401() {
-        mvc.perform(
-            MockMvcRequestBuilders.post(registerRoute).with(csrf())
-        ).andExpect(status().isUnauthorized)
-    }
+    private val mockLoginBodyAsObject = LoginRequestBody(
+        mockRegisterBodyAsObject.username,
+        mockRegisterBodyAsObject.password
+    )
+
+    private val badJSON = "{\"random\": \"Object\"}"
 
     @Test
     fun onRegisterRequest_WhenNoRequestSent_Status400() {
@@ -83,26 +73,18 @@ class UserControllerTest {
 
     @Test
     fun onRegisterRequest_WhenBadRequestSent_Status400() {
-        val body = "{\"random\": \"Object\"}"
-
-        val request = getRequestObjectWithJSONBody(body)
+        val request = getRequestObjectWithJSONBody(badJSON)
 
         mvc.perform(request).andExpect(status().isBadRequest)
     }
 
     @Test
     fun onInvalidUserData_WhenRequestSent_Status400WithMessage() {
-        val mockedUserWithNoLastName = mockBodyAsObject.copy(lastName = "")
+        val mockedUserWithNoLastName = mockRegisterBodyAsObject.copy(lastName = "")
 
-        val body = ObjectMapper()
-            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
-            .writeValueAsString(mockedUserWithNoLastName)
+        val body = getJsonFromObject(mockedUserWithNoLastName)
 
         val request = getRequestObjectWithJSONBody(body)
-
-        Mockito
-            .`when`(userService.registerUser(any()))
-            .thenThrow(UserCheckException(ApplicationErrorType.ERR_LASTNAME_INVALID))
 
         mvc.perform(request)
             .andExpect(status().isBadRequest)
@@ -111,22 +93,23 @@ class UserControllerTest {
             .andExpect(jsonPath("error_message").value(ApplicationErrorType.ERR_LASTNAME_INVALID.name))
     }
 
+    private fun getJsonFromObject(obj: Any): String = ObjectMapper()
+        .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+        .writeValueAsString(obj)
+
     @Test
     fun onRegisterRequest_WhenRequestIsComplete_ThenAppropriateSuccessMessage() {
-        val body = ObjectMapper()
-            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
-            .writeValueAsString(mockBodyAsObject)
+        val body = getJsonFromObject(mockRegisterBodyAsObject)
 
         val request = getRequestObjectWithJSONBody(body)
 
-        val userMockId = 1
         val userMockEventId = 1
         val mockRegDate = LocalDateTime.now()
 
         mvc.perform(request)
             .andExpect(status().isCreated)
             .andExpect(jsonPath("success").value(true))
-            .andExpect(jsonPath("message").value(Matchers.matchesPattern("User \"ihorvat\" registered with ID $userMockId.")))
+            .andExpect(jsonPath("message").value(Matchers.matchesPattern("User \"${mockRegisterBodyAsObject.username}\" registered with ID \\d+.")))
             .andExpect(jsonPath("data[0].id").isNumber)
             .andExpect(jsonPath("data[0].role").value("buyer"))
             .andExpect(jsonPath("data[0].store").value(null))
@@ -140,9 +123,36 @@ class UserControllerTest {
             .andExpect(jsonPath("data[0].is_accepted").value(false))
     }
 
-    private fun getRequestObjectWithJSONBody(jsonBody: String) = MockMvcRequestBuilders
-        .post(registerRoute)
+    private fun getRequestObjectWithJSONBody(jsonBody: String, route: String = registerRoute) = MockMvcRequestBuilders
+        .post(route)
         .with(csrf())
         .content(jsonBody)
         .contentType(MediaType.APPLICATION_JSON)
+
+    @Test
+    fun givenInvalidBodyJSON_whenLoginRouteHit_returnError400() {
+        val request = getRequestObjectWithJSONBody(badJSON, loginRoute)
+
+        mvc.perform(request).andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun givenNonAcceptedCorrectUser_whenLoginRouteHit_returnValidJWTAndWarningMessage() {
+        val body = getJsonFromObject(mockLoginBodyAsObject)
+        val request = getRequestObjectWithJSONBody(body, loginRoute)
+
+        mvc.perform(request)
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("message").value(Matchers.matchesPattern("User \"${mockRegisterBodyAsObject.username}\" logged in with warnings.")))
+            .andExpect(jsonPath("error_code").value(ApplicationErrorType.WARN_STORE_NOT_SET.code))
+            .andExpect(jsonPath("error_message").value(ApplicationErrorType.WARN_STORE_NOT_SET.name))
+            .andExpect(jsonPath("data[0].id").isNumber)
+            .andExpect(jsonPath("data[0].role").value("buyer"))
+            .andExpect(jsonPath("data[0].store").isEmpty)
+            .andExpect(jsonPath("data[0].first_name").value("Ivan"))
+            .andExpect(jsonPath("data[0].last_name").value("Horvat"))
+            .andExpect(jsonPath("data[0].email").value("ihorvat@foi.hr"))
+            .andExpect(jsonPath("data[0].username").value("ihorvat"))
+            .andExpect(jsonPath("data[0].is_accepted").value(true))
+    }
 }

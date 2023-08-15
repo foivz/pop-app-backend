@@ -1,8 +1,8 @@
 package hr.foi.pop.backend.controllers
 
-import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.UserCheckException
 import hr.foi.pop.backend.models.user.UserMapper
+import hr.foi.pop.backend.request_bodies.LoginRequestBody
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.responses.ErrorResponse
 import hr.foi.pop.backend.responses.SuccessResponse
@@ -25,6 +25,16 @@ class UserController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
             SuccessResponse("User \"${savedUser.username}\" registered with ID ${savedUser.id}.", userDTO)
+        )
+    }
+
+    @PostMapping("login")
+    fun loginUser(@RequestBody request: LoginRequestBody): ResponseEntity<SuccessResponse> {
+        val jwt = userService.authenticateAndGenerateJWT(request.username, request.password)
+        val userObject = userService.loadUserByUsername(request.username)
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+            SuccessResponse("User \"${userObject.username}\" logged in.", userObject, jwt)
         )
     }
 
