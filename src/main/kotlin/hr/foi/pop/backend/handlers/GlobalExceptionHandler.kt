@@ -11,7 +11,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @ControllerAdvice
 class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
-    @ExceptionHandler(JsonParseException::class)
+    @ExceptionHandler(JsonParseException::class, NullPointerException::class)
     fun handleBadRequestBody(): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse("Request body JSON could not be parsed!", ApplicationErrorType.ERR_BAD_BODY))

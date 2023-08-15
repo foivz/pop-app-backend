@@ -19,23 +19,13 @@ class UserController {
     lateinit var userService: UserService
 
     @PostMapping("register")
-    fun registerUser(@RequestBody request: RegisterRequestBody?): ResponseEntity<*> {
+    fun registerUser(@RequestBody request: RegisterRequestBody): ResponseEntity<SuccessResponse> {
+        val savedUser = userService.registerUser(request)
+        val userDTO = UserMapper().mapDto(savedUser)
 
-        return try {
-
-            val requestBody = request!!
-            val savedUser = userService.registerUser(requestBody)
-            val userDTO = UserMapper().mapDto(savedUser)
-
-            ResponseEntity.status(HttpStatus.CREATED).body(
-                SuccessResponse("User \"${savedUser.username}\" registered with ID ${savedUser.id}.", userDTO)
-            )
-
-        } catch (ex: NullPointerException) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse("User not in correct format!", ApplicationErrorType.ERR_BAD_BODY))
-        }
-
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+            SuccessResponse("User \"${savedUser.username}\" registered with ID ${savedUser.id}.", userDTO)
+        )
     }
 
     @ExceptionHandler(UserCheckException::class)
