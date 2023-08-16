@@ -4,6 +4,7 @@ import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.UserAuthenticationException
 import hr.foi.pop.backend.exceptions.UserCheckException
 import hr.foi.pop.backend.models.user.User
+import hr.foi.pop.backend.models.user.UserLoginResponseDTO
 import hr.foi.pop.backend.models.user.UserMapper
 import hr.foi.pop.backend.request_bodies.LoginRequestBody
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
@@ -35,18 +36,25 @@ class UserController {
     @PostMapping("login")
     fun loginUser(@RequestBody request: LoginRequestBody): ResponseEntity<out SuccessResponse> {
         val jwt = userService.authenticateAndGenerateJWT(request.username, request.password)
-        val userObject = userService.loadUserByUsername(request.username) as User
+        val userEntity = userService.loadUserByUsername(request.username) as User
+        val userDto = UserMapper().mapDto(userEntity)
+        val loginResponse = UserLoginResponseDTO(userDto)
 
         val responseBuilder = ResponseEntity.status(HttpStatus.OK)
-        val baseMessage = "User \"${userObject.username}\" logged in"
+        val baseMessage = "User \"${loginResponse.username}\" logged in"
 
-        val response = if (userObject.store != null) {
+        val response = if (loginResponse.store != null) {
             responseBuilder.body(
-                SuccessResponse(baseMessage, userObject, jwt)
+                SuccessResponse(baseMessage, loginResponse, jwt)
             )
         } else {
             responseBuilder.body(
-                WarningResponse(ApplicationErrorType.WARN_STORE_NOT_SET, "$baseMessage with warnings.", userObject, jwt)
+                WarningResponse(
+                    ApplicationErrorType.WARN_STORE_NOT_SET,
+                    "$baseMessage with warnings.",
+                    loginResponse,
+                    jwt
+                )
             )
         }
 

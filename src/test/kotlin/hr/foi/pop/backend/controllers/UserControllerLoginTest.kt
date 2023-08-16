@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
@@ -46,6 +47,9 @@ class UserControllerLoginTest {
         mvc = MockMvcBuilders
             .webAppContextSetup(context)
             .apply<DefaultMockMvcBuilder>(springSecurity())
+            .alwaysDo<DefaultMockMvcBuilder> {
+                LoggerFactory.getLogger(UserControllerLoginTest::class.java).info(it.response.contentAsString)
+            }
             .build()
     }
 
