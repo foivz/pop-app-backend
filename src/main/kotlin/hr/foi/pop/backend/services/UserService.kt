@@ -63,7 +63,8 @@ class UserService : UserDetailsService {
     }
 
     private fun authenticate(providedUsername: String, providedPassword: String): User {
-        val user = userRepository.getUserByUsername(providedUsername) ?: throw UserAuthenticationException()
+        val user = userRepository.getUserByUsername(providedUsername)
+            ?: throw UserAuthenticationException("Non-existent user $providedUsername tried to log in")
         val encoder = passwordEncoder
 
         val isAuthenticated = encoder.matches(providedPassword, user.passwordHash)
@@ -71,7 +72,7 @@ class UserService : UserDetailsService {
         if (isAuthenticated) {
             return user
         } else {
-            throw UserAuthenticationException()
+            throw UserAuthenticationException("A wrong password was provided for user $providedUsername")
         }
     }
 
