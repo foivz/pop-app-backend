@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import hr.foi.pop.backend.controllers.UserControllerRegistrationTest.Companion.mockRegisterBodyAsObject
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.request_bodies.LoginRequestBody
+import hr.foi.pop.backend.services.UserService
 import org.hamcrest.Matchers
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -20,6 +22,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.context.WebApplicationContext
 
 
@@ -33,6 +36,9 @@ class UserControllerLoginTest {
     @Autowired
     lateinit var context: WebApplicationContext
 
+    @Autowired
+    lateinit var userService: UserService
+
     private lateinit var mvc: MockMvc
 
     @BeforeAll
@@ -44,8 +50,8 @@ class UserControllerLoginTest {
     }
 
     private val mockLoginBodyAsObject = LoginRequestBody(
-        "ihorvat",
-        "test123"
+        mockRegisterBodyAsObject.username,
+        mockRegisterBodyAsObject.password
     )
 
     private val badJSON = "{\"random\": \"Object\"}"
@@ -64,9 +70,24 @@ class UserControllerLoginTest {
     }
 
     @Test
+    fun givenNonExistentUser_whenLoginRouteHit_returnErrorMessage() {
+        val body = getJsonFromObject(LoginRequestBody("dont exist", "invalid"))
+        val request = getRequestObjectWithJSONBody(body)
+
+        mvc.perform(request)
+            .andExpect(status().isNotFound)
+            .andExpect(jsonPath("success").value(false))
+            .andExpect(jsonPath("error_code").value(ApplicationErrorType.ERR_USER_INVALID.code))
+            .andExpect(jsonPath("error_message").value(ApplicationErrorType.ERR_USER_INVALID.name))
+    }
+
+    @Test
+    @Transactional
     fun givenNonAcceptedCorrectUser_whenLoginRouteHit_returnValidJWTAndWarningMessage() {
         val body = getJsonFromObject(mockLoginBodyAsObject)
         val request = getRequestObjectWithJSONBody(body)
+
+        Assertions.assertNotNull(userService.registerUser(mockRegisterBodyAsObject))
 
         mvc.perform(request)
             .andExpect(status().isOk)

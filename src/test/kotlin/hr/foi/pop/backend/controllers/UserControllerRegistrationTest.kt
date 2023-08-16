@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.context.WebApplicationContext
 import java.time.LocalDateTime
 
@@ -91,6 +92,7 @@ class UserControllerRegistrationTest {
         .writeValueAsString(obj)
 
     @Test
+    @Transactional
     fun onRegisterRequest_WhenRequestIsComplete_ThenAppropriateSuccessMessage() {
         val body = getJsonFromObject(mockRegisterBodyAsObject)
 

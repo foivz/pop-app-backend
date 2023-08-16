@@ -1,11 +1,15 @@
 package hr.foi.pop.backend.controllers
 
+import hr.foi.pop.backend.definitions.ApplicationErrorType
+import hr.foi.pop.backend.exceptions.UserAuthenticationException
 import hr.foi.pop.backend.exceptions.UserCheckException
+import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserMapper
 import hr.foi.pop.backend.request_bodies.LoginRequestBody
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.responses.ErrorResponse
 import hr.foi.pop.backend.responses.SuccessResponse
+import hr.foi.pop.backend.responses.WarningResponse
 import hr.foi.pop.backend.services.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -29,13 +33,24 @@ class UserController {
     }
 
     @PostMapping("login")
-    fun loginUser(@RequestBody request: LoginRequestBody): ResponseEntity<SuccessResponse> {
+    fun loginUser(@RequestBody request: LoginRequestBody): ResponseEntity<out SuccessResponse> {
         val jwt = userService.authenticateAndGenerateJWT(request.username, request.password)
-        val userObject = userService.loadUserByUsername(request.username)
+        val userObject = userService.loadUserByUsername(request.username) as User
 
-        return ResponseEntity.status(HttpStatus.OK).body(
-            SuccessResponse("User \"${userObject.username}\" logged in.", userObject, jwt)
-        )
+        val responseBuilder = ResponseEntity.status(HttpStatus.OK)
+        val baseMessage = "User \"${userObject.username}\" logged in"
+
+        val response = if (userObject.store != null) {
+            responseBuilder.body(
+                SuccessResponse(baseMessage, userObject, jwt)
+            )
+        } else {
+            responseBuilder.body(
+                WarningResponse(ApplicationErrorType.WARN_STORE_NOT_SET, "$baseMessage with warnings.", userObject, jwt)
+            )
+        }
+
+        return response
     }
 
     @ExceptionHandler(UserCheckException::class)
@@ -44,4 +59,9 @@ class UserController {
             .body(ErrorResponse("Could not register user!", ex.error))
     }
 
+    @ExceptionHandler(UserAuthenticationException::class)
+    fun handleInvalidUserLoginAttempt(ex: UserAuthenticationException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(ErrorResponse(ex.message ?: "Authentication error.", ApplicationErrorType.ERR_USER_INVALID))
+    }
 }

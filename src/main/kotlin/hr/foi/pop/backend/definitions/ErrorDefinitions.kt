@@ -12,5 +12,6 @@ enum class ApplicationErrorType(val code: Int) {
     ERR_ROLE_INVALID(106),
     ERR_LASTNAME_INVALID(108),
     ERR_FIRSTNAME_INVALID(107),
-    WARN_STORE_NOT_SET(304)
+    ERR_USER_INVALID(301),
+    WARN_STORE_NOT_SET(304),
 }
