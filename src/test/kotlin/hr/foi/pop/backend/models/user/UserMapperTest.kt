@@ -23,6 +23,10 @@ class UserMapperTest {
         Assertions.assertEquals(user.dateOfRegister, userDto.dateOfRegister)
         Assertions.assertEquals(user.event.id, userDto.event)
         Assertions.assertEquals(user.role.name, userDto.role)
-        Assertions.assertEquals(user.store!!.id, userDto.store)
+        Assertions.assertNotNull(user.store)
+        val storeDto = userDto.store
+        Assertions.assertNotNull(storeDto)
+        Assertions.assertEquals(user.store!!.id, storeDto!!.storeId)
+        Assertions.assertEquals(user.store!!.storeName, storeDto.storeName)
     }
 }

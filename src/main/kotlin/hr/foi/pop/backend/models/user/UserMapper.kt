@@ -1,5 +1,6 @@
 package hr.foi.pop.backend.models.user
 
+import hr.foi.pop.backend.models.store.StoreAttributeDto
 import hr.foi.pop.backend.repositories.EventRepository
 import hr.foi.pop.backend.repositories.RoleRepository
 import hr.foi.pop.backend.repositories.StoreRepository
@@ -19,8 +20,13 @@ class UserMapper : GenericMapper<UserDTO, User> {
     lateinit var eventRepository: EventRepository
 
     override fun mapDto(e: User): UserDTO {
+        val retrievedStore = when (e.store) {
+            null -> null
+            else -> StoreAttributeDto(e.store!!)
+        }
+
         return UserDTO(
-            e.id, e.role.name, e.store?.id, e.event.id, e.firstName, e.lastName,
+            e.id, e.role.name, retrievedStore, e.event.id, e.firstName, e.lastName,
             e.email, e.username, e.dateOfRegister, e.balance, e.isAccepted
         )
     }
@@ -28,7 +34,7 @@ class UserMapper : GenericMapper<UserDTO, User> {
     override fun map(d: UserDTO): User {
         val foundStore = when (d.store) {
             null -> null
-            else -> storeRepository.getStoreById(d.store)
+            else -> storeRepository.getStoreById(d.store.storeId)
         }
         return User().apply {
             id = d.id
