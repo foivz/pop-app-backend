@@ -8,6 +8,7 @@ import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.request_bodies.LoginRequestBody
 import hr.foi.pop.backend.services.UserService
+import hr.foi.pop.backend.utils.MockEntitiesHelper
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
@@ -152,6 +153,42 @@ class UserControllerLoginTest {
         Assertions.assertNull(storedUser.store)
 
         return storedUser
+    }
+
+    @Test
+    @Transactional
+    fun givenGoodUser_whenLoginRouteHit_returnValidJWT() {
+        val body = getJsonFromObject(mockLoginBodyAsObject)
+        val request = getRequestObjectWithJSONBody(body)
+
+        val storedUser = getStoredAcceptedUserWithStore()
+
+        mvc.perform(request)
+            .andExpect(status().isOk)
+            .andExpect(
+                jsonPath("message").value(
+                    Matchers.matchesPattern(
+                        "User \"${mockRegisterBodyAsObject.username}\" logged in."
+                    )
+                )
+            )
+            .andExpect(jsonPath("data[0].id").isNumber)
+            .andExpect(jsonPath("data[0].role").value(storedUser.role.name))
+            .andExpect(jsonPath("data[0].store.store_id").value(storedUser.store!!.id))
+            .andExpect(jsonPath("data[0].store.store_name").value(storedUser.store!!.storeName))
+            .andExpect(jsonPath("data[0].first_name").value(storedUser.firstName))
+            .andExpect(jsonPath("data[0].last_name").value(storedUser.lastName))
+            .andExpect(jsonPath("data[0].email").value(storedUser.email))
+            .andExpect(jsonPath("data[0].username").value(storedUser.username))
+            .andExpect(jsonPath("data[0].is_accepted").value(true))
+    }
+
+    private fun getStoredAcceptedUserWithStore(): User {
+        val validUser = MockEntitiesHelper.generateUserEntityWithStore(mockLoginBodyAsObject.password)
+        Assertions.assertNotNull(validUser.store)
+        Assertions.assertNotNull(validUser.isAccepted)
+        validUser.username = mockLoginBodyAsObject.username
+        return userRepository.save(validUser)
     }
 
     private fun getJsonFromObject(obj: Any): String = ObjectMapper()

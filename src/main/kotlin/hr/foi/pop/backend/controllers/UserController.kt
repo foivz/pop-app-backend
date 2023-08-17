@@ -46,7 +46,7 @@ class UserController {
 
         val response = if (loginResponse.store != null) {
             responseBuilder.body(
-                SuccessResponse(baseMessage, loginResponse, jwt)
+                SuccessResponse("$baseMessage.", loginResponse, jwt)
             )
         } else {
             responseBuilder.body(

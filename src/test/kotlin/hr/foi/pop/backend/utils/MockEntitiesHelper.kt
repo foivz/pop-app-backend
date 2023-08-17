@@ -27,13 +27,15 @@ class MockEntitiesHelper {
             }
         }
 
-        fun generateUserEntityWithStore(): User {
+        /** password: test123 **/
+        fun generateUserEntityWithStore(password: String = "test123"): User {
+            val encoder = passwordEncoder()
             return User().apply {
                 this.id = 3
                 this.firstName = "Tester"
                 this.lastName = "Testermann"
                 this.email = "tester@test.com"
-                this.passwordHash = "\$2a\$10\$FfiydZ0lGFvgs288gbAhmeOBaF9h.kfgjmtkJcowuWUTdLB1Tl4gG"
+                this.passwordHash = encoder.encode(password)
                 this.username = "testerUsername"
                 this.isAccepted = true
                 this.balance = 300
