@@ -74,6 +74,16 @@ class UserServiceTest {
     }
 
     @Test
+    fun whenUserWantsToLogInWithCorrectPasswordButIsNotActivated_OnLogin_ThrowException() {
+        Assertions.assertTrue(userRepository.existsByUsername(templateRequestBodyForTesting.username))
+        val correctUsername = templateRequestBodyForTesting.username
+        val correctPassword = templateRequestBodyForTesting.password
+        Assertions.assertThrows(UserNotAcceptedException::class.java) {
+            userService.authenticateAndGenerateJWT(correctUsername, correctPassword)
+        }
+    }
+
+    @Test
     fun whenUserWantsToLogInWithCorrectPassword_OnLogin_GetValidJWT() {
         Assertions.assertTrue(userRepository.existsByUsername(templateRequestBodyForTesting.username))
         val correctUsername = templateRequestBodyForTesting.username

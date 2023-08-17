@@ -67,13 +67,12 @@ class UserService : UserDetailsService {
         val user = userRepository.getUserByUsername(providedUsername)
             ?: throw UserAuthenticationException("Non-existent user $providedUsername tried to log in")
 
-        ensureUserIsAccepted(user)
-
         val encoder = passwordEncoder
 
         val isAuthenticated = encoder.matches(providedPassword, user.passwordHash)
 
         if (isAuthenticated) {
+            ensureUserIsAccepted(user)
             return user
         } else {
             throw UserAuthenticationException("A wrong password was provided for user $providedUsername")
