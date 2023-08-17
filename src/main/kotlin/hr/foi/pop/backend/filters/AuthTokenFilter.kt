@@ -13,7 +13,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.util.StringUtils
 import org.springframework.web.filter.OncePerRequestFilter
 
-class AuthTokenFilter : OncePerRequestFilter() {
+open class AuthTokenFilter : OncePerRequestFilter() {
 
     @Autowired
     private lateinit var jwtUtils: JwtUtils
@@ -48,13 +48,12 @@ class AuthTokenFilter : OncePerRequestFilter() {
         filterChain.doFilter(request, response)
     }
 
-    private fun parseJwt(request: HttpServletRequest): String {
+    protected fun parseJwt(request: HttpServletRequest): String {
         val authHeader = request.getHeader("Authorization")
         val authPrefix = "Bearer "
 
         if (StringUtils.hasText(authHeader) && authHeader.startsWith(authPrefix)) {
-            val startIndexOfJwt = authHeader.indexOf(authPrefix)
-            return authHeader.substring(startIndexOfJwt)
+            return authHeader.substring(authPrefix.length)
         } else {
             throw BadJwtFormatException()
         }

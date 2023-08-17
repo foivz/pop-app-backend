@@ -41,7 +41,7 @@ class JwtUtils {
         var success = false
 
         try {
-            getJwtParser().apply { parse(jwtToken) }
+            getJwtParser().apply { parseClaimsJws(jwtToken) }
             success = true
         } catch (e: MalformedJwtException) {
             logger.error("Invalid JWT token: ${e.message}")
