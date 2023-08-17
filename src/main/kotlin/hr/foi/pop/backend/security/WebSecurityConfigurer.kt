@@ -5,6 +5,7 @@ import hr.foi.pop.backend.security.jwt.AuthEntryPointJwt
 import hr.foi.pop.backend.services.UserService
 import hr.foi.pop.backend.utils.passwordEncoder
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -59,12 +60,13 @@ class WebSecurityConfigurer {
     @Bean
     @Throws(Exception::class)
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
+        enableH2Console(http)
+
         http.csrf { csrf -> csrf.disable() }
             .exceptionHandling { exception -> exception.authenticationEntryPoint(unauthorizedHandler) }
             .sessionManagement { session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/v2/auth/**").permitAll()
                     .anyRequest().authenticated()
             }
@@ -72,12 +74,15 @@ class WebSecurityConfigurer {
         http.authenticationProvider(authenticationProvider())
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter::class.java)
 
-        enableH2Console(http)
-
         return http.build()
     }
 
     private fun enableH2Console(http: HttpSecurity) {
         http.headers { httpHeaders -> httpHeaders.frameOptions { frameOptions -> frameOptions.disable() } }
+        http.csrf { csrf ->
+            csrf.ignoringRequestMatchers(toH2Console())
+        }.authorizeHttpRequests { auth ->
+            auth.requestMatchers(toH2Console()).permitAll()
+        }
     }
 }
