@@ -2,6 +2,7 @@ package hr.foi.pop.backend.services
 
 import hr.foi.pop.backend.exceptions.UserAuthenticationException
 import hr.foi.pop.backend.exceptions.UserCheckException
+import hr.foi.pop.backend.exceptions.UserNotAcceptedException
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.repositories.EventRepository
 import hr.foi.pop.backend.repositories.UserRepository
@@ -85,11 +86,21 @@ class UserServiceTest {
 
     @Test
     fun whenUserWantsToLogInWithCorrectPassword_OnLogin_GetValidJWT() {
-        Assertions.assertTrue(userRepository.existsByUsername(templateRequestBodyForTesting.username))
+        acceptUser(templateRequestBodyForTesting.username)
+
         val correctUsername = templateRequestBodyForTesting.username
         val correctPassword = templateRequestBodyForTesting.password
+
         val jwt: String = userService.authenticateAndGenerateJWT(correctUsername, correctPassword)
         assertJwtLooksFine(jwt)
+    }
+
+    private fun acceptUser(username: String) {
+        val user = userRepository.getUserByUsername(username)
+        Assertions.assertNotNull(user)
+
+        user!!.isAccepted = true
+        userRepository.save(user)
     }
 
     private fun assertJwtLooksFine(jwt: String) {
