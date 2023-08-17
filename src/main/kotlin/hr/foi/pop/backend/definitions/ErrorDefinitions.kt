@@ -13,5 +13,6 @@ enum class ApplicationErrorType(val code: Int) {
     ERR_LASTNAME_INVALID(108),
     ERR_FIRSTNAME_INVALID(107),
     ERR_USER_INVALID(301),
+    ERR_NOT_ACTIVATED(303),
     WARN_STORE_NOT_SET(304),
 }

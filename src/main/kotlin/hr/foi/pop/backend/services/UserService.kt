@@ -1,6 +1,7 @@
 package hr.foi.pop.backend.services
 
 import hr.foi.pop.backend.exceptions.UserAuthenticationException
+import hr.foi.pop.backend.exceptions.UserNotAcceptedException
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserBuilder
 import hr.foi.pop.backend.repositories.EventRepository
@@ -65,6 +66,9 @@ class UserService : UserDetailsService {
     private fun authenticate(providedUsername: String, providedPassword: String): User {
         val user = userRepository.getUserByUsername(providedUsername)
             ?: throw UserAuthenticationException("Non-existent user $providedUsername tried to log in")
+
+        ensureUserIsAccepted(user)
+
         val encoder = passwordEncoder
 
         val isAuthenticated = encoder.matches(providedPassword, user.passwordHash)
@@ -73,6 +77,12 @@ class UserService : UserDetailsService {
             return user
         } else {
             throw UserAuthenticationException("A wrong password was provided for user $providedUsername")
+        }
+    }
+
+    private fun ensureUserIsAccepted(user: User) {
+        if (!user.isAccepted) {
+            throw UserNotAcceptedException("User \"${user.username}\" is not accepted yet by the admin!")
         }
     }
 

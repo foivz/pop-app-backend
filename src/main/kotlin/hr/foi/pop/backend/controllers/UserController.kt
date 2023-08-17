@@ -3,6 +3,7 @@ package hr.foi.pop.backend.controllers
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.UserAuthenticationException
 import hr.foi.pop.backend.exceptions.UserCheckException
+import hr.foi.pop.backend.exceptions.UserNotAcceptedException
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserLoginResponseDTO
 import hr.foi.pop.backend.models.user.UserMapper
@@ -71,5 +72,16 @@ class UserController {
     fun handleInvalidUserLoginAttempt(ex: UserAuthenticationException): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(ErrorResponse(ex.message ?: "Authentication error.", ApplicationErrorType.ERR_USER_INVALID))
+    }
+
+    @ExceptionHandler(UserNotAcceptedException::class)
+    fun handleNonAcceptedUserLoginAttempt(ex: UserNotAcceptedException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body(
+                ErrorResponse(
+                    ex.message ?: "Deactivated user login attempt.",
+                    ApplicationErrorType.ERR_NOT_ACTIVATED
+                )
+            )
     }
 }
