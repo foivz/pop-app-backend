@@ -1,8 +1,9 @@
 package hr.foi.pop.backend.security.jwt
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.responses.ErrorResponse
+import hr.foi.pop.backend.responses.ResponseSender
+import io.jsonwebtoken.ExpiredJwtException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Component
 @Component
 class AuthEntryPointJwt : AuthenticationEntryPoint {
     private val logger = LoggerFactory.getLogger(AuthEntryPointJwt::class.java)
-    
+
     override fun commence(
         request: HttpServletRequest,
         response: HttpServletResponse,
@@ -22,20 +23,22 @@ class AuthEntryPointJwt : AuthenticationEntryPoint {
     ) {
         logger.error("Unauthorized error: ${authException.message}")
 
-        response.apply {
-            setHeader("Content-type", "application/json")
-            status = HttpStatus.FORBIDDEN.value()
-            characterEncoding = "UTF-8"
-
-            val jsonBody = getErrorBodyJson()
-            writer.print(jsonBody)
-            writer.flush()
-        }
+        val responseSender = prepareResponseSender(response, authException.cause ?: authException)
+        responseSender.send()
     }
 
-    private fun getErrorBodyJson(): String {
-        val error = ErrorResponse("Authorization bearer token is invalid!", ApplicationErrorType.ERR_JWT_INVALID)
-        val mapper = ObjectMapper()
-        return mapper.writeValueAsString(error)
+    private fun prepareResponseSender(response: HttpServletResponse, interceptedException: Throwable): ResponseSender {
+        val responseSender = ResponseSender(response)
+
+        if (interceptedException is ExpiredJwtException) {
+            responseSender.setBody(getJwtExpiredErrorBody())
+            responseSender.setHttpStatus(HttpStatus.FORBIDDEN)
+        }
+
+        return responseSender
+    }
+
+    private fun getJwtExpiredErrorBody(): ErrorResponse {
+        return ErrorResponse("Authorization bearer token is expired!", ApplicationErrorType.ERR_JWT_EXPIRED)
     }
 }

@@ -43,10 +43,11 @@ class JwtUtils {
         try {
             getJwtParser().apply { parseClaimsJws(jwtToken) }
             success = true
-        } catch (e: MalformedJwtException) {
-            logger.error("Invalid JWT token: ${e.message}")
         } catch (e: ExpiredJwtException) {
             logger.error("JWT token is expired: ${e.message}")
+            throw e
+        } catch (e: MalformedJwtException) {
+            logger.error("Invalid JWT token: ${e.message}")
         } catch (e: UnsupportedJwtException) {
             logger.error("JWT token is unsupported: ${e.message}")
         } catch (e: IllegalArgumentException) {
