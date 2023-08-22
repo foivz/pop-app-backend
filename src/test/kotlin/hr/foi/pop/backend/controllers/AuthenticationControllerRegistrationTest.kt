@@ -29,7 +29,7 @@ import java.time.LocalDateTime
 @WithMockUser("tester")
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class UserControllerRegistrationTest {
+class AuthenticationControllerRegistrationTest {
     companion object {
         const val registerRoute = "/api/v2/auth/register"
 

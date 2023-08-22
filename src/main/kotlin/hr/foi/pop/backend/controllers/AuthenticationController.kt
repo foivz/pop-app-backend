@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v2/auth")
-class UserController {
+class AuthenticationController {
     @Autowired
     lateinit var userService: UserService
 

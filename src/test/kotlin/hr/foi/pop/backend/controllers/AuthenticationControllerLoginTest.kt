@@ -2,7 +2,7 @@ package hr.foi.pop.backend.controllers
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
-import hr.foi.pop.backend.controllers.UserControllerRegistrationTest.Companion.mockRegisterBodyAsObject
+import hr.foi.pop.backend.controllers.AuthenticationControllerRegistrationTest.Companion.mockRegisterBodyAsObject
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.repositories.UserRepository
@@ -32,7 +32,7 @@ import org.springframework.web.context.WebApplicationContext
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class UserControllerLoginTest {
+class AuthenticationControllerLoginTest {
     companion object {
         const val loginRoute = "/api/v2/auth/login"
     }
@@ -54,7 +54,7 @@ class UserControllerLoginTest {
             .webAppContextSetup(context)
             .apply<DefaultMockMvcBuilder>(springSecurity())
             .alwaysDo<DefaultMockMvcBuilder> {
-                LoggerFactory.getLogger(UserControllerLoginTest::class.java).info(it.response.contentAsString)
+                LoggerFactory.getLogger(AuthenticationControllerLoginTest::class.java).info(it.response.contentAsString)
             }
             .build()
     }

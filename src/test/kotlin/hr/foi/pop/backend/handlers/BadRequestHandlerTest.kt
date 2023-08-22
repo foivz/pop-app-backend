@@ -1,7 +1,7 @@
 package hr.foi.pop.backend.handlers
 
-import hr.foi.pop.backend.controllers.UserController
-import hr.foi.pop.backend.controllers.UserControllerRegistrationTest
+import hr.foi.pop.backend.controllers.AuthenticationController
+import hr.foi.pop.backend.controllers.AuthenticationControllerRegistrationTest
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.services.UserService
 import org.junit.jupiter.api.Test
@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-@WebMvcTest(controllers = [UserController::class])
+@WebMvcTest(controllers = [AuthenticationController::class])
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BadRequestHandlerTest {
     @Autowired
@@ -38,6 +38,6 @@ class BadRequestHandlerTest {
     }
 
     private fun buildPostRequest(): MockHttpServletRequestBuilder {
-        return MockMvcRequestBuilders.post(UserControllerRegistrationTest.registerRoute).with(csrf())
+        return MockMvcRequestBuilders.post(AuthenticationControllerRegistrationTest.registerRoute).with(csrf())
     }
 }
