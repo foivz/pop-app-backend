@@ -4,6 +4,7 @@ enum class ApplicationErrorType(val code: Int) {
     ERR_JWT_EXPIRED(1),
     ERR_JWT_INVALID(2),
     ERR_BAD_BODY(3),
+    ERR_ROUTE_NOT_ACCESSIBLE(4),
     ERR_USERNAME_INVALID(101),
     ERR_USERNAME_USED(102),
     ERR_EMAIL_INVALID(103),

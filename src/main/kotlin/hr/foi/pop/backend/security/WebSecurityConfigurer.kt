@@ -1,7 +1,6 @@
 package hr.foi.pop.backend.security
 
 import hr.foi.pop.backend.filters.AuthTokenFilter
-import hr.foi.pop.backend.security.jwt.AuthEntryPointJwt
 import hr.foi.pop.backend.services.UserService
 import hr.foi.pop.backend.utils.passwordEncoder
 import org.springframework.beans.factory.annotation.Autowired
@@ -30,7 +29,7 @@ class WebSecurityConfigurer {
     private lateinit var userDetailsService: UserService
 
     @Autowired
-    private lateinit var unauthorizedHandler: AuthEntryPointJwt
+    private lateinit var unauthorizedHandler: AuthenticationExceptionHandler
 
     @Bean
     fun authenticationJwtTokenFilter(): AuthTokenFilter {
