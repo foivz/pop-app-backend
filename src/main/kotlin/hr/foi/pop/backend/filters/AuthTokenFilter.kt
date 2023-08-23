@@ -15,16 +15,26 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.util.StringUtils
 import org.springframework.web.filter.OncePerRequestFilter
 
-open class AuthTokenFilter : OncePerRequestFilter() {
+
+open class AuthTokenFilter(
+    private val excludedRoutes: List<AntPathRequestMatcher>
+) : OncePerRequestFilter() {
 
     @Autowired
     private lateinit var jwtUtils: JwtUtils
 
     @Autowired
     private lateinit var userDetailsService: UserService
+
+    override fun shouldNotFilter(request: HttpServletRequest): Boolean {
+        return excludedRoutes.stream().anyMatch { matcher ->
+            matcher.matches(request)
+        }
+    }
 
     override fun doFilterInternal(
         request: HttpServletRequest,

@@ -5,9 +5,10 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.mock.web.MockHttpServletRequest
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 
 @SpringBootTest
-class AuthTokenFilterTest : AuthTokenFilter() {
+class AuthTokenFilterTest : AuthTokenFilter(listOf(AntPathRequestMatcher("/api/v2/auth/**"))) {
     @Test
     fun givenCorrectJWT_WhenReceived_ParseNormally() {
         val mockJwt = "eyJhbGciOiJIUzI1NiJ9." +

@@ -31,9 +31,14 @@ class WebSecurityConfigurer {
     @Autowired
     private lateinit var unauthorizedHandler: AuthenticationExceptionHandler
 
+    private val excludedRoutesForAuthTokenFiltering = listOf(
+        AntPathRequestMatcher("/api/v2/auth/**"),
+        AntPathRequestMatcher("/h2-console/**")
+    )
+
     @Bean
     fun authenticationJwtTokenFilter(): AuthTokenFilter {
-        return AuthTokenFilter()
+        return AuthTokenFilter(excludedRoutesForAuthTokenFiltering)
     }
 
     @Bean
