@@ -41,7 +41,7 @@ class JwtUtils {
         var success = false
 
         try {
-            getJwtParser().apply { parseClaimsJws(jwtToken) }
+            getJwtParser().parse(jwtToken)
             success = true
         } catch (e: ExpiredJwtException) {
             logger.error("JWT token is expired: ${e.message}")
@@ -59,7 +59,7 @@ class JwtUtils {
 
     fun getUsernameFromJwtToken(jwtToken: String): String {
         val jwtParser = getJwtParser()
-        val parsedJwt = jwtParser.parseClaimsJwt(jwtToken)
+        val parsedJwt = jwtParser.parseClaimsJws(jwtToken)
         val jwtBody = parsedJwt.body
         return jwtBody.subject
     }
