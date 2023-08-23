@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.utils.DateMatcher
+import hr.foi.pop.backend.utils.MockMvcBuilderManager
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -14,13 +15,10 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
-import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.context.WebApplicationContext
 import java.time.LocalDateTime
@@ -50,10 +48,7 @@ class AuthenticationControllerRegistrationTest {
 
     @BeforeAll
     fun setup() {
-        mvc = MockMvcBuilders
-            .webAppContextSetup(context)
-            .apply<DefaultMockMvcBuilder>(springSecurity())
-            .build()
+        mvc = MockMvcBuilderManager.getMockMvc(context, AuthenticationControllerRegistrationTest::class)
     }
 
     private val badJSON = "{\"random\": \"Object\"}"

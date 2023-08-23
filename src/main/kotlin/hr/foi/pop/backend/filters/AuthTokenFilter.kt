@@ -91,8 +91,9 @@ open class AuthTokenFilter(
         response: HttpServletResponse,
         error: ErrorResponse
     ) {
+        response.setHeader("WWW-Authenticate", "Bearer realm=\"Secure and personalized API access\"")
         ResponseSender(response).apply {
-            setHttpStatus(HttpStatus.FORBIDDEN)
+            setHttpStatus(HttpStatus.UNAUTHORIZED)
             setBody(error)
             send()
         }

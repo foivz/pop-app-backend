@@ -9,23 +9,20 @@ import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.request_bodies.LoginRequestBody
 import hr.foi.pop.backend.services.UserService
 import hr.foi.pop.backend.utils.MockEntitiesHelper
+import hr.foi.pop.backend.utils.MockMvcBuilderManager
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
-import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.context.WebApplicationContext
 
@@ -50,13 +47,7 @@ class AuthenticationControllerLoginTest {
 
     @BeforeAll
     fun setup() {
-        mvc = MockMvcBuilders
-            .webAppContextSetup(context)
-            .apply<DefaultMockMvcBuilder>(springSecurity())
-            .alwaysDo<DefaultMockMvcBuilder> {
-                LoggerFactory.getLogger(AuthenticationControllerLoginTest::class.java).info(it.response.contentAsString)
-            }
-            .build()
+        mvc = MockMvcBuilderManager.getMockMvc(context, AuthenticationControllerLoginTest::class)
     }
 
     private val mockLoginBodyAsObject = LoginRequestBody(
