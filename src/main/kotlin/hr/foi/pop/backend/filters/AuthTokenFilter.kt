@@ -7,6 +7,7 @@ import hr.foi.pop.backend.responses.ResponseSender
 import hr.foi.pop.backend.security.jwt.JwtUtils
 import hr.foi.pop.backend.services.UserService
 import io.jsonwebtoken.ExpiredJwtException
+import io.jsonwebtoken.MalformedJwtException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -55,8 +56,13 @@ open class AuthTokenFilter(
                 }
             }
         } catch (ex: BadJwtFormatException) {
-            logger.error(ex.message)
+            handleBadJwtToken(ex, response)
+            return
+        } catch (ex: MalformedJwtException) {
+            handleBadJwtToken(ex, response)
+            return
         } catch (ex: ExpiredJwtException) {
+            logger.error(ex.message)
             notifyUserOfExpiredJwtToken(response)
             return
         } catch (ex: Exception) {
@@ -66,9 +72,25 @@ open class AuthTokenFilter(
         filterChain.doFilter(request, response)
     }
 
+    private fun handleBadJwtToken(ex: RuntimeException, response: HttpServletResponse) {
+        logger.error(ex.message)
+        notifyUserOfBadJwtToken(response)
+    }
+
+    private fun notifyUserOfBadJwtToken(response: HttpServletResponse) {
+        val error = ErrorResponse("Your token is invalid.", ApplicationErrorType.ERR_JWT_INVALID)
+        sendError(response, error)
+    }
+
     private fun notifyUserOfExpiredJwtToken(response: HttpServletResponse) {
         val error = ErrorResponse("Authorization bearer token is expired!", ApplicationErrorType.ERR_JWT_EXPIRED)
+        sendError(response, error)
+    }
 
+    private fun sendError(
+        response: HttpServletResponse,
+        error: ErrorResponse
+    ) {
         ResponseSender(response).apply {
             setHttpStatus(HttpStatus.FORBIDDEN)
             setBody(error)

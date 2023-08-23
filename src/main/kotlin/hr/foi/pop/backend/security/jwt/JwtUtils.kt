@@ -48,6 +48,7 @@ class JwtUtils {
             throw e
         } catch (e: MalformedJwtException) {
             logger.error("Invalid JWT token: ${e.message}")
+            throw e
         } catch (e: UnsupportedJwtException) {
             logger.error("JWT token is unsupported: ${e.message}")
         } catch (e: IllegalArgumentException) {
