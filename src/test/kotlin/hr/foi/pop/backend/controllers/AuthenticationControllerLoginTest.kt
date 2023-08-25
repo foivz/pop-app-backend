@@ -2,7 +2,6 @@ package hr.foi.pop.backend.controllers
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
-import hr.foi.pop.backend.controllers.AuthenticationControllerRegistrationTest.Companion.mockRegisterBodyAsObject
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.repositories.UserRepository
@@ -10,6 +9,7 @@ import hr.foi.pop.backend.request_bodies.LoginRequestBody
 import hr.foi.pop.backend.services.UserService
 import hr.foi.pop.backend.utils.MockEntitiesHelper
 import hr.foi.pop.backend.utils.MockMvcBuilderManager
+import hr.foi.pop.backend.utils.MockObjectsHelper
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
@@ -29,6 +29,7 @@ import org.springframework.web.context.WebApplicationContext
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
 class AuthenticationControllerLoginTest {
     companion object {
         const val loginRoute = "/api/v2/auth/login"
@@ -50,9 +51,12 @@ class AuthenticationControllerLoginTest {
         mvc = MockMvcBuilderManager.getMockMvc(context, AuthenticationControllerLoginTest::class)
     }
 
+    private val mockLoginUser =
+        MockObjectsHelper.getMockRegisterRequestBody("login-tester", "test@login.com")
+
     private val mockLoginBodyAsObject = LoginRequestBody(
-        mockRegisterBodyAsObject.username,
-        mockRegisterBodyAsObject.password
+        mockLoginUser.username,
+        mockLoginUser.password
     )
 
     private val badJSON = "{\"random\": \"Object\"}"
@@ -83,19 +87,18 @@ class AuthenticationControllerLoginTest {
     }
 
     @Test
-    @Transactional
     fun givenNonAcceptedCorrectUser_whenLoginRouteHit_returnError() {
         val body = getJsonFromObject(mockLoginBodyAsObject)
         val request = getRequestObjectWithJSONBody(body)
 
-        Assertions.assertNotNull(userService.registerUser(mockRegisterBodyAsObject))
+        Assertions.assertNotNull(userService.registerUser(mockLoginUser))
 
         mvc.perform(request)
             .andExpect(status().isForbidden)
             .andExpect(
                 jsonPath("message").value(
                     Matchers.matchesPattern(
-                        "User \"${mockRegisterBodyAsObject.username}\" is not accepted yet by the admin!"
+                        "User \"${mockLoginUser.username}\" is not accepted yet by the admin!"
                     )
                 )
             )
@@ -104,7 +107,6 @@ class AuthenticationControllerLoginTest {
     }
 
     @Test
-    @Transactional
     fun givenAcceptedCorrectUserWithoutAStore_whenLoginRouteHit_returnValidJWTAndWarningMessage() {
         val body = getJsonFromObject(mockLoginBodyAsObject)
         val request = getRequestObjectWithJSONBody(body)
@@ -116,7 +118,7 @@ class AuthenticationControllerLoginTest {
             .andExpect(
                 jsonPath("message").value(
                     Matchers.matchesPattern(
-                        "User \"${mockRegisterBodyAsObject.username}\" logged in with warnings."
+                        "User \"${mockLoginUser.username}\" logged in with warnings."
                     )
                 )
             )
@@ -133,7 +135,7 @@ class AuthenticationControllerLoginTest {
     }
 
     private fun getStoredAcceptedUserWithoutStore(): User {
-        var storedUser: User? = userService.registerUser(mockRegisterBodyAsObject)
+        var storedUser: User? = userService.registerUser(mockLoginUser)
         Assertions.assertNotNull(storedUser)
 
         storedUser!!.isAccepted = true
@@ -147,7 +149,6 @@ class AuthenticationControllerLoginTest {
     }
 
     @Test
-    @Transactional
     fun givenGoodUser_whenLoginRouteHit_returnValidJWT() {
         val body = getJsonFromObject(mockLoginBodyAsObject)
         val request = getRequestObjectWithJSONBody(body)
@@ -159,7 +160,7 @@ class AuthenticationControllerLoginTest {
             .andExpect(
                 jsonPath("message").value(
                     Matchers.matchesPattern(
-                        "User \"${mockRegisterBodyAsObject.username}\" logged in."
+                        "User \"${mockLoginUser.username}\" logged in."
                     )
                 )
             )

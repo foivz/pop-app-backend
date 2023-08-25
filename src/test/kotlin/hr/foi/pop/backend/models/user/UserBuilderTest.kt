@@ -3,12 +3,12 @@ package hr.foi.pop.backend.models.user
 import hr.foi.pop.backend.exceptions.UserBuilderException
 import hr.foi.pop.backend.repositories.EventRepository
 import hr.foi.pop.backend.utils.MockEntitiesHelper
-import hr.foi.pop.backend.utils.passwordEncoder
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.security.crypto.password.PasswordEncoder
 
 @SpringBootTest
 class UserBuilderTest {
@@ -16,6 +16,9 @@ class UserBuilderTest {
 
     @Autowired
     lateinit var eventRepository: EventRepository
+
+    @Autowired
+    lateinit var passwordEncoder: PasswordEncoder
 
     @Test
     fun givenCorrectUserInfo_WhenBuiltViaBuilder_PropertiesEqual() {
@@ -38,7 +41,7 @@ class UserBuilderTest {
             .setEmail(mockedUser.email)
             .setRole(mockedUser.role)
             .setCurrentEvent(eventRepository.getEventByIsActiveTrue())
-            .setPassword("readable_password", passwordEncoder())
+            .setPassword("readable_password", passwordEncoder)
 
     private fun assertIsBCryptHash(password: String) {
         Assertions.assertTrue(password.startsWith("\$2a\$10\$"))
@@ -71,10 +74,10 @@ class UserBuilderTest {
             UserBuilder()
                 .setFirstName("")
                 .setLastName("")
-                .setPassword("", passwordEncoder())
+                .setPassword("", passwordEncoder)
                 .setUsername("")
                 .setEmail("")
-                .setPassword("", passwordEncoder())
+                .setPassword("", passwordEncoder)
                 .build()
         }
         Assertions.assertEquals(

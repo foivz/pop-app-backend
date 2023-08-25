@@ -5,7 +5,7 @@ import hr.foi.pop.backend.exceptions.BadJwtFormatException
 import hr.foi.pop.backend.responses.ErrorResponse
 import hr.foi.pop.backend.responses.ResponseSender
 import hr.foi.pop.backend.security.jwt.JwtUtils
-import hr.foi.pop.backend.services.UserService
+import hr.foi.pop.backend.services.AuthenticationService
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.MalformedJwtException
 import jakarta.servlet.FilterChain
@@ -29,7 +29,7 @@ open class AuthTokenFilter(
     private lateinit var jwtUtils: JwtUtils
 
     @Autowired
-    private lateinit var userDetailsService: UserService
+    private lateinit var authenticationService: AuthenticationService
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
         return excludedRoutes.stream().anyMatch { matcher ->
@@ -48,7 +48,7 @@ open class AuthTokenFilter(
 
             if (isJwtValid) {
                 val username = jwtUtils.getUsernameFromJwtToken(jwt)
-                val userDetails = userDetailsService.loadUserByUsername(username)
+                val userDetails = authenticationService.loadUserByUsername(username)
 
                 UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities).let { token ->
                     token.details = WebAuthenticationDetailsSource().buildDetails(request)

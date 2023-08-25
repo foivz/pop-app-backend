@@ -29,7 +29,7 @@ class MockEntitiesHelper {
 
         /** password: test123 **/
         fun generateUserEntityWithStore(password: String = "test123"): User {
-            val encoder = passwordEncoder()
+            val encoder = PasswordEncoderBean().passwordEncoder()
             return User().apply {
                 this.id = 3
                 this.firstName = "Tester"

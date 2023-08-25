@@ -4,11 +4,12 @@ import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.UserCheckException
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.repositories.UserRepository
-import hr.foi.pop.backend.services.templateRequestBodyForTesting
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
+private val templateRequestBodyForTesting =
+    MockObjectsHelper.getMockRegisterRequestBody("userchecker-tester", "test@userchecker.com")
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

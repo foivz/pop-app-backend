@@ -3,6 +3,7 @@ package hr.foi.pop.backend.handlers
 import hr.foi.pop.backend.controllers.AuthenticationController
 import hr.foi.pop.backend.controllers.AuthenticationControllerRegistrationTest
 import hr.foi.pop.backend.definitions.ApplicationErrorType
+import hr.foi.pop.backend.services.AuthenticationService
 import hr.foi.pop.backend.services.UserService
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -24,6 +25,9 @@ class BadRequestHandlerTest {
 
     @MockBean
     lateinit var userService: UserService
+
+    @MockBean
+    lateinit var authenticationService: AuthenticationService
 
     @Test
     @WithMockUser("tester")

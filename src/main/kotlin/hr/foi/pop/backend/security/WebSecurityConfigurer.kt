@@ -1,8 +1,7 @@
 package hr.foi.pop.backend.security
 
 import hr.foi.pop.backend.filters.AuthTokenFilter
-import hr.foi.pop.backend.services.UserService
-import hr.foi.pop.backend.utils.passwordEncoder
+import hr.foi.pop.backend.services.AuthenticationService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console
 import org.springframework.context.annotation.Bean
@@ -16,6 +15,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
@@ -26,10 +26,13 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 class WebSecurityConfigurer {
 
     @Autowired
-    private lateinit var userDetailsService: UserService
+    private lateinit var authenticationService: AuthenticationService
 
     @Autowired
     private lateinit var unauthorizedHandler: AuthenticationExceptionHandler
+
+    @Autowired
+    lateinit var passwordEncoder: PasswordEncoder
 
     private val excludedRoutesForAuthTokenFiltering = listOf(
         AntPathRequestMatcher("/api/v2/auth/**"),
@@ -44,8 +47,8 @@ class WebSecurityConfigurer {
     @Bean
     fun authenticationProvider(): DaoAuthenticationProvider {
         val authProvider = DaoAuthenticationProvider()
-        authProvider.setUserDetailsService(userDetailsService)
-        authProvider.setPasswordEncoder(passwordEncoder())
+        authProvider.setUserDetailsService(authenticationService)
+        authProvider.setPasswordEncoder(passwordEncoder)
         return authProvider
     }
 

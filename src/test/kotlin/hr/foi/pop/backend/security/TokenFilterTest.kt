@@ -2,9 +2,10 @@ package hr.foi.pop.backend.security
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.repositories.UserRepository
+import hr.foi.pop.backend.services.AuthenticationService
 import hr.foi.pop.backend.services.UserService
-import hr.foi.pop.backend.services.templateRequestBodyForTesting
 import hr.foi.pop.backend.utils.MockMvcBuilderManager
+import hr.foi.pop.backend.utils.MockObjectsHelper
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -20,11 +21,17 @@ import org.springframework.web.context.WebApplicationContext
 class TokenFilterTest {
     val testRoute = "/api/v2/test/auth"
 
+    private val templateRequestBodyForTesting =
+        MockObjectsHelper.getMockRegisterRequestBody("token-tester", "test@token.com")
+
     @Autowired
     lateinit var context: WebApplicationContext
 
     @Autowired
     lateinit var userService: UserService
+
+    @Autowired
+    lateinit var authenticationService: AuthenticationService
 
     @Autowired
     lateinit var userRepository: UserRepository
@@ -96,7 +103,7 @@ class TokenFilterTest {
 
         userRepository.save(acceptedUser)
 
-        return userService.authenticateAndGenerateJWT(
+        return authenticationService.authenticateAndGenerateJWT(
             templateRequestBodyForTesting.username, templateRequestBodyForTesting.password
         )
     }

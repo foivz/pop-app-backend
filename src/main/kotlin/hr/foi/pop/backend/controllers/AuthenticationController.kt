@@ -12,6 +12,7 @@ import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.responses.ErrorResponse
 import hr.foi.pop.backend.responses.SuccessResponse
 import hr.foi.pop.backend.responses.WarningResponse
+import hr.foi.pop.backend.services.AuthenticationService
 import hr.foi.pop.backend.services.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -23,6 +24,9 @@ import org.springframework.web.bind.annotation.*
 class AuthenticationController {
     @Autowired
     lateinit var userService: UserService
+
+    @Autowired
+    lateinit var authenticationService: AuthenticationService
 
     @PostMapping("register")
     fun registerUser(@RequestBody request: RegisterRequestBody): ResponseEntity<SuccessResponse> {
@@ -36,8 +40,8 @@ class AuthenticationController {
 
     @PostMapping("login")
     fun loginUser(@RequestBody request: LoginRequestBody): ResponseEntity<out SuccessResponse> {
-        val jwt = userService.authenticateAndGenerateJWT(request.username, request.password)
-        val userEntity = userService.loadUserByUsername(request.username) as User
+        val jwt = authenticationService.authenticateAndGenerateJWT(request.username, request.password)
+        val userEntity = authenticationService.loadUserByUsername(request.username) as User
         val userDto = UserMapper().mapDto(userEntity)
         val loginResponse = UserLoginResponseDTO(userDto)
 
