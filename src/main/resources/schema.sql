@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS `popapp_db`.`users` (
   `date_registered` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `balance` INT NOT NULL DEFAULT 0,
   `is_accepted` TINYINT NOT NULL DEFAULT 0,
+  `current_refresh_token` NCHAR(64),
   PRIMARY KEY (`id_user`),
   CONSTRAINT `fk_users_stores1`
     FOREIGN KEY (`stores_id_store`)
