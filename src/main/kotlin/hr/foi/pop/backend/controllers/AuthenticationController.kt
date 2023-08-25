@@ -40,7 +40,7 @@ class AuthenticationController {
 
     @PostMapping("login")
     fun loginUser(@RequestBody request: LoginRequestBody): ResponseEntity<out SuccessResponse> {
-        val jwt = authenticationService.authenticateAndGenerateJWT(request.username, request.password)
+        val jwtPair = authenticationService.authenticateAndGenerateJWTPair(request.username, request.password)
         val userEntity = authenticationService.loadUserByUsername(request.username) as User
         val userDto = UserMapper().mapDto(userEntity)
         val loginResponse = UserLoginResponseDTO(userDto)
@@ -50,7 +50,7 @@ class AuthenticationController {
 
         val response = if (loginResponse.store != null) {
             responseBuilder.body(
-                SuccessResponse("$baseMessage.", loginResponse, jwt)
+                SuccessResponse("$baseMessage.", loginResponse, jwtPair)
             )
         } else {
             responseBuilder.body(
@@ -58,7 +58,7 @@ class AuthenticationController {
                     ApplicationErrorType.WARN_STORE_NOT_SET,
                     "$baseMessage with warnings.",
                     loginResponse,
-                    jwt
+                    jwtPair
                 )
             )
         }

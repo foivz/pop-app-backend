@@ -5,6 +5,7 @@ import hr.foi.pop.backend.exceptions.UserNotAcceptedException
 import hr.foi.pop.backend.models.event.Event
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.repositories.UserRepository
+import hr.foi.pop.backend.security.jwt.JwtPair
 import hr.foi.pop.backend.security.jwt.JwtUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.userdetails.UserDetails
@@ -12,6 +13,8 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import java.util.*
+import kotlin.random.Random
 
 @Service
 class AuthenticationService : UserDetailsService {
@@ -24,9 +27,19 @@ class AuthenticationService : UserDetailsService {
     @Autowired
     private lateinit var passwordEncoder: PasswordEncoder
 
-    fun authenticateAndGenerateJWT(username: String, password: String): String {
+    fun authenticateAndGenerateJWTPair(username: String, password: String): JwtPair {
         val user = authenticate(username, password)
-        return generateJWT(user)
+
+        val accessToken = generateAccessToken(user)
+        val refreshToken = generateRefreshToken()
+
+        return JwtPair(accessToken, refreshToken)
+    }
+
+    private fun generateRefreshToken(): String {
+        val randomBytes = Random.Default.nextBytes(48)
+        val base64Encoder = Base64.getEncoder()
+        return base64Encoder.encodeToString(randomBytes)
     }
 
     private fun authenticate(providedUsername: String, providedPassword: String): User {
@@ -58,7 +71,7 @@ class AuthenticationService : UserDetailsService {
         }
     }
 
-    private fun generateJWT(user: User): String {
+    private fun generateAccessToken(user: User): String {
         return jwtUtils.generateJwtToken(user)
     }
 

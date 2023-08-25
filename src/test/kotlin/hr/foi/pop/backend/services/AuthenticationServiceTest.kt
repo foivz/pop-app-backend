@@ -4,11 +4,13 @@ import hr.foi.pop.backend.exceptions.UserAuthenticationException
 import hr.foi.pop.backend.exceptions.UserNotAcceptedException
 import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
+import hr.foi.pop.backend.security.jwt.JwtPair
 import hr.foi.pop.backend.utils.MockObjectsHelper
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
+import java.util.*
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -43,7 +45,7 @@ class AuthenticationServiceTest {
         val correctPassword = templateRequestBodyForTesting.password
 
         Assertions.assertThrows(UserNotAcceptedException::class.java) {
-            authenticationService.authenticateAndGenerateJWT(correctUsername, correctPassword)
+            authenticationService.authenticateAndGenerateJWTPair(correctUsername, correctPassword)
         }
     }
 
@@ -54,8 +56,9 @@ class AuthenticationServiceTest {
         val correctUsername = templateRequestBodyForTesting.username
         val correctPassword = templateRequestBodyForTesting.password
 
-        val jwt: String = authenticationService.authenticateAndGenerateJWT(correctUsername, correctPassword)
-        assertJwtLooksFine(jwt)
+        val jwtPair: JwtPair = authenticationService.authenticateAndGenerateJWTPair(correctUsername, correctPassword)
+        assertJwtLooksFine(jwtPair.accessToken)
+        assertRefreshTokenLooksFine(jwtPair.refreshToken)
     }
 
     private fun acceptUser(username: String) {
@@ -73,6 +76,13 @@ class AuthenticationServiceTest {
         Assertions.assertEquals(20, jwtParts[0].length, "JWT's first part incorrect in size!")
         Assertions.assertFalse(jwtParts[1].length <= 10, "JWT's second part too short!")
         Assertions.assertFalse(jwtParts[2].length <= 20, "JWT's third part too short!")
+    }
+
+    private fun assertRefreshTokenLooksFine(refreshToken: String) {
+        Assertions.assertEquals(64, refreshToken.length)
+
+        val base64Decoder = Base64.getDecoder()
+        Assertions.assertDoesNotThrow { base64Decoder.decode(refreshToken.toByteArray()) }
     }
 
     @Test
@@ -93,7 +103,7 @@ class AuthenticationServiceTest {
 
     private fun assertExceptionGetsThrownForBadLogin(username: String, password: String) {
         val thrownException = assertThrows<UserAuthenticationException> {
-            authenticationService.authenticateAndGenerateJWT(
+            authenticationService.authenticateAndGenerateJWTPair(
                 username,
                 password
             )
@@ -113,7 +123,7 @@ class AuthenticationServiceTest {
         val mockPassword = templateRequestBodyForTesting.password
 
         assertThrows<UserAuthenticationException> {
-            authenticationService.authenticateAndGenerateJWT(mockUsername, mockPassword)
+            authenticationService.authenticateAndGenerateJWTPair(mockUsername, mockPassword)
         }
     }
 

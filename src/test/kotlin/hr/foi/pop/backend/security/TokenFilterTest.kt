@@ -103,8 +103,10 @@ class TokenFilterTest {
         acceptedUser.isAccepted = true
         userRepository.save(acceptedUser)
 
-        return authenticationService.authenticateAndGenerateJWT(
-            templateRequestBodyForTesting.username, templateRequestBodyForTesting.password
+        val jwtPair = authenticationService.authenticateAndGenerateJWTPair(
+            templateRequestBodyForTesting.username,
+            templateRequestBodyForTesting.password
         )
+        return jwtPair.accessToken
     }
 }
