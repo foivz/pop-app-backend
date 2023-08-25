@@ -3,13 +3,16 @@ package hr.foi.pop.backend.services
 import hr.foi.pop.backend.exceptions.UserAuthenticationException
 import hr.foi.pop.backend.exceptions.UserNotAcceptedException
 import hr.foi.pop.backend.repositories.UserRepository
+import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.utils.MockObjectsHelper
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
 class AuthenticationServiceTest {
 
     @Autowired
@@ -100,5 +103,27 @@ class AuthenticationServiceTest {
 
     private fun assertAuthenticationExceptionDescribesError(ex: UserAuthenticationException) {
         Assertions.assertEquals("Please check your credentials!", ex.message)
+    }
+
+    @Test
+    fun whenUserFromAnotherEventTriesToLogIn_OnLoginAttempt_InactiveEventExceptionThrown() {
+        deactivateUsersEventButActivateUser(templateRequestBodyForTesting)
+
+        val mockUsername = templateRequestBodyForTesting.username
+        val mockPassword = templateRequestBodyForTesting.password
+
+        assertThrows<UserAuthenticationException> {
+            authenticationService.authenticateAndGenerateJWT(mockUsername, mockPassword)
+        }
+    }
+
+    private fun deactivateUsersEventButActivateUser(templateRequestBodyForTesting: RegisterRequestBody) {
+        val user = userRepository.getUserByUsername(templateRequestBodyForTesting.username)
+        Assertions.assertNotNull(user)
+
+        user!!.event.isActive = false
+        user.isAccepted = true
+
+        userRepository.save(user)
     }
 }

@@ -6,6 +6,7 @@ import hr.foi.pop.backend.services.AuthenticationService
 import hr.foi.pop.backend.services.UserService
 import hr.foi.pop.backend.utils.MockMvcBuilderManager
 import hr.foi.pop.backend.utils.MockObjectsHelper
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -96,11 +97,10 @@ class TokenFilterTest {
     }
 
     private fun procureValidJwt(): String {
-        val acceptedUser = userService.registerUser(
-            templateRequestBodyForTesting
-        )
-        acceptedUser.isAccepted = true
+        Assertions.assertFalse(userRepository.existsByUsername(templateRequestBodyForTesting.username))
 
+        val acceptedUser = userService.registerUser(templateRequestBodyForTesting)
+        acceptedUser.isAccepted = true
         userRepository.save(acceptedUser)
 
         return authenticationService.authenticateAndGenerateJWT(

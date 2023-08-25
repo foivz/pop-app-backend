@@ -2,6 +2,7 @@ package hr.foi.pop.backend.services
 
 import hr.foi.pop.backend.exceptions.UserAuthenticationException
 import hr.foi.pop.backend.exceptions.UserNotAcceptedException
+import hr.foi.pop.backend.models.event.Event
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.security.jwt.JwtUtils
@@ -32,21 +33,28 @@ class AuthenticationService : UserDetailsService {
         val user = userRepository.getUserByUsername(providedUsername)
             ?: throw UserAuthenticationException("Non-existent user $providedUsername tried to log in")
 
-        val encoder = passwordEncoder
+        ensurePasswordMatch(providedPassword, user.passwordHash)
+        ensureUserIsAccepted(user)
+        ensureEventIsActive(user.event)
 
-        val isAuthenticated = encoder.matches(providedPassword, user.passwordHash)
+        return user
+    }
 
-        if (isAuthenticated) {
-            ensureUserIsAccepted(user)
-            return user
-        } else {
-            throw UserAuthenticationException("A wrong password was provided for user $providedUsername")
+    private fun ensurePasswordMatch(passwordPlaintext: String, passwordHashed: String) {
+        if (!passwordEncoder.matches(passwordPlaintext, passwordHashed)) {
+            throw UserAuthenticationException("A wrong password was provided!")
         }
     }
 
     private fun ensureUserIsAccepted(user: User) {
         if (!user.isAccepted) {
             throw UserNotAcceptedException("User \"${user.username}\" is not accepted yet by the admin!")
+        }
+    }
+
+    private fun ensureEventIsActive(event: Event) {
+        if (!event.isActive) {
+            throw UserAuthenticationException("User belongs to event \"${event.name}\" which is deactivated!")
         }
     }
 
