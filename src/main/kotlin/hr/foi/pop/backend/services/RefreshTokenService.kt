@@ -19,19 +19,22 @@ class RefreshTokenService {
     @Autowired
     private lateinit var refreshTokenRepository: RefreshTokenRepository
 
-    fun createNewRefreshTokenForUser(user: User): String {
+    fun createNewRefreshTokenForUser(user: User): RefreshToken {
         val generatedToken = generateToken()
 
         val refreshTokenEntity = RefreshToken().apply {
             owner = user
             token = generatedToken
             dateCreated = LocalDateTime.now()
-            expirationDate = LocalDateTime.now().plusMinutes(refreshTokenExpirationMinutes)
+            expirationDate = generateExpirationDate()
         }
 
         refreshTokenRepository.save(refreshTokenEntity)
-        return refreshTokenEntity.token
+        return refreshTokenEntity
     }
+
+    private fun generateExpirationDate() = LocalDateTime.now().plusMinutes(refreshTokenExpirationMinutes)
+
 
     private fun generateToken(): String {
         val randomBytes = Random.Default.nextBytes(48)
@@ -58,6 +61,8 @@ class RefreshTokenService {
 
     private fun updateRefreshTokenValue(foundToken: RefreshToken) {
         foundToken.token = generateToken()
+        foundToken.dateCreated = LocalDateTime.now()
+        foundToken.expirationDate = generateExpirationDate()
         refreshTokenRepository.save(foundToken)
     }
 }
