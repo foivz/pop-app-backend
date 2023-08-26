@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @SpringBootTest
+@Transactional
 class RefreshTokenRepositoryTest {
     @Autowired
     lateinit var refreshTokenRepository: RefreshTokenRepository

@@ -7,12 +7,14 @@ import hr.foi.pop.backend.repositories.UserRepository
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.transaction.annotation.Transactional
 
 private val templateRequestBodyForTesting =
     MockObjectsHelper.getMockRegisterRequestBody("userchecker-tester", "test@userchecker.com")
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
 class UserCheckerTest(@Autowired userRepository: UserRepository) :
     UserChecker(templateRequestBodyForTesting, userRepository) {
 
