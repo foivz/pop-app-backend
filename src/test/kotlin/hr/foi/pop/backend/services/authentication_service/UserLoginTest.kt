@@ -1,11 +1,14 @@
-package hr.foi.pop.backend.services
+package hr.foi.pop.backend.services.authentication_service
 
 import hr.foi.pop.backend.exceptions.UserAuthenticationException
 import hr.foi.pop.backend.exceptions.UserNotAcceptedException
 import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.security.jwt.JwtPair
+import hr.foi.pop.backend.services.AuthenticationService
+import hr.foi.pop.backend.services.UserService
 import hr.foi.pop.backend.utils.MockObjectsHelper
+import hr.foi.pop.backend.utils.TokenPairValidator
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -15,7 +18,7 @@ import java.util.*
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
-class AuthenticationServiceTest {
+class UserLoginTest {
 
     @Autowired
     lateinit var userRepository: UserRepository
@@ -57,8 +60,7 @@ class AuthenticationServiceTest {
         val correctPassword = templateRequestBodyForTesting.password
 
         val jwtPair: JwtPair = authenticationService.authenticateAndGenerateJWTPair(correctUsername, correctPassword)
-        assertJwtLooksFine(jwtPair.accessToken)
-        assertRefreshTokenLooksFine(jwtPair.refreshToken)
+        TokenPairValidator.assertTokenPairValid(jwtPair)
     }
 
     private fun acceptUser(username: String) {
@@ -67,22 +69,6 @@ class AuthenticationServiceTest {
 
         user!!.isAccepted = true
         userRepository.save(user)
-    }
-
-    private fun assertJwtLooksFine(jwt: String) {
-        Assertions.assertTrue(jwt.length > 10)
-        val jwtParts = jwt.split('.')
-        Assertions.assertEquals(3, jwtParts.size, "JWT doesn't have 3 parts!")
-        Assertions.assertEquals(20, jwtParts[0].length, "JWT's first part incorrect in size!")
-        Assertions.assertFalse(jwtParts[1].length <= 10, "JWT's second part too short!")
-        Assertions.assertFalse(jwtParts[2].length <= 20, "JWT's third part too short!")
-    }
-
-    private fun assertRefreshTokenLooksFine(refreshToken: String) {
-        Assertions.assertEquals(64, refreshToken.length)
-
-        val base64Decoder = Base64.getDecoder()
-        Assertions.assertDoesNotThrow { base64Decoder.decode(refreshToken.toByteArray()) }
     }
 
     @Test
