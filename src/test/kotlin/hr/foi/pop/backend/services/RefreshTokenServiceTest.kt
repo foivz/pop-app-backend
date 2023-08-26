@@ -3,6 +3,7 @@ package hr.foi.pop.backend.services
 import hr.foi.pop.backend.exceptions.RefreshTokenInvalidException
 import hr.foi.pop.backend.models.refresh_token.RefreshToken
 import hr.foi.pop.backend.repositories.RefreshTokenRepository
+import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.utils.MockEntitiesHelper
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -21,10 +22,13 @@ class RefreshTokenServiceTest {
     @Autowired
     lateinit var refreshTokenRepository: RefreshTokenRepository
 
+    @Autowired
+    lateinit var userRepository: UserRepository
+
     @Test
     @Transactional
     fun givenTokenCreated_whenSavedAndRetrieved_dataMatchesOut() {
-        val user = MockEntitiesHelper.generateUserEntityWithStore(this::class)
+        val user = userRepository.save(MockEntitiesHelper.generateUserEntityWithStore(this::class))
 
         val createdRefreshToken = refreshTokenService.createNewRefreshTokenForUser(user)
         val retrievedRefreshTokenEntity = refreshTokenRepository.getRefreshTokenByOwner(user)

@@ -13,12 +13,16 @@ import java.time.LocalDateTime
 @Transactional
 class RefreshTokenRepositoryTest {
     @Autowired
+    lateinit var userRepository: UserRepository
+
+    @Autowired
     lateinit var refreshTokenRepository: RefreshTokenRepository
 
     @Test
     @Transactional
     fun givenTokenForUserExists_whenGottenByOwner_thenTokenRetrieved() {
-        val mockUser = MockEntitiesHelper.generateUserEntityWithStore(this::class)
+        val mockUser = userRepository.save(MockEntitiesHelper.generateUserEntityWithStore(this::class))
+
         val mockRefreshToken = RefreshToken().apply {
             owner = mockUser
             token = "---------------------------mock_token---------------------------"
@@ -26,7 +30,6 @@ class RefreshTokenRepositoryTest {
             expirationDate = LocalDateTime.now()
         }
         refreshTokenRepository.save(mockRefreshToken)
-
         val retrievedToken = refreshTokenRepository.getRefreshTokenByOwner(mockUser)
 
         Assertions.assertEquals(mockRefreshToken.token, retrievedToken!!.token)

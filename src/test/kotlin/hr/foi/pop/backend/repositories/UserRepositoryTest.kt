@@ -8,22 +8,20 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Transactional
 class UserRepositoryTest {
 
     @Autowired
     lateinit var userRepository: UserRepository
 
-    val mockUser = MockEntitiesHelper.generateUserEntityWithStore(this::class)
+    private var mockUser = MockEntitiesHelper.generateUserEntityWithStore(this::class)
 
     @BeforeAll
     fun addMockUserToDatabase() {
-        userRepository.save(mockUser)
+        mockUser = userRepository.save(mockUser)
         val mockUserUsername = mockUser.username
         val mockUserIsSaved = userRepository.existsByUsername(mockUserUsername)
         Assertions.assertTrue(mockUserIsSaved)
