@@ -2,7 +2,7 @@ package hr.foi.pop.backend.services.authentication_service
 
 import hr.foi.pop.backend.exceptions.RefreshTokenInvalidException
 import hr.foi.pop.backend.repositories.UserRepository
-import hr.foi.pop.backend.security.jwt.JwtPair
+import hr.foi.pop.backend.security.jwt.TokenPair
 import hr.foi.pop.backend.services.AuthenticationService
 import hr.foi.pop.backend.services.UserService
 import hr.foi.pop.backend.utils.MockObjectsHelper
@@ -37,9 +37,9 @@ class AuthenticationServiceTokensTest {
     @Test
     @Transactional
     fun givenValidRefreshToken_whenUserRequestsNewTokenPair_newDifferentTokensGenerated() {
-        val initialJwtPairAfterLogin: JwtPair = getJwtPairByLoggingIn()
+        val initialTokenPairAfterLogin: TokenPair = getTokenPairByLoggingIn()
 
-        val originalRefreshToken = initialJwtPairAfterLogin.refreshToken
+        val originalRefreshToken = initialTokenPairAfterLogin.refreshToken
         val firstRefreshedRefreshToken = getNewValidRefreshTokenByUsingRefreshToken(originalRefreshToken)
         val secondRefreshedRefreshToken = getNewValidRefreshTokenByUsingRefreshToken(firstRefreshedRefreshToken)
 
@@ -47,34 +47,34 @@ class AuthenticationServiceTokensTest {
     }
 
     private fun getNewValidRefreshTokenByUsingRefreshToken(refreshToken: String): String {
-        val refreshedJwtPair: JwtPair =
-            authenticationService.procureNewJwtPairUsingRefreshToken(refreshToken)
-        ensureRefreshedTokenPairIsValid(refreshedJwtPair)
-        return refreshedJwtPair.refreshToken
+        val refreshedTokenPair: TokenPair =
+            authenticationService.procureNewTokenPairUsingRefreshToken(refreshToken)
+        ensureRefreshedTokenPairIsValid(refreshedTokenPair)
+        return refreshedTokenPair.refreshToken
     }
 
-    private fun ensureRefreshedTokenPairIsValid(tokenPair: JwtPair) {
+    private fun ensureRefreshedTokenPairIsValid(tokenPair: TokenPair) {
         TokenPairValidator.assertTokenPairValid(tokenPair)
     }
 
     @Test
     @Transactional
     fun givenValidRefreshToken_whenUsedMoreThanOnce_thenRefreshTokenInvalidExceptionThrown() {
-        val initialJwtPairAfterLogin: JwtPair = getJwtPairByLoggingIn()
+        val initialTokenPairAfterLogin: TokenPair = getTokenPairByLoggingIn()
 
-        val validRefreshToken = initialJwtPairAfterLogin.refreshToken
+        val validRefreshToken = initialTokenPairAfterLogin.refreshToken
         getNewValidRefreshTokenByUsingRefreshToken(validRefreshToken)
         assertThrowsWhenSameRefreshTokenUsedForTheSecondTime(validRefreshToken)
     }
 
     private fun assertThrowsWhenSameRefreshTokenUsedForTheSecondTime(alreadyUsedRefreshToken: String) {
         val thrownException = assertThrows<RefreshTokenInvalidException> {
-            authenticationService.procureNewJwtPairUsingRefreshToken(alreadyUsedRefreshToken)
+            authenticationService.procureNewTokenPairUsingRefreshToken(alreadyUsedRefreshToken)
         }
         Assertions.assertEquals("Given refresh token not found!", thrownException.message)
     }
 
-    private fun getJwtPairByLoggingIn(): JwtPair = authenticationService.authenticateAndGenerateJWTPair(
+    private fun getTokenPairByLoggingIn(): TokenPair = authenticationService.authenticateAndGenerateTokenPair(
         mockLoginUser.username,
         mockLoginUser.password
     )

@@ -1,12 +1,12 @@
 package hr.foi.pop.backend.utils
 
-import hr.foi.pop.backend.security.jwt.JwtPair
+import hr.foi.pop.backend.security.jwt.TokenPair
 import org.junit.jupiter.api.Assertions
 import java.util.*
 
 class TokenPairValidator {
     companion object {
-        fun assertTokenPairValid(pair: JwtPair) {
+        fun assertTokenPairValid(pair: TokenPair) {
             assertJwtLooksFine(pair.accessToken)
             assertRefreshTokenLooksFine(pair.refreshToken)
         }

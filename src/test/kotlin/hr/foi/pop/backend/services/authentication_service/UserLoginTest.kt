@@ -4,7 +4,7 @@ import hr.foi.pop.backend.exceptions.UserAuthenticationException
 import hr.foi.pop.backend.exceptions.UserNotAcceptedException
 import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
-import hr.foi.pop.backend.security.jwt.JwtPair
+import hr.foi.pop.backend.security.jwt.TokenPair
 import hr.foi.pop.backend.services.AuthenticationService
 import hr.foi.pop.backend.services.UserService
 import hr.foi.pop.backend.utils.MockObjectsHelper
@@ -48,7 +48,7 @@ class UserLoginTest {
         val correctPassword = templateRequestBodyForTesting.password
 
         Assertions.assertThrows(UserNotAcceptedException::class.java) {
-            authenticationService.authenticateAndGenerateJWTPair(correctUsername, correctPassword)
+            authenticationService.authenticateAndGenerateTokenPair(correctUsername, correctPassword)
         }
     }
 
@@ -59,8 +59,9 @@ class UserLoginTest {
         val correctUsername = templateRequestBodyForTesting.username
         val correctPassword = templateRequestBodyForTesting.password
 
-        val jwtPair: JwtPair = authenticationService.authenticateAndGenerateJWTPair(correctUsername, correctPassword)
-        TokenPairValidator.assertTokenPairValid(jwtPair)
+        val tokenPair: TokenPair =
+            authenticationService.authenticateAndGenerateTokenPair(correctUsername, correctPassword)
+        TokenPairValidator.assertTokenPairValid(tokenPair)
     }
 
     private fun acceptUser(username: String) {
@@ -89,7 +90,7 @@ class UserLoginTest {
 
     private fun assertExceptionGetsThrownForBadLogin(username: String, password: String) {
         val thrownException = assertThrows<UserAuthenticationException> {
-            authenticationService.authenticateAndGenerateJWTPair(
+            authenticationService.authenticateAndGenerateTokenPair(
                 username,
                 password
             )
@@ -109,7 +110,7 @@ class UserLoginTest {
         val mockPassword = templateRequestBodyForTesting.password
 
         assertThrows<UserAuthenticationException> {
-            authenticationService.authenticateAndGenerateJWTPair(mockUsername, mockPassword)
+            authenticationService.authenticateAndGenerateTokenPair(mockUsername, mockPassword)
         }
     }
 

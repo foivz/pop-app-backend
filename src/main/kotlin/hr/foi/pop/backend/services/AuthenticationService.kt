@@ -5,8 +5,8 @@ import hr.foi.pop.backend.exceptions.UserNotAcceptedException
 import hr.foi.pop.backend.models.event.Event
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.repositories.UserRepository
-import hr.foi.pop.backend.security.jwt.JwtPair
 import hr.foi.pop.backend.security.jwt.JwtUtils
+import hr.foi.pop.backend.security.jwt.TokenPair
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -28,13 +28,13 @@ class AuthenticationService : UserDetailsService {
     @Autowired
     private lateinit var passwordEncoder: PasswordEncoder
 
-    fun authenticateAndGenerateJWTPair(username: String, password: String): JwtPair {
+    fun authenticateAndGenerateTokenPair(username: String, password: String): TokenPair {
         val user = authenticate(username, password)
 
         val accessToken = generateAccessToken(user)
         val refreshToken = refreshTokenService.createNewRefreshTokenForUser(user)
 
-        return JwtPair(accessToken, refreshToken)
+        return TokenPair(accessToken, refreshToken)
     }
 
     private fun authenticate(providedUsername: String, providedPassword: String): User {
@@ -75,9 +75,9 @@ class AuthenticationService : UserDetailsService {
             ?: throw UsernameNotFoundException("User '$username' not found!")
     }
 
-    fun procureNewJwtPairUsingRefreshToken(refreshToken: String): JwtPair {
+    fun procureNewTokenPairUsingRefreshToken(refreshToken: String): TokenPair {
         val newRefreshToken = refreshTokenService.createNewRefreshTokenFromExistingRefreshToken(refreshToken)
         val accessToken = generateAccessToken(newRefreshToken.owner)
-        return JwtPair(accessToken, newRefreshToken.token)
+        return TokenPair(accessToken, newRefreshToken.token)
     }
 }
