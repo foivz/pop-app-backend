@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -113,24 +114,25 @@ class AuthenticationControllerLoginTest {
 
         val storedUser = getStoredAcceptedUserWithoutStore()
 
-        mvc.perform(request)
-            .andExpect(status().isOk)
-            .andExpect(
-                jsonPath("message").value(
-                    Matchers.matchesPattern(
-                        "User \"${mockLoginUser.username}\" logged in with warnings."
-                    )
-                )
-            )
+        val resultActions = mvc.perform(request)
+        expectResultActionsToContainAcceptedUserInformation(resultActions, storedUser)
+
+        resultActions
+            .andExpect(jsonPath("message").value("User \"${mockLoginUser.username}\" logged in with warnings."))
             .andExpect(jsonPath("error_code").value(ApplicationErrorType.WARN_STORE_NOT_SET.code))
             .andExpect(jsonPath("error_message").value(ApplicationErrorType.WARN_STORE_NOT_SET.name))
-            .andExpect(jsonPath("data[0].id").isNumber)
-            .andExpect(jsonPath("data[0].role").value(storedUser.role.name))
             .andExpect(jsonPath("data[0].store").isEmpty)
-            .andExpect(jsonPath("data[0].first_name").value(storedUser.firstName))
-            .andExpect(jsonPath("data[0].last_name").value(storedUser.lastName))
-            .andExpect(jsonPath("data[0].email").value(storedUser.email))
-            .andExpect(jsonPath("data[0].username").value(storedUser.username))
+    }
+
+    private fun expectResultActionsToContainAcceptedUserInformation(resultActions: ResultActions, user: User) {
+        resultActions
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("data[0].id").isNumber)
+            .andExpect(jsonPath("data[0].role").value(user.role.name))
+            .andExpect(jsonPath("data[0].first_name").value(user.firstName))
+            .andExpect(jsonPath("data[0].last_name").value(user.lastName))
+            .andExpect(jsonPath("data[0].email").value(user.email))
+            .andExpect(jsonPath("data[0].username").value(user.username))
             .andExpect(jsonPath("data[0].is_accepted").value(true))
     }
 
@@ -155,24 +157,17 @@ class AuthenticationControllerLoginTest {
 
         val storedUser = getStoredAcceptedUserWithStore()
 
-        mvc.perform(request)
-            .andExpect(status().isOk)
-            .andExpect(
-                jsonPath("message").value(
-                    Matchers.matchesPattern(
-                        "User \"${mockLoginUser.username}\" logged in."
-                    )
-                )
-            )
-            .andExpect(jsonPath("data[0].id").isNumber)
-            .andExpect(jsonPath("data[0].role").value(storedUser.role.name))
+        val resultActions = mvc.perform(request)
+        expectResultActionsToContainAcceptedUserInformation(resultActions, storedUser)
+
+        resultActions.andExpect(status().isOk)
+            .andExpect(jsonPath("message").value("User \"${mockLoginUser.username}\" logged in."))
             .andExpect(jsonPath("data[0].store.store_id").value(storedUser.store!!.id))
             .andExpect(jsonPath("data[0].store.store_name").value(storedUser.store!!.storeName))
-            .andExpect(jsonPath("data[0].first_name").value(storedUser.firstName))
-            .andExpect(jsonPath("data[0].last_name").value(storedUser.lastName))
-            .andExpect(jsonPath("data[0].email").value(storedUser.email))
-            .andExpect(jsonPath("data[0].username").value(storedUser.username))
-            .andExpect(jsonPath("data[0].is_accepted").value(true))
+            .andExpect(jsonPath("data[1].access_token").isString)
+            .andExpect(jsonPath("data[1].refresh_token.token").isString)
+            .andExpect(jsonPath("data[1].refresh_token.valid_for.time_unit").value("minutes"))
+            .andExpect(jsonPath("data[1].refresh_token.valid_for.amount").isNumber)
     }
 
     private fun getStoredAcceptedUserWithStore(): User {
