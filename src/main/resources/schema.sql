@@ -172,7 +172,7 @@ CREATE TABLE IF NOT EXISTS `popapp_db`.`invoices_has_products` (
 --CREATE INDEX `fk_invoices_has_products_invoices1_idx` ON `popapp_db`.`invoices_has_products`(invoices_id_invoice);
 
 CREATE TABLE IF NOT EXISTS `popapp_db`.`refresh_tokens` (
-   `id_refresh_token` INT NOT NULL,
+   `id_refresh_token` INT NOT NULL AUTO_INCREMENT,
    `users_id_user` INT NOT NULL,
    `token` NCHAR(64) NOT NULL,
     `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

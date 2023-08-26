@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 @Table(name = "refresh_tokens")
 class RefreshToken {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_refresh_token")
     var id: Int = 0
 
