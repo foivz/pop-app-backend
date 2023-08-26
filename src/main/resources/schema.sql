@@ -41,7 +41,6 @@ CREATE TABLE IF NOT EXISTS `popapp_db`.`users` (
   `date_registered` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `balance` INT NOT NULL DEFAULT 0,
   `is_accepted` TINYINT NOT NULL DEFAULT 0,
-  `current_refresh_token` NCHAR(64),
   PRIMARY KEY (`id_user`),
   CONSTRAINT `fk_users_stores1`
     FOREIGN KEY (`stores_id_store`)
@@ -171,3 +170,16 @@ CREATE TABLE IF NOT EXISTS `popapp_db`.`invoices_has_products` (
 
 --CREATE INDEX `fk_invoices_has_products_products1_idx` ON `popapp_db`.`invoices_has_products`(products_id_product);
 --CREATE INDEX `fk_invoices_has_products_invoices1_idx` ON `popapp_db`.`invoices_has_products`(invoices_id_invoice);
+
+CREATE TABLE IF NOT EXISTS `popapp_db`.`refresh_tokens` (
+   `id_refresh_token` INT NOT NULL,
+   `users_id_user` INT NOT NULL,
+   `token` NCHAR(64) NOT NULL,
+    `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `expiration_date` DATETIME NOT NULL,
+    PRIMARY KEY (`id_refresh_token`, `users_id_user`),
+  CONSTRAINT `fk_refresh_tokens_users1`
+    FOREIGN KEY (`users_id_user`)
+    REFERENCES `popapp_db`.`users` (`id_user`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
