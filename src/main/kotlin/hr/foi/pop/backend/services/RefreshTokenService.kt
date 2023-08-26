@@ -1,5 +1,6 @@
 package hr.foi.pop.backend.services
 
+import hr.foi.pop.backend.exceptions.RefreshTokenInvalidException
 import hr.foi.pop.backend.models.refresh_token.RefreshToken
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.repositories.RefreshTokenRepository
@@ -36,5 +37,27 @@ class RefreshTokenService {
         val randomBytes = Random.Default.nextBytes(48)
         val base64Encoder = Base64.getEncoder()
         return base64Encoder.encodeToString(randomBytes)
+    }
+
+    fun createNewRefreshTokenFromExistingRefreshToken(refreshToken: String): RefreshToken {
+        val foundToken = refreshTokenRepository.getRefreshTokenByToken(refreshToken)
+            ?: throw RefreshTokenInvalidException("Given refresh token not found!")
+
+        ensureRefreshTokenNotExpired(foundToken)
+        updateRefreshTokenValue(foundToken)
+
+        return foundToken
+    }
+
+    private fun ensureRefreshTokenNotExpired(foundToken: RefreshToken) {
+        val currentTime = LocalDateTime.now()
+        if (foundToken.expirationDate < currentTime) {
+            throw RefreshTokenInvalidException("Refresh token expired!")
+        }
+    }
+
+    private fun updateRefreshTokenValue(foundToken: RefreshToken) {
+        foundToken.token = generateToken()
+        refreshTokenRepository.save(foundToken)
     }
 }

@@ -1,10 +1,12 @@
 package hr.foi.pop.backend.services
 
+import hr.foi.pop.backend.exceptions.RefreshTokenInvalidException
 import hr.foi.pop.backend.models.refresh_token.RefreshToken
 import hr.foi.pop.backend.repositories.RefreshTokenRepository
 import hr.foi.pop.backend.utils.MockEntitiesHelper
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
@@ -41,5 +43,17 @@ class RefreshTokenServiceTest {
         val creationDateWithinThresholdOfNow = timeDifference < threshold
 
         Assertions.assertTrue(creationDateWithinThresholdOfNow)
+    }
+
+    @Test
+    @Transactional
+    fun givenNonExistentRefreshToken_whenUserTriesToUseIt_throwsException() {
+        val mockRefreshToken = "---------------------------mock_token---------------------------"
+
+        val thrownException = assertThrows<RefreshTokenInvalidException> {
+            refreshTokenService.createNewRefreshTokenFromExistingRefreshToken(mockRefreshToken)
+        }
+
+        Assertions.assertEquals("Given refresh token not found!", thrownException.message)
     }
 }

@@ -74,4 +74,10 @@ class AuthenticationService : UserDetailsService {
         return userRepository.getUserByUsername(username)
             ?: throw UsernameNotFoundException("User '$username' not found!")
     }
+
+    fun procureNewJwtPairUsingRefreshToken(refreshToken: String): JwtPair {
+        val newRefreshToken = refreshTokenService.createNewRefreshTokenFromExistingRefreshToken(refreshToken)
+        val accessToken = generateAccessToken(newRefreshToken.owner)
+        return JwtPair(accessToken, newRefreshToken.token)
+    }
 }
