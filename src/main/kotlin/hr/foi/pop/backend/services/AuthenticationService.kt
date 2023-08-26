@@ -13,11 +13,12 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import java.util.*
-import kotlin.random.Random
 
 @Service
 class AuthenticationService : UserDetailsService {
+    @Autowired
+    private lateinit var refreshTokenService: RefreshTokenService
+
     @Autowired
     private lateinit var userRepository: UserRepository
 
@@ -31,15 +32,9 @@ class AuthenticationService : UserDetailsService {
         val user = authenticate(username, password)
 
         val accessToken = generateAccessToken(user)
-        val refreshToken = generateRefreshToken()
+        val refreshToken = refreshTokenService.createNewRefreshTokenForUser(user)
 
         return JwtPair(accessToken, refreshToken)
-    }
-
-    private fun generateRefreshToken(): String {
-        val randomBytes = Random.Default.nextBytes(48)
-        val base64Encoder = Base64.getEncoder()
-        return base64Encoder.encodeToString(randomBytes)
     }
 
     private fun authenticate(providedUsername: String, providedPassword: String): User {

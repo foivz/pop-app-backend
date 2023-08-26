@@ -1,0 +1,40 @@
+package hr.foi.pop.backend.services
+
+import hr.foi.pop.backend.models.refresh_token.RefreshToken
+import hr.foi.pop.backend.models.user.User
+import hr.foi.pop.backend.repositories.RefreshTokenRepository
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Service
+import java.time.LocalDateTime
+import java.util.*
+import kotlin.random.Random
+
+@Service
+class RefreshTokenService {
+    @Value("\${hr.foi.pop.backend.refreshToken.expirationMinutes}")
+    private var refreshTokenExpirationMinutes: Long = 1440
+
+    @Autowired
+    private lateinit var refreshTokenRepository: RefreshTokenRepository
+
+    fun createNewRefreshTokenForUser(user: User): String {
+        val generatedToken = generateToken()
+
+        val refreshTokenEntity = RefreshToken().apply {
+            owner = user
+            token = generatedToken
+            dateCreated = LocalDateTime.now()
+            expirationDate = LocalDateTime.now().plusMinutes(refreshTokenExpirationMinutes)
+        }
+
+        refreshTokenRepository.save(refreshTokenEntity)
+        return refreshTokenEntity.token
+    }
+
+    private fun generateToken(): String {
+        val randomBytes = Random.Default.nextBytes(48)
+        val base64Encoder = Base64.getEncoder()
+        return base64Encoder.encodeToString(randomBytes)
+    }
+}
