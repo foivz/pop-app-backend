@@ -39,7 +39,7 @@ class AuthenticationServiceTokensTest {
     fun givenValidRefreshToken_whenUserRequestsNewTokenPair_newDifferentTokensGenerated() {
         val initialTokenPairAfterLogin: TokenPair = getTokenPairByLoggingIn()
 
-        val originalRefreshToken = initialTokenPairAfterLogin.refreshToken
+        val originalRefreshToken = initialTokenPairAfterLogin.refreshToken.token
         val firstRefreshedRefreshToken = getNewValidRefreshTokenByUsingRefreshToken(originalRefreshToken)
         val secondRefreshedRefreshToken = getNewValidRefreshTokenByUsingRefreshToken(firstRefreshedRefreshToken)
 
@@ -50,7 +50,7 @@ class AuthenticationServiceTokensTest {
         val refreshedTokenPair: TokenPair =
             authenticationService.procureNewTokenPairUsingRefreshToken(refreshToken)
         ensureRefreshedTokenPairIsValid(refreshedTokenPair)
-        return refreshedTokenPair.refreshToken
+        return refreshedTokenPair.refreshToken.token
     }
 
     private fun ensureRefreshedTokenPairIsValid(tokenPair: TokenPair) {
@@ -63,8 +63,8 @@ class AuthenticationServiceTokensTest {
         val initialTokenPairAfterLogin: TokenPair = getTokenPairByLoggingIn()
 
         val validRefreshToken = initialTokenPairAfterLogin.refreshToken
-        getNewValidRefreshTokenByUsingRefreshToken(validRefreshToken)
-        assertThrowsWhenSameRefreshTokenUsedForTheSecondTime(validRefreshToken)
+        getNewValidRefreshTokenByUsingRefreshToken(validRefreshToken.token)
+        assertThrowsWhenSameRefreshTokenUsedForTheSecondTime(validRefreshToken.token)
     }
 
     private fun assertThrowsWhenSameRefreshTokenUsedForTheSecondTime(alreadyUsedRefreshToken: String) {

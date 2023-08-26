@@ -78,6 +78,6 @@ class AuthenticationService : UserDetailsService {
     fun procureNewTokenPairUsingRefreshToken(refreshToken: String): TokenPair {
         val newRefreshToken = refreshTokenService.createNewRefreshTokenFromExistingRefreshToken(refreshToken)
         val accessToken = generateAccessToken(newRefreshToken.owner)
-        return TokenPair(accessToken, newRefreshToken.token)
+        return TokenPair(accessToken, newRefreshToken)
     }
 }

@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface RefreshTokenRepository : JpaRepository<RefreshToken, Int> {
-    fun getRefreshTokenByOwner(owner: User): RefreshToken
+    fun getRefreshTokenByOwner(owner: User): RefreshToken?
     fun getRefreshTokenByToken(token: String): RefreshToken?
 }

@@ -28,6 +28,6 @@ class RefreshTokenRepositoryTest {
 
         val retrievedToken = refreshTokenRepository.getRefreshTokenByOwner(mockUser)
 
-        Assertions.assertEquals(mockRefreshToken.token, retrievedToken.token)
+        Assertions.assertEquals(mockRefreshToken.token, retrievedToken!!.token)
     }
 }

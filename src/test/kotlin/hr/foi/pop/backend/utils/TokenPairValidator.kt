@@ -8,7 +8,7 @@ class TokenPairValidator {
     companion object {
         fun assertTokenPairValid(pair: TokenPair) {
             assertJwtLooksFine(pair.accessToken)
-            assertRefreshTokenLooksFine(pair.refreshToken)
+            assertRefreshTokenLooksFine(pair.refreshToken.token)
         }
 
         private fun assertJwtLooksFine(jwt: String) {

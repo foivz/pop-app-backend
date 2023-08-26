@@ -26,11 +26,12 @@ class RefreshTokenServiceTest {
     fun givenTokenCreated_whenSavedAndRetrieved_dataMatchesOut() {
         val user = MockEntitiesHelper.generateUserEntityWithStore(this::class)
 
-        val createdRefreshTokenString = refreshTokenService.createNewRefreshTokenForUser(user)
+        val createdRefreshToken = refreshTokenService.createNewRefreshTokenForUser(user)
         val retrievedRefreshTokenEntity = refreshTokenRepository.getRefreshTokenByOwner(user)
 
-        Assertions.assertEquals(user.id, retrievedRefreshTokenEntity.owner.id)
-        Assertions.assertEquals(createdRefreshTokenString, retrievedRefreshTokenEntity.token)
+        Assertions.assertNotNull(retrievedRefreshTokenEntity)
+        Assertions.assertEquals(user.id, retrievedRefreshTokenEntity!!.owner.id)
+        Assertions.assertEquals(createdRefreshToken.token, retrievedRefreshTokenEntity.token)
         assertTokenCreationTimeIsCorrect(retrievedRefreshTokenEntity)
         Assertions.assertTrue(retrievedRefreshTokenEntity.dateCreated < retrievedRefreshTokenEntity.expirationDate)
     }
