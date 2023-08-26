@@ -17,7 +17,7 @@ class RefreshTokenRepositoryTest {
     @Test
     @Transactional
     fun givenTokenForUserExists_whenGottenByOwner_thenTokenRetrieved() {
-        val mockUser = MockEntitiesHelper.generateUserEntityWithStore()
+        val mockUser = MockEntitiesHelper.generateUserEntityWithStore(this::class)
         val mockRefreshToken = RefreshToken().apply {
             owner = mockUser
             token = "---------------------------mock_token---------------------------"

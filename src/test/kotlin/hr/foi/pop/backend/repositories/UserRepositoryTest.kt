@@ -17,7 +17,7 @@ class UserRepositoryTest {
     @Autowired
     lateinit var userRepository: UserRepository
 
-    val mockUser = MockEntitiesHelper.generateUserEntityWithStore()
+    val mockUser = MockEntitiesHelper.generateUserEntityWithStore(this::class)
 
     @BeforeAll
     fun addMockUserToDatabase() {

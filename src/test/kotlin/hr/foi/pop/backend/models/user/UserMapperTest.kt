@@ -11,7 +11,7 @@ class UserMapperTest {
 
     @Test
     fun whenUserDTOMapped_CheckUserAttributes_AreEqual() {
-        val user = MockEntitiesHelper.generateUserEntityWithStore()
+        val user = MockEntitiesHelper.generateUserEntityWithStore(this::class)
 
         val userDto = userMapper.mapDto(user)
 

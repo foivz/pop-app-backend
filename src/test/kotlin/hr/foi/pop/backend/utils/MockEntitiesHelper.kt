@@ -8,6 +8,7 @@ import hr.foi.pop.backend.models.role.Role
 import hr.foi.pop.backend.models.store.Store
 import hr.foi.pop.backend.models.user.User
 import java.time.LocalDateTime
+import kotlin.reflect.KClass
 
 class MockEntitiesHelper {
     companion object {
@@ -27,16 +28,16 @@ class MockEntitiesHelper {
             }
         }
 
-        /** password: test123 **/
-        fun generateUserEntityWithStore(password: String = "test123"): User {
+        fun generateUserEntityWithStore(callerClass: KClass<*>, password: String = "test123"): User {
+            val callerName = callerClass.simpleName!!
             val encoder = PasswordEncoderBean().passwordEncoder()
             return User().apply {
-                this.id = 3
+                this.id = callerClass.hashCode()
                 this.firstName = "Tester"
                 this.lastName = "Testermann"
-                this.email = "tester@test.com"
+                this.email = "tester@${callerName.take(34)}.com"
                 this.passwordHash = encoder.encode(password)
-                this.username = "testerUsername"
+                this.username = "${callerName.take(38)}-tester"
                 this.isAccepted = true
                 this.balance = 300
                 this.role = generateRoleEntity()
@@ -60,7 +61,7 @@ class MockEntitiesHelper {
                 this.id = 3
                 this.code = "INV003"
                 this.dateIssue = LocalDateTime.now()
-                this.user = generateUserEntityWithStore()
+                this.user = generateUserEntityWithStore(this::class)
                 this.store = generateStoreEntity()
                 this.total = 20
                 this.discount = 350

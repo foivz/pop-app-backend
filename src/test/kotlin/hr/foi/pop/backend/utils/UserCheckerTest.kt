@@ -17,7 +17,7 @@ class UserCheckerTest(@Autowired userRepository: UserRepository) :
     UserChecker(templateRequestBodyForTesting, userRepository) {
 
     val actualUserFromDatabase: User by lazy {
-        super.userRepository.save(MockEntitiesHelper.generateUserEntityWithStore())
+        super.userRepository.save(MockEntitiesHelper.generateUserEntityWithStore(this::class))
     }
 
     @BeforeAll

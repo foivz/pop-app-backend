@@ -24,7 +24,7 @@ class RefreshTokenServiceTest {
     @Test
     @Transactional
     fun givenTokenCreated_whenSavedAndRetrieved_dataMatchesOut() {
-        val user = MockEntitiesHelper.generateUserEntityWithStore()
+        val user = MockEntitiesHelper.generateUserEntityWithStore(this::class)
 
         val createdRefreshTokenString = refreshTokenService.createNewRefreshTokenForUser(user)
         val retrievedRefreshTokenEntity = refreshTokenRepository.getRefreshTokenByOwner(user)

@@ -12,7 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 
 @SpringBootTest
 class UserBuilderTest {
-    private val mockedUser = MockEntitiesHelper.generateUserEntityWithStore()
+    private val mockedUser = MockEntitiesHelper.generateUserEntityWithStore(this::class)
 
     @Autowired
     lateinit var eventRepository: EventRepository

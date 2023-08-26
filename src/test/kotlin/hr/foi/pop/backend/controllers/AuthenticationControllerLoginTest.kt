@@ -176,9 +176,14 @@ class AuthenticationControllerLoginTest {
     }
 
     private fun getStoredAcceptedUserWithStore(): User {
-        val validUser = MockEntitiesHelper.generateUserEntityWithStore(mockLoginBodyAsObject.password)
+        val validUser = MockEntitiesHelper.generateUserEntityWithStore(
+            this::class,
+            mockLoginBodyAsObject.password
+        )
+
         Assertions.assertNotNull(validUser.store)
         Assertions.assertNotNull(validUser.isAccepted)
+
         validUser.username = mockLoginBodyAsObject.username
         return userRepository.save(validUser)
     }
