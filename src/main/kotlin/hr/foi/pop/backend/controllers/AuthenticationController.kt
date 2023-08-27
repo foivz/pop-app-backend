@@ -8,10 +8,12 @@ import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserLoginResponseDTO
 import hr.foi.pop.backend.models.user.UserMapper
 import hr.foi.pop.backend.request_bodies.LoginRequestBody
+import hr.foi.pop.backend.request_bodies.RefreshTokenRequestBody
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.responses.ErrorResponse
 import hr.foi.pop.backend.responses.SuccessResponse
 import hr.foi.pop.backend.responses.WarningResponse
+import hr.foi.pop.backend.security.jwt.TokenPair
 import hr.foi.pop.backend.services.AuthenticationService
 import hr.foi.pop.backend.services.UserService
 import org.springframework.beans.factory.annotation.Autowired
@@ -64,6 +66,12 @@ class AuthenticationController {
         }
 
         return response
+    }
+
+    @PostMapping("refresh-token")
+    fun refreshToken(@RequestBody request: RefreshTokenRequestBody): ResponseEntity<TokenPair> {
+        val newPair = authenticationService.procureNewTokenPairUsingRefreshToken(request.refreshToken)
+        return ResponseEntity.ok().body(newPair)
     }
 
     @ExceptionHandler(UserCheckException::class)
