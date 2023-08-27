@@ -1,12 +1,11 @@
 package hr.foi.pop.backend.controllers
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.request_bodies.LoginRequestBody
 import hr.foi.pop.backend.services.UserService
+import hr.foi.pop.backend.utils.JsonMockRequestGenerator
 import hr.foi.pop.backend.utils.MockEntitiesHelper
 import hr.foi.pop.backend.utils.MockMvcBuilderManager
 import hr.foi.pop.backend.utils.MockObjectsHelper
@@ -17,11 +16,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.MediaType
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultActions
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.transaction.annotation.Transactional
@@ -62,23 +58,19 @@ class AuthenticationControllerLoginTest {
 
     private val badJSON = "{\"random\": \"Object\"}"
 
-    private fun getRequestObjectWithJSONBody(jsonBody: String) = MockMvcRequestBuilders
-        .post(loginRoute)
-        .with(csrf())
-        .content(jsonBody)
-        .contentType(MediaType.APPLICATION_JSON)
+    private val jsonRequester = JsonMockRequestGenerator(loginRoute)
 
     @Test
     fun givenInvalidBodyJSON_whenLoginRouteHit_returnError400() {
-        val request = getRequestObjectWithJSONBody(badJSON)
+        val request = jsonRequester.getRequestWithJsonBody(badJSON)
 
         mvc.perform(request).andExpect(status().isBadRequest)
     }
 
     @Test
     fun givenNonExistentUser_whenLoginRouteHit_returnErrorMessage() {
-        val body = getJsonFromObject(LoginRequestBody("dont exist", "invalid"))
-        val request = getRequestObjectWithJSONBody(body)
+        val body = LoginRequestBody("dont exist", "invalid")
+        val request = jsonRequester.getRequestWithJsonBody(body)
 
         mvc.perform(request)
             .andExpect(status().isNotFound)
@@ -89,8 +81,8 @@ class AuthenticationControllerLoginTest {
 
     @Test
     fun givenNonAcceptedCorrectUser_whenLoginRouteHit_returnError() {
-        val body = getJsonFromObject(mockLoginBodyAsObject)
-        val request = getRequestObjectWithJSONBody(body)
+        val body = mockLoginBodyAsObject
+        val request = jsonRequester.getRequestWithJsonBody(body)
 
         Assertions.assertNotNull(userService.registerUser(mockLoginUser))
 
@@ -109,8 +101,8 @@ class AuthenticationControllerLoginTest {
 
     @Test
     fun givenAcceptedCorrectUserWithoutAStore_whenLoginRouteHit_returnValidJWTAndWarningMessage() {
-        val body = getJsonFromObject(mockLoginBodyAsObject)
-        val request = getRequestObjectWithJSONBody(body)
+        val body = mockLoginBodyAsObject
+        val request = jsonRequester.getRequestWithJsonBody(body)
 
         val storedUser = getStoredAcceptedUserWithoutStore()
 
@@ -152,8 +144,8 @@ class AuthenticationControllerLoginTest {
 
     @Test
     fun givenGoodUser_whenLoginRouteHit_returnValidJWT() {
-        val body = getJsonFromObject(mockLoginBodyAsObject)
-        val request = getRequestObjectWithJSONBody(body)
+        val body = mockLoginBodyAsObject
+        val request = jsonRequester.getRequestWithJsonBody(body)
 
         val storedUser = getStoredAcceptedUserWithStore()
 
@@ -167,7 +159,7 @@ class AuthenticationControllerLoginTest {
             .andExpect(jsonPath("data[1].access_token").isString)
             .andExpect(jsonPath("data[1].refresh_token.token").isString)
             .andExpect(jsonPath("data[1].refresh_token.valid_for.time_unit").value("minutes"))
-            .andExpect(jsonPath("data[1].refresh_token.valid_for.amount").isNumber)
+            .andExpect(jsonPath("data[1].refresh_token.valid_for.time_amount").isNumber)
     }
 
     private fun getStoredAcceptedUserWithStore(): User {
@@ -182,8 +174,4 @@ class AuthenticationControllerLoginTest {
         validUser.username = mockLoginBodyAsObject.username
         return userRepository.save(validUser)
     }
-
-    private fun getJsonFromObject(obj: Any): String = ObjectMapper()
-        .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
-        .writeValueAsString(obj)
 }

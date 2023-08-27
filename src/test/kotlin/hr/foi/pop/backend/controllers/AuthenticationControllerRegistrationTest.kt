@@ -1,10 +1,9 @@
 package hr.foi.pop.backend.controllers
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.utils.DateMatcher
+import hr.foi.pop.backend.utils.JsonMockRequestGenerator
 import hr.foi.pop.backend.utils.MockMvcBuilderManager
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.BeforeAll
@@ -12,7 +11,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.web.servlet.MockMvc
@@ -45,6 +43,8 @@ class AuthenticationControllerRegistrationTest {
 
     private lateinit var mvc: MockMvc
 
+    private val jsonRequester = JsonMockRequestGenerator(registerRoute)
+
     @BeforeAll
     fun setup() {
         mvc = MockMvcBuilderManager.getMockMvc(context, AuthenticationControllerRegistrationTest::class)
@@ -61,7 +61,7 @@ class AuthenticationControllerRegistrationTest {
 
     @Test
     fun onRegisterRequest_WhenBadRequestSent_Status400() {
-        val request = getRequestObjectWithJSONBody(badJSON)
+        val request = jsonRequester.getRequestWithJsonBody(badJSON)
 
         mvc.perform(request).andExpect(status().isBadRequest)
     }
@@ -69,10 +69,7 @@ class AuthenticationControllerRegistrationTest {
     @Test
     fun onInvalidUserData_WhenRequestSent_Status400WithMessage() {
         val mockedUserWithNoLastName = mockRegisterBodyAsObject.copy(lastName = "")
-
-        val body = getJsonFromObject(mockedUserWithNoLastName)
-
-        val request = getRequestObjectWithJSONBody(body)
+        val request = jsonRequester.getRequestWithJsonBody(mockedUserWithNoLastName)
 
         mvc.perform(request)
             .andExpect(status().isBadRequest)
@@ -81,15 +78,10 @@ class AuthenticationControllerRegistrationTest {
             .andExpect(jsonPath("error_message").value(ApplicationErrorType.ERR_LASTNAME_INVALID.name))
     }
 
-    private fun getJsonFromObject(obj: Any): String = ObjectMapper()
-        .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
-        .writeValueAsString(obj)
-
     @Test
     fun onRegisterRequest_WhenRequestIsComplete_ThenAppropriateSuccessMessage() {
-        val body = getJsonFromObject(mockRegisterBodyAsObject)
-
-        val request = getRequestObjectWithJSONBody(body)
+        val body = mockRegisterBodyAsObject
+        val request = jsonRequester.getRequestWithJsonBody(body)
 
         val userMockEventId = 1
         val mockRegDate = LocalDateTime.now()
@@ -110,10 +102,4 @@ class AuthenticationControllerRegistrationTest {
             .andExpect(jsonPath("data[0].balance").value(0))
             .andExpect(jsonPath("data[0].is_accepted").value(false))
     }
-
-    private fun getRequestObjectWithJSONBody(jsonBody: String) = MockMvcRequestBuilders
-        .post(registerRoute)
-        .with(csrf())
-        .content(jsonBody)
-        .contentType(MediaType.APPLICATION_JSON)
 }
