@@ -1,9 +1,7 @@
 package hr.foi.pop.backend.controllers
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
-import hr.foi.pop.backend.exceptions.UserAuthenticationException
-import hr.foi.pop.backend.exceptions.UserCheckException
-import hr.foi.pop.backend.exceptions.UserNotAcceptedException
+import hr.foi.pop.backend.exceptions.*
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserLoginResponseDTO
 import hr.foi.pop.backend.models.user.UserMapper
@@ -93,6 +91,28 @@ class AuthenticationController {
                 ErrorResponse(
                     ex.message ?: "Deactivated user login attempt.",
                     ApplicationErrorType.ERR_NOT_ACTIVATED
+                )
+            )
+    }
+
+    @ExceptionHandler(RefreshTokenInvalidException::class)
+    fun handleInvalidRefreshToken(ex: RefreshTokenInvalidException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(
+                ErrorResponse(
+                    ex.message ?: "Invalid refresh token.",
+                    ex.errorType
+                )
+            )
+    }
+
+    @ExceptionHandler(BadRefreshTokenFormatException::class)
+    fun handleBadlyFormattedRefreshToken(ex: BadRefreshTokenFormatException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(
+                ErrorResponse(
+                    ex.message ?: "Badly formatted refresh token.",
+                    ApplicationErrorType.ERR_REFRESH_TOKEN_INVALID
                 )
             )
     }

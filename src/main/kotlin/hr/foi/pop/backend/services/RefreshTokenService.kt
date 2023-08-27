@@ -1,5 +1,7 @@
 package hr.foi.pop.backend.services
 
+import hr.foi.pop.backend.definitions.ApplicationErrorType
+import hr.foi.pop.backend.exceptions.BadRefreshTokenFormatException
 import hr.foi.pop.backend.exceptions.RefreshTokenInvalidException
 import hr.foi.pop.backend.models.refresh_token.RefreshToken
 import hr.foi.pop.backend.models.user.User
@@ -18,6 +20,8 @@ class RefreshTokenService {
 
     @Autowired
     private lateinit var refreshTokenRepository: RefreshTokenRepository
+
+    private val refreshTokenRegex = Regex("^[A-Za-z0-9+/=]{64}$")
 
     fun createNewRefreshTokenForUser(user: User): RefreshToken {
         val generatedToken = generateToken()
@@ -43,8 +47,13 @@ class RefreshTokenService {
     }
 
     fun createNewRefreshTokenFromExistingRefreshToken(refreshToken: String): RefreshToken {
+        ensureRefreshTokenHasCorrectFormat(refreshToken)
+
         val foundToken = refreshTokenRepository.getRefreshTokenByToken(refreshToken)
-            ?: throw RefreshTokenInvalidException("Provided refresh token not recognized!")
+            ?: throw RefreshTokenInvalidException(
+                "Provided refresh token not recognized!",
+                ApplicationErrorType.ERR_REFRESH_TOKEN_INVALID
+            )
 
         ensureRefreshTokenNotExpired(foundToken)
         updateRefreshTokenValue(foundToken)
@@ -52,10 +61,16 @@ class RefreshTokenService {
         return foundToken
     }
 
+    private fun ensureRefreshTokenHasCorrectFormat(refreshToken: String) {
+        if (!refreshToken.matches(refreshTokenRegex)) {
+            throw BadRefreshTokenFormatException()
+        }
+    }
+
     private fun ensureRefreshTokenNotExpired(foundToken: RefreshToken) {
         val currentTime = LocalDateTime.now()
         if (foundToken.expirationDate < currentTime) {
-            throw RefreshTokenInvalidException("Refresh token expired!")
+            throw RefreshTokenInvalidException("Refresh token expired!", ApplicationErrorType.ERR_REFRESH_TOKEN_EXPIRED)
         }
     }
 

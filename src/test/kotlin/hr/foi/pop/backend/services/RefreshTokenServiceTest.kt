@@ -1,5 +1,6 @@
 package hr.foi.pop.backend.services
 
+import hr.foi.pop.backend.exceptions.BadRefreshTokenFormatException
 import hr.foi.pop.backend.exceptions.RefreshTokenInvalidException
 import hr.foi.pop.backend.models.refresh_token.RefreshToken
 import hr.foi.pop.backend.repositories.RefreshTokenRepository
@@ -53,12 +54,24 @@ class RefreshTokenServiceTest {
     @Test
     @Transactional
     fun givenNonExistentRefreshToken_whenUserTriesToUseIt_throwsException() {
-        val mockRefreshToken = "---------------------------mock_token---------------------------"
+        val mockRefreshToken = "LlV0aRsZjuYczdmoF3bUmTmtrBSbufIXri4UN633hXjC9UGu2O9hc/fYiEvWG75S"
 
         val thrownException = assertThrows<RefreshTokenInvalidException> {
             refreshTokenService.createNewRefreshTokenFromExistingRefreshToken(mockRefreshToken)
         }
 
         Assertions.assertEquals("Provided refresh token not recognized!", thrownException.message)
+    }
+
+    @Test
+    @Transactional
+    fun givenBadlyFormattedRefreshToken_whenUserTriesToUseIt_throwsException() {
+        val mockRefreshToken = "bad token"
+
+        val thrownException = assertThrows<BadRefreshTokenFormatException> {
+            refreshTokenService.createNewRefreshTokenFromExistingRefreshToken(mockRefreshToken)
+        }
+
+        Assertions.assertEquals("Refresh token not in expected format!", thrownException.message)
     }
 }
