@@ -44,7 +44,7 @@ class RefreshTokenService {
 
     fun createNewRefreshTokenFromExistingRefreshToken(refreshToken: String): RefreshToken {
         val foundToken = refreshTokenRepository.getRefreshTokenByToken(refreshToken)
-            ?: throw RefreshTokenInvalidException("Given refresh token not found!")
+            ?: throw RefreshTokenInvalidException("Provided refresh token not recognized!")
 
         ensureRefreshTokenNotExpired(foundToken)
         updateRefreshTokenValue(foundToken)

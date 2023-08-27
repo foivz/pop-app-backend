@@ -59,6 +59,6 @@ class RefreshTokenServiceTest {
             refreshTokenService.createNewRefreshTokenFromExistingRefreshToken(mockRefreshToken)
         }
 
-        Assertions.assertEquals("Given refresh token not found!", thrownException.message)
+        Assertions.assertEquals("Provided refresh token not recognized!", thrownException.message)
     }
 }

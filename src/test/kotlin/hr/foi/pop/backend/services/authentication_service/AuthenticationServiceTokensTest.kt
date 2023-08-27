@@ -71,7 +71,7 @@ class AuthenticationServiceTokensTest {
         val thrownException = assertThrows<RefreshTokenInvalidException> {
             authenticationService.procureNewTokenPairUsingRefreshToken(alreadyUsedRefreshToken)
         }
-        Assertions.assertEquals("Given refresh token not found!", thrownException.message)
+        Assertions.assertEquals("Provided refresh token not recognized!", thrownException.message)
     }
 
     private fun getTokenPairByLoggingIn(): TokenPair = authenticationService.authenticateAndGenerateTokenPair(
