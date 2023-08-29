@@ -94,6 +94,7 @@ class UserServiceTest {
     }
 
     @Test
+    @Transactional
     fun givenUserWithStatusActive_onDeactivate_shouldDeactivateUser() {
         //given
         val deactivateUserDefinition: ActivateUserDefinitions = ActivateUserDefinitions.DEACTIVATE
@@ -107,6 +108,7 @@ class UserServiceTest {
     }
 
     @Test
+    @Transactional
     fun givenUserWithStatusDeactivate_onActivate_shouldActivateUser() {
         //given
         val activateUserDefinitions: ActivateUserDefinitions = ActivateUserDefinitions.ACTIVATE
@@ -120,6 +122,7 @@ class UserServiceTest {
     }
 
     @Test
+    @Transactional
     fun givenAlreadyActivatedUser_onActivate_shouldThrowActivateUserException() {
         //given
         val activateUserDefinitions: ActivateUserDefinitions = ActivateUserDefinitions.ACTIVATE
@@ -132,6 +135,7 @@ class UserServiceTest {
     }
 
     @Test
+    @Transactional
     fun givenAlreadyDeactivatedUser_onDeactivate_shouldThrowActivateUserException() {
         //given
         val activateUserDefinitions: ActivateUserDefinitions = ActivateUserDefinitions.DEACTIVATE

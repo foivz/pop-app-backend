@@ -7,6 +7,7 @@ import hr.foi.pop.backend.exceptions.UserCheckException
 import hr.foi.pop.backend.models.event.Event
 import hr.foi.pop.backend.models.role.Role
 import hr.foi.pop.backend.models.user.User
+import hr.foi.pop.backend.request_bodies.ActivateUserRequestBody
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.services.UserService
 import org.hamcrest.Matchers
@@ -145,7 +146,7 @@ class UserControllerTest {
 
     @Test
     fun onActivateRequest_withValidBody_status200() {
-        val activated: Boolean = true
+        val activated: ActivateUserRequestBody = ActivateUserRequestBody(false)
 
         val body = ObjectMapper()
             .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
@@ -160,10 +161,28 @@ class UserControllerTest {
             .`when`(userService.activateOrDeactivateUser(any(), any()))
             .thenReturn(User().apply {
                 id = 1
+                firstName = "Catherine"
+                lastName = "Velasquez"
+                email = "cvelasquez@pop.app"
+                username = "cvelasquez"
+                role = Role().apply {
+                    id = 1
+                    name = "admin"
+                }
+                isAccepted = false
             })
 
         mockMvc.perform(request)
             .andExpect(status().isOk)
+            .andExpect(jsonPath("success").value(true))
+            .andExpect(jsonPath("message").value(Matchers.matchesPattern("User 'cvelasquez' deactivated")))
+            .andExpect(jsonPath("data[0].id").value(1))
+            .andExpect(jsonPath("data[0].role").value("admin"))
+            .andExpect(jsonPath("data[0].first_name").value("Catherine"))
+            .andExpect(jsonPath("data[0].last_name").value("Velasquez"))
+            .andExpect(jsonPath("data[0].email").value("cvelasquez@pop.app"))
+            .andExpect(jsonPath("data[0].username").value("cvelasquez"))
+            .andExpect(jsonPath("data[0].activated").value(false))
     }
 
 
