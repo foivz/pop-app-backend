@@ -58,7 +58,7 @@ class UserController {
 
             ResponseEntity.status(HttpStatus.OK).body(
                 SuccessResponse(
-                    "User '${user.username}' '${activateOrDeactivate.label}'",
+                    "User '${user.username}' ${activateOrDeactivate.label}",
                     ActivateUserResponseBody.mapResponse(user)
                 )
             )
