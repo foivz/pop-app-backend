@@ -27,6 +27,9 @@ import java.time.LocalDateTime
 class UserControllerTest {
     companion object {
         const val route = "/api/v2/users"
+        fun getActivateUserRoute(userId: Int): String {
+            return "${route}/${userId}/activate"
+        }
     }
 
     @Autowired
@@ -121,6 +124,48 @@ class UserControllerTest {
             .andExpect(jsonPath("data[0].balance").value(0))
             .andExpect(jsonPath("data[0].is_accepted").value(false))
     }
+
+    @Test
+    fun onActivateRequest_whenInvalidHttpMethod_status405() {
+        mockMvc.perform(MockMvcRequestBuilders.post(getActivateUserRoute(1)))
+            .andExpect(status().isMethodNotAllowed)
+    }
+
+    @Test
+    fun onActivateRequest_whenInvalidRequestBody_status400() {
+        val body = "{\"random\": \"Object\"}"
+
+        val request = MockMvcRequestBuilders
+            .patch(getActivateUserRoute(1))
+            .content(body)
+            .contentType(MediaType.APPLICATION_JSON)
+
+        mockMvc.perform(request).andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun onActivateRequest_withValidBody_status200() {
+        val activated: Boolean = true
+
+        val body = ObjectMapper()
+            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+            .writeValueAsString(activated)
+
+        val request = MockMvcRequestBuilders
+            .patch(getActivateUserRoute(1))
+            .content(body)
+            .contentType(MediaType.APPLICATION_JSON)
+
+        Mockito
+            .`when`(userService.activateOrDeactivateUser(any(), any()))
+            .thenReturn(User().apply {
+                id = 1
+            })
+
+        mockMvc.perform(request)
+            .andExpect(status().isOk)
+    }
+
 
     private fun getRequestObjectWithJSONBody(jsonBody: String) = MockMvcRequestBuilders
         .post(route)
