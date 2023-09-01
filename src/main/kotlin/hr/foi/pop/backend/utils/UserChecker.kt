@@ -65,7 +65,7 @@ open class UserChecker(protected var user: RegisterRequestBody, protected val us
         }
     }
 
-    private fun isEmailInvalid() = !"^[\\w\\d]+@[\\w]+\\.[a-zA-z]{1,5}\$".toRegex().matches(user.email)
+    private fun isEmailInvalid() = !"^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}\$".toRegex().matches(user.email)
     private fun isEmailUsed() = userRepository.existsByEmail(user.email)
 
 

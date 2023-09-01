@@ -142,6 +142,14 @@ class UserCheckerTest(@Autowired userRepository: UserRepository) :
     }
 
     @Test
+    fun ifEmailValid_WhenChecked_Ok() {
+        val usedEmail = "ihorvat@student.foi.hr"
+        super.user = super.user.copy(email = usedEmail)
+
+        assertDoesNotThrow { super.validateEmail() }
+    }
+
+    @Test
     fun ifEmailInvalid_WhenChecked_Throws() {
         val invalidEmail = "longpasswordwithoutnumbers"
         super.user = super.user.copy(email = invalidEmail)
