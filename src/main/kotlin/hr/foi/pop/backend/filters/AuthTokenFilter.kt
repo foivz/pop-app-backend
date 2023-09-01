@@ -42,6 +42,10 @@ open class AuthTokenFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
+        val requestRouteInExcludedRoutes = excludedRoutes.stream().anyMatch { pattern -> pattern.matches(request) }
+        if (requestRouteInExcludedRoutes) {
+            return
+        }
         try {
             val jwt = parseJwt(request)
             val isJwtValid = jwtUtils.validateJwtToken(jwt)

@@ -34,9 +34,15 @@ class WebSecurityConfigurer {
     @Autowired
     lateinit var passwordEncoder: PasswordEncoder
 
+    private val excludedRoutesFromSpringSecurity = arrayOf(
+        AntPathRequestMatcher("/h2-console/**"),
+        AntPathRequestMatcher("/favicon.ico"),
+        AntPathRequestMatcher("/error")
+    )
+
     private val excludedRoutesForAuthTokenFiltering = listOf(
+        *excludedRoutesFromSpringSecurity,
         AntPathRequestMatcher("/api/v2/auth/**"),
-        AntPathRequestMatcher("/h2-console/**")
     )
 
     @Bean
@@ -60,7 +66,9 @@ class WebSecurityConfigurer {
     @Bean
     fun webSecurityCustomizer(): WebSecurityCustomizer? {
         return WebSecurityCustomizer { web: WebSecurity ->
-            web.ignoring().requestMatchers(AntPathRequestMatcher("/h2-console/**"))
+            web.ignoring().requestMatchers(
+                *excludedRoutesFromSpringSecurity
+            )
         }
     }
 
