@@ -18,7 +18,7 @@ class AuthenticationExceptionHandler : AuthenticationEntryPoint {
         response: HttpServletResponse,
         authException: AuthenticationException
     ) {
-        logger.error("Unauthorized error: ${authException.message}")
+        logger.error("Unauthorized error: (${request.requestURI}) ${authException.message}")
 
         var responseSender = ResponseSender(response)
         val customizerFactory = ResponseSenderErrorCustomizerFactory(responseSender)
