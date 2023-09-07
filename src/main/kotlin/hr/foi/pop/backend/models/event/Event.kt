@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 @Table(name = "events")
 class Event {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_event")
     var id: Int = 0
 

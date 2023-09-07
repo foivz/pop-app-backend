@@ -8,13 +8,17 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.security.crypto.password.PasswordEncoder
 
 @SpringBootTest
 class UserBuilderTest {
-    private val mockedUser = MockEntitiesHelper.generateUserEntityWithStore()
+    private val mockedUser = MockEntitiesHelper.generateUserEntityWithStore(this::class)
 
     @Autowired
     lateinit var eventRepository: EventRepository
+
+    @Autowired
+    lateinit var passwordEncoder: PasswordEncoder
 
     @Test
     fun givenCorrectUserInfo_WhenBuiltViaBuilder_PropertiesEqual() {
@@ -37,7 +41,7 @@ class UserBuilderTest {
             .setEmail(mockedUser.email)
             .setRole(mockedUser.role)
             .setCurrentEvent(eventRepository.getEventByIsActiveTrue())
-            .setPassword("readable_password")
+            .setPassword("readable_password", passwordEncoder)
 
     private fun assertIsBCryptHash(password: String) {
         Assertions.assertTrue(password.startsWith("\$2a\$10\$"))
@@ -70,10 +74,10 @@ class UserBuilderTest {
             UserBuilder()
                 .setFirstName("")
                 .setLastName("")
-                .setPassword("")
+                .setPassword("", passwordEncoder)
                 .setUsername("")
                 .setEmail("")
-                .setPassword("")
+                .setPassword("", passwordEncoder)
                 .build()
         }
         Assertions.assertEquals(

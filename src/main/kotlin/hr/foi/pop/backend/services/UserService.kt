@@ -8,18 +8,22 @@ import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.utils.UserChecker
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
 class UserService {
     @Autowired
-    lateinit var userRepository: UserRepository
+    private lateinit var userRepository: UserRepository
 
     @Autowired
-    lateinit var roleRepository: RoleRepository
+    private lateinit var roleRepository: RoleRepository
 
     @Autowired
-    lateinit var eventRepository: EventRepository
+    private lateinit var eventRepository: EventRepository
+
+    @Autowired
+    private lateinit var passwordEncoder: PasswordEncoder
 
     fun registerUser(userInfo: RegisterRequestBody): User {
         validateUser(userInfo)
@@ -34,7 +38,7 @@ class UserService {
             .setEmail(userInfo.email)
             .setRole(desiredRole)
             .setCurrentEvent(currentEvent)
-            .setPassword(userInfo.password)
+            .setPassword(userInfo.password, passwordEncoder)
             .build()
 
         userRepository.save(user)

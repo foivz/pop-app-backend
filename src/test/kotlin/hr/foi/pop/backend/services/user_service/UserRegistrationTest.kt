@@ -1,30 +1,20 @@
-package hr.foi.pop.backend.services
+package hr.foi.pop.backend.services.user_service
 
 import hr.foi.pop.backend.exceptions.UserCheckException
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.repositories.EventRepository
 import hr.foi.pop.backend.repositories.UserRepository
-import hr.foi.pop.backend.request_bodies.RegisterRequestBody
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import hr.foi.pop.backend.services.UserService
+import hr.foi.pop.backend.utils.MockObjectsHelper
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
 import java.time.LocalDateTime
 
-val templateRequestBodyForTesting = RegisterRequestBody(
-    "Tester",
-    "Testermann",
-    "usercheckertest",
-    "tester@usercheckertest.com",
-    "test123",
-    "buyer"
-)
-
 @SpringBootTest
-class UserServiceTest {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class UserRegistrationTest {
     @Autowired
     private lateinit var userRepository: UserRepository
 
@@ -34,24 +24,16 @@ class UserServiceTest {
     @Autowired
     private lateinit var eventRepository: EventRepository
 
-    @Test
-    @Transactional
-    fun whenCorrectUserPassedIn_onRegister_NewRecordPersisted() {
+    private val templateRequestBodyForTesting =
+        MockObjectsHelper.getMockRegisterRequestBody("registration-tester", "test@registration.com")
+
+    @BeforeAll
+    fun givenValidUserInformation_OnRegister_NewRecordPersistedWithCorrectData() {
         Assertions.assertFalse(userRepository.existsByUsername(templateRequestBodyForTesting.username))
 
         userService.registerUser(templateRequestBodyForTesting)
-
-        Assertions.assertTrue(userRepository.existsByUsername(templateRequestBodyForTesting.username))
-    }
-
-    @Test
-    @Transactional
-    fun whenCorrectUserPassedIn_onRegister_InfoValid() {
-        Assertions.assertFalse(userRepository.existsByUsername(templateRequestBodyForTesting.username))
-
-        userService.registerUser(templateRequestBodyForTesting)
-
         val user = userRepository.getUserByUsername(templateRequestBodyForTesting.username)
+
         Assertions.assertNotNull(user)
         user?.let {
             assertUserBelongsToCurrentEvent(user)

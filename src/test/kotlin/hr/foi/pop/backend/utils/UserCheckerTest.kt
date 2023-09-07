@@ -4,21 +4,28 @@ import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.UserCheckException
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.repositories.UserRepository
-import hr.foi.pop.backend.services.templateRequestBodyForTesting
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertDoesNotThrow
-import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
+private val templateRequestBodyForTesting =
+    MockObjectsHelper.getMockRegisterRequestBody("userchecker-tester", "test@userchecker.com")
 
 @SpringBootTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UserCheckerTest(@Autowired userRepository: UserRepository) :
     UserChecker(templateRequestBodyForTesting, userRepository) {
 
     val actualUserFromDatabase: User by lazy {
-        super.userRepository.save(MockEntitiesHelper.generateUserEntityWithStore())
+        super.userRepository.save(MockEntitiesHelper.generateUserEntityWithStore(this::class))
+    }
+
+    @BeforeAll
+    fun ifMockUserAlreadyPersisted_deleteTheUser() {
+        val user = userRepository.getUserByUsername(templateRequestBodyForTesting.username)
+        if (user != null) {
+            userRepository.delete(user)
+        }
     }
 
     @BeforeEach
@@ -132,6 +139,14 @@ class UserCheckerTest(@Autowired userRepository: UserRepository) :
 
     private fun assertExceptionIndicatesPasswordInvalid(ex: UserCheckException) {
         assertExceptionErrorType(ex, ApplicationErrorType.ERR_PASSWORD_INVALID)
+    }
+
+    @Test
+    fun ifEmailValid_WhenChecked_Ok() {
+        val usedEmail = "ihorvat@student.foi.hr"
+        super.user = super.user.copy(email = usedEmail)
+
+        assertDoesNotThrow { super.validateEmail() }
     }
 
     @Test

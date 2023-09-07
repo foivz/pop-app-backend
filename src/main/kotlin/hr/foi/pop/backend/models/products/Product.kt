@@ -7,7 +7,7 @@ import jakarta.persistence.*
 @Table(name = "products")
 class Product {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_product")
     var id: Int = 0
 

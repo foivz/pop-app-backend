@@ -4,15 +4,20 @@ import hr.foi.pop.backend.models.event.Event
 import hr.foi.pop.backend.models.role.Role
 import hr.foi.pop.backend.models.store.Store
 import jakarta.persistence.*
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.userdetails.UserDetails
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "users")
-class User {
+class User : UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_user")
     var id: Int = 0
+
+    @Column(name = "username")
+    private lateinit var username: String
 
     @ManyToOne
     @JoinColumn(name = "roles_id_role")
@@ -37,9 +42,6 @@ class User {
     @Column(name = "email")
     lateinit var email: String
 
-    @Column(name = "username")
-    lateinit var username: String
-
     @Column(name = "password_hash")
     lateinit var passwordHash: String
 
@@ -51,5 +53,27 @@ class User {
 
     @Column(name = "is_accepted")
     var isAccepted: Boolean = false
+    override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
+        return mutableListOf<GrantedAuthority>(
+            object : GrantedAuthority {
+                override fun getAuthority() = role.name
+            }
+        )
+    }
 
+    override fun getUsername() = username
+
+    fun setUsername(username: String) {
+        this.username = username
+    }
+
+    override fun getPassword() = passwordHash
+
+    override fun isAccountNonExpired() = isAccepted
+
+    override fun isAccountNonLocked() = isAccepted
+
+    override fun isCredentialsNonExpired() = isAccepted
+
+    override fun isEnabled() = isAccepted
 }
