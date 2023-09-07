@@ -1,8 +1,7 @@
 package hr.foi.pop.backend.services
 
-import hr.foi.pop.backend.definitions.ActivateUserDefinitions
 import hr.foi.pop.backend.definitions.ApplicationErrorType
-import hr.foi.pop.backend.exceptions.ActivateUserException
+import hr.foi.pop.backend.exceptions.ChangeUserStatusException
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserBuilder
 import hr.foi.pop.backend.repositories.EventRepository
@@ -44,27 +43,30 @@ class UserService {
         return user
     }
 
-    @Throws(ActivateUserException::class)
-    fun activateOrDeactivateUser(userId: String, activateUserDefinition: ActivateUserDefinitions): User {
-        try {
-            val user: User = userRepository.getReferenceById(userId.toInt())
+    fun activateUser(userId: Int): User {
+        val user: User = userRepository.getReferenceById(userId)
 
-            if (user.isAccepted == activateUserDefinition.code) {
-                if (user.isAccepted)
-                    throw ActivateUserException(ApplicationErrorType.ERR_ALREADY_ACTIVATED)
-                else
-                    throw ActivateUserException(ApplicationErrorType.ERR_ALREADY_DEACTIVATED)
-            }
+        if (user.isAccepted)
+            throw ChangeUserStatusException(ApplicationErrorType.ERR_ALREADY_ACTIVATED)
 
-            user.isAccepted = !user.isAccepted
-            
-            return userRepository.save(user)
-        } catch (exception: NumberFormatException) {
-            throw ActivateUserException(ApplicationErrorType.ERR_USER_INVALID)
-        }
+        user.isAccepted = true
+
+        return userRepository.save(user)
+    }
+
+    fun deactivateUser(userId: Int): User {
+        val user: User = userRepository.getReferenceById(userId)
+
+        if (!user.isAccepted)
+            throw ChangeUserStatusException(ApplicationErrorType.ERR_ALREADY_DEACTIVATED)
+
+        user.isAccepted = false
+
+        return userRepository.save(user)
     }
 
     protected fun validateUser(userInfo: RegisterRequestBody) {
         UserChecker(userInfo, userRepository).validateUserProperties()
     }
+
 }
