@@ -1,8 +1,7 @@
 package hr.foi.pop.backend.controllers
 
-import hr.foi.pop.backend.definitions.ActivateUserDefinitions
 import hr.foi.pop.backend.definitions.ApplicationErrorType
-import hr.foi.pop.backend.exceptions.ActivateUserException
+import hr.foi.pop.backend.exceptions.ChangeUserStatusException
 import hr.foi.pop.backend.exceptions.UserCheckException
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserMapper
@@ -50,27 +49,41 @@ class UserController {
         @RequestBody request: ActivateUserRequestBody
     ): ResponseEntity<*> {
         return try {
-            request.activated!!
+            val newStatus = request.activated
+            val parsedUserId = Integer.parseInt(userId)
 
-            val activateOrDeactivate: ActivateUserDefinitions = ActivateUserDefinitions.getEnumByCode(request.activated)
+            if (newStatus) {
+                val user: User = userService.activateUser(parsedUserId)
 
-            val user: User = userService.activateOrDeactivateUser(userId, activateOrDeactivate)
-
-            ResponseEntity.status(HttpStatus.OK).body(
-                SuccessResponse(
-                    "User '${user.username}' ${activateOrDeactivate.label}",
-                    ActivateUserResponseBody.mapResponse(user)
+                ResponseEntity.status(HttpStatus.OK).body(
+                    SuccessResponse(
+                        "User '${user.username}' activated",
+                        ActivateUserResponseBody.mapResponse(user)
+                    )
                 )
-            )
+            } else {
+                val user: User = userService.deactivateUser(parsedUserId)
 
+                ResponseEntity.status(HttpStatus.OK).body(
+                    SuccessResponse(
+                        "User '${user.username}' deactivated",
+                        ActivateUserResponseBody.mapResponse(user)
+                    )
+                )
+            }
         } catch (exception: NullPointerException) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 ErrorResponse("Request body is not in correct format", ApplicationErrorType.ERR_BAD_BODY)
             )
-        } catch (exception: ActivateUserException) {
+        } catch (exception: ChangeUserStatusException) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                ErrorResponse(exception.message, exception.getApplicationErrorType())
+                ErrorResponse(exception.message, exception.error)
             )
+        } catch (exception: NumberFormatException) {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                ErrorResponse("Provided user id is not in correct format", ApplicationErrorType.ERR_BAD_BODY)
+            )
+
         }
     }
 
