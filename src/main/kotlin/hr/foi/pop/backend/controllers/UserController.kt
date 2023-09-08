@@ -26,7 +26,7 @@ class UserController {
         @PathVariable userId: String,
         @RequestBody request: ActivateUserRequestBody
     ): ResponseEntity<*> {
-        val newStatus = request.is_accepted!!
+        val newStatus = request.isAccepted!!
         val parsedUserId = Integer.parseInt(userId)
 
         return if (newStatus) {
