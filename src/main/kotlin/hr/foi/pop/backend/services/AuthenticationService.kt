@@ -56,7 +56,7 @@ class AuthenticationService : UserDetailsService {
 
     private fun ensureUserIsAccepted(user: User) {
         if (!user.isAccepted) {
-            throw UserNotAcceptedException("User \"${user.username}\" is not accepted yet by the admin!")
+            throw UserNotAcceptedException("User \"${user.username}\" is not accepted by the admin!")
         }
     }
 
