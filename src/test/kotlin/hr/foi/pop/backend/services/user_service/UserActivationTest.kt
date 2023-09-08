@@ -3,12 +3,14 @@ package hr.foi.pop.backend.services.user_service
 import hr.foi.pop.backend.exceptions.ChangeUserStatusException
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.services.UserService
+import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
+@Transactional
 class UserActivationTest {
     @Autowired
     private lateinit var userService: UserService
