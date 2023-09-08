@@ -4,10 +4,10 @@ import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.ChangeUserStatusException
 import hr.foi.pop.backend.exceptions.UserCheckException
 import hr.foi.pop.backend.models.user.User
+import hr.foi.pop.backend.models.user.UserDTO
 import hr.foi.pop.backend.models.user.UserMapper
 import hr.foi.pop.backend.request_bodies.ActivateUserRequestBody
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
-import hr.foi.pop.backend.response_bodies.ActivateUserResponseBody
 import hr.foi.pop.backend.responses.ErrorResponse
 import hr.foi.pop.backend.responses.SuccessResponse
 import hr.foi.pop.backend.services.UserService
@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.orm.jpa.JpaObjectRetrievalFailureException
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -54,20 +55,22 @@ class UserController {
 
             if (newStatus) {
                 val user: User = userService.activateUser(parsedUserId)
+                val userDTO: UserDTO = UserMapper().mapDto(user)
 
                 ResponseEntity.status(HttpStatus.OK).body(
                     SuccessResponse(
-                        "User '${user.username}' activated",
-                        ActivateUserResponseBody.mapResponse(user)
+                        "User '${user.username}' activated.",
+                        userDTO
                     )
                 )
             } else {
                 val user: User = userService.deactivateUser(parsedUserId)
+                val userDTO: UserDTO = UserMapper().mapDto(user)
 
                 ResponseEntity.status(HttpStatus.OK).body(
                     SuccessResponse(
-                        "User '${user.username}' deactivated",
-                        ActivateUserResponseBody.mapResponse(user)
+                        "User '${user.username}' deactivated.",
+                        userDTO
                     )
                 )
             }
@@ -80,10 +83,19 @@ class UserController {
                 ErrorResponse(exception.message, exception.error)
             )
         } catch (exception: NumberFormatException) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                ErrorResponse("Provided user id is not in correct format", ApplicationErrorType.ERR_BAD_BODY)
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                ErrorResponse(
+                    "User with provided user id does not exist in application.",
+                    ApplicationErrorType.ERR_USER_INVALID
+                )
             )
-
+        } catch (exception: JpaObjectRetrievalFailureException) {
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                ErrorResponse(
+                    "User with provided user id does not exist in application.",
+                    ApplicationErrorType.ERR_USER_INVALID
+                )
+            )
         }
     }
 
