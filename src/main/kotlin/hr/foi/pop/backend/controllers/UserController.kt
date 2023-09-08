@@ -2,7 +2,6 @@ package hr.foi.pop.backend.controllers
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.ChangeUserStatusException
-import hr.foi.pop.backend.exceptions.UserCheckException
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserDTO
 import hr.foi.pop.backend.models.user.UserMapper
@@ -53,10 +52,6 @@ class UserController {
                     )
                 )
             }
-        } catch (exception: NullPointerException) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                ErrorResponse("Request body is not in correct format", ApplicationErrorType.ERR_BAD_BODY)
-            )
         } catch (exception: ChangeUserStatusException) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 ErrorResponse(exception.message, exception.error)
@@ -76,12 +71,6 @@ class UserController {
                 )
             )
         }
-    }
-
-    @ExceptionHandler(UserCheckException::class)
-    fun handleBadRegistrationRequestBody(ex: UserCheckException): ResponseEntity<ErrorResponse> {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse("Could not register user!", ex.error))
     }
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
