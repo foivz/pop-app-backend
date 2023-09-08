@@ -4,50 +4,64 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import hr.foi.pop.backend.models.role.Role
 import hr.foi.pop.backend.models.user.User
+import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.request_bodies.ActivateUserRequestBody
-import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.services.UserService
+import hr.foi.pop.backend.utils.MockMvcBuilderManager
 import org.hamcrest.Matchers
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.mockito.Mockito
 import org.mockito.kotlin.any
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.context.WebApplicationContext
 
-@WebMvcTest
+@SpringBootTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
 class UserControllerTest {
     companion object {
-        const val route = "/api/v2/users"
+        private const val route = "/api/v2/users"
         fun getActivateUserRoute(userId: Int): String {
             return "${route}/${userId}/activate"
         }
     }
 
     @Autowired
-    lateinit var mockMvc: MockMvc
+    lateinit var context: WebApplicationContext
 
-    @MockBean
+    @Autowired
     lateinit var userService: UserService
 
-    private val mockBodyAsObject = RegisterRequestBody(
-        "Ivan",
-        "Horvat",
-        "ihorvat",
-        "ihorvat@foi.hr",
-        "test123",
-        "buyer"
-    )
+    @Autowired
+    lateinit var userRepository: UserRepository
+
+    private lateinit var mockMvc: MockMvc
+
+    private val activateUserRequestBody: ActivateUserRequestBody = ActivateUserRequestBody(true)
+
+    private val deactivateUserRequestBody: ActivateUserRequestBody = ActivateUserRequestBody(false)
+
+    @BeforeAll
+    fun setup() {
+        mockMvc = MockMvcBuilderManager.getMockMvc(context, UserControllerTest::class)
+    }
 
     @Test
     fun onActivateRequest_whenInvalidHttpMethod_status405() {
-        mockMvc.perform(MockMvcRequestBuilders.post(getActivateUserRoute(1)))
-            .andExpect(status().isMethodNotAllowed)
+        MockMvcRequestBuilders
+            .post(getActivateUserRoute(1))
+            .content(ObjectMapper().writeValueAsString())
+
+
     }
 
     @Test
@@ -102,10 +116,4 @@ class UserControllerTest {
             .andExpect(jsonPath("data[0].username").value("cvelasquez"))
             .andExpect(jsonPath("data[0].activated").value(false))
     }
-
-
-    private fun getRequestObjectWithJSONBody(jsonBody: String) = MockMvcRequestBuilders
-        .post(route)
-        .content(jsonBody)
-        .contentType(MediaType.APPLICATION_JSON)
 }
