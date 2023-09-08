@@ -1,13 +1,12 @@
 package hr.foi.pop.backend.services.user_service
 
-import hr.foi.pop.backend.definitions.ActivateUserDefinitions
-import hr.foi.pop.backend.exceptions.ActivateUserException
 import hr.foi.pop.backend.exceptions.UserCheckException
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.repositories.EventRepository
 import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.services.UserService
 import hr.foi.pop.backend.utils.MockObjectsHelper
+import jakarta.transaction.Transactional
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -16,6 +15,7 @@ import java.time.LocalDateTime
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
 class UserRegistrationTest {
     @Autowired
     private lateinit var userRepository: UserRepository
@@ -73,59 +73,5 @@ class UserRegistrationTest {
     fun givenUserWithBadUsername_OnRegister_ThrowUserCheckException() {
         val userWithBadUsername = templateRequestBodyForTesting.copy(username = "bad")
         assertThrows<UserCheckException> { userService.registerUser(userWithBadUsername) }
-    }
-
-    @Test
-    @Transactional
-    fun givenUserWithStatusActive_onDeactivate_shouldDeactivateUser() {
-        //given
-        val deactivateUserDefinition: ActivateUserDefinitions = ActivateUserDefinitions.DEACTIVATE
-        val userIdForUserWithActiveFlag: String = "1"
-
-        //when
-        val user: User = userService.activateOrDeactivateUser(userIdForUserWithActiveFlag, deactivateUserDefinition)
-
-        //assert
-        Assertions.assertEquals(false, user.isAccepted)
-    }
-
-    @Test
-    @Transactional
-    fun givenUserWithStatusDeactivate_onActivate_shouldActivateUser() {
-        //given
-        val activateUserDefinitions: ActivateUserDefinitions = ActivateUserDefinitions.ACTIVATE
-        val userIdForUserWithDeactivateFlag: String = "4"
-
-        //when
-        val user: User = userService.activateOrDeactivateUser(userIdForUserWithDeactivateFlag, activateUserDefinitions)
-
-        //assert
-        Assertions.assertEquals(true, user.isAccepted)
-    }
-
-    @Test
-    @Transactional
-    fun givenAlreadyActivatedUser_onActivate_shouldThrowActivateUserException() {
-        //given
-        val activateUserDefinitions: ActivateUserDefinitions = ActivateUserDefinitions.ACTIVATE
-        val userIdForUserWithActivateFlag: String = "1"
-
-        //when - assert
-        Assertions.assertThrows(ActivateUserException::class.java) {
-            userService.activateOrDeactivateUser(userIdForUserWithActivateFlag, activateUserDefinitions)
-        }
-    }
-
-    @Test
-    @Transactional
-    fun givenAlreadyDeactivatedUser_onDeactivate_shouldThrowActivateUserException() {
-        //given
-        val activateUserDefinitions: ActivateUserDefinitions = ActivateUserDefinitions.DEACTIVATE
-        val userIdForUserWithActivateFlag: String = "4"
-
-        //when - assert
-        Assertions.assertThrows(ActivateUserException::class.java) {
-            userService.activateOrDeactivateUser(userIdForUserWithActivateFlag, activateUserDefinitions)
-        }
     }
 }
