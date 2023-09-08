@@ -27,50 +27,60 @@ class UserController {
         @PathVariable userId: String,
         @RequestBody request: ActivateUserRequestBody
     ): ResponseEntity<*> {
-        return try {
-            val newStatus = request.activated
-            val parsedUserId = Integer.parseInt(userId)
+        val newStatus = request.activated
+        val parsedUserId = Integer.parseInt(userId)
 
-            if (newStatus) {
-                val user: User = userService.activateUser(parsedUserId)
-                val userDTO: UserDTO = UserMapper().mapDto(user)
+        if (newStatus) {
+            val user: User = userService.activateUser(parsedUserId)
+            val userDTO: UserDTO = UserMapper().mapDto(user)
 
-                ResponseEntity.status(HttpStatus.OK).body(
-                    SuccessResponse(
-                        "User '${user.username}' activated.",
-                        userDTO
-                    )
-                )
-            } else {
-                val user: User = userService.deactivateUser(parsedUserId)
-                val userDTO: UserDTO = UserMapper().mapDto(user)
-
-                ResponseEntity.status(HttpStatus.OK).body(
-                    SuccessResponse(
-                        "User '${user.username}' deactivated.",
-                        userDTO
-                    )
-                )
-            }
-        } catch (exception: ChangeUserStatusException) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                ErrorResponse(exception.message, exception.error)
-            )
-        } catch (exception: NumberFormatException) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                ErrorResponse(
-                    "User with provided user id does not exist in application.",
-                    ApplicationErrorType.ERR_USER_INVALID
+            return ResponseEntity.status(HttpStatus.OK).body(
+                SuccessResponse(
+                    "User '${user.username}' activated.",
+                    userDTO
                 )
             )
-        } catch (exception: JpaObjectRetrievalFailureException) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                ErrorResponse(
-                    "User with provided user id does not exist in application.",
-                    ApplicationErrorType.ERR_USER_INVALID
+        } else {
+            val user: User = userService.deactivateUser(parsedUserId)
+            val userDTO: UserDTO = UserMapper().mapDto(user)
+
+            return ResponseEntity.status(HttpStatus.OK).body(
+                SuccessResponse(
+                    "User '${user.username}' deactivated.",
+                    userDTO
                 )
             )
         }
+    }
+
+    @ExceptionHandler(ChangeUserStatusException::class)
+    fun handleChangeUserException(ex: ChangeUserStatusException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(
+                ErrorResponse(
+                    ex.message, ex.error
+                )
+            )
+    }
+
+    @ExceptionHandler(NumberFormatException::class)
+    fun handleNumberFormatException(ex: NumberFormatException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            ErrorResponse(
+                "User with provided user id does not exist in application.",
+                ApplicationErrorType.ERR_USER_INVALID
+            )
+        )
+    }
+
+    @ExceptionHandler(JpaObjectRetrievalFailureException::class)
+    fun handleJpaObjectRetrievalFailureException(ex: JpaObjectRetrievalFailureException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+            ErrorResponse(
+                "User with provided user id does not exist in application.",
+                ApplicationErrorType.ERR_USER_INVALID
+            )
+        )
     }
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
