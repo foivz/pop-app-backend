@@ -2,6 +2,7 @@ package hr.foi.pop.backend.controllers
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.ChangeUserStatusException
+import hr.foi.pop.backend.exceptions.UserNotFoundException
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserDTO
 import hr.foi.pop.backend.models.user.UserMapper
@@ -12,7 +13,6 @@ import hr.foi.pop.backend.services.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.orm.jpa.JpaObjectRetrievalFailureException
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -58,13 +58,10 @@ class UserController {
     private fun getBadRequestResponse(message: String, error: ApplicationErrorType) =
         ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse(message, error))
 
-    @ExceptionHandler(JpaObjectRetrievalFailureException::class)
-    fun handleJpaObjectRetrievalFailureException(ex: JpaObjectRetrievalFailureException): ResponseEntity<ErrorResponse> {
+    @ExceptionHandler(UserNotFoundException::class)
+    fun handleJpaObjectRetrievalFailureException(ex: UserNotFoundException): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-            ErrorResponse(
-                "User with provided user id does not exist in application.",
-                ApplicationErrorType.ERR_USER_INVALID
-            )
+            ErrorResponse(ex.message ?: "User not found", ApplicationErrorType.ERR_USER_INVALID)
         )
     }
 }

@@ -2,6 +2,7 @@ package hr.foi.pop.backend.services
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.ChangeUserStatusException
+import hr.foi.pop.backend.exceptions.UserNotFoundException
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserBuilder
 import hr.foi.pop.backend.repositories.EventRepository
@@ -10,6 +11,7 @@ import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.utils.UserChecker
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.orm.jpa.JpaObjectRetrievalFailureException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
@@ -48,7 +50,7 @@ class UserService {
     }
 
     fun activateUser(userId: Int): User {
-        val user: User = userRepository.getReferenceById(userId)
+        val user: User = tryToGetUserById(userId)
 
         if (user.isAccepted)
             throw ChangeUserStatusException(ApplicationErrorType.ERR_ALREADY_ACTIVATED)
@@ -59,7 +61,7 @@ class UserService {
     }
 
     fun deactivateUser(userId: Int): User {
-        val user: User = userRepository.getReferenceById(userId)
+        val user: User = tryToGetUserById(userId)
 
         if (!user.isAccepted)
             throw ChangeUserStatusException(ApplicationErrorType.ERR_ALREADY_DEACTIVATED)
@@ -67,6 +69,15 @@ class UserService {
         user.isAccepted = false
 
         return userRepository.save(user)
+    }
+
+    private fun tryToGetUserById(userId: Int): User {
+        try {
+            val user: User = userRepository.getReferenceById(userId)
+            return user
+        } catch (ex: JpaObjectRetrievalFailureException) {
+            throw UserNotFoundException("User with ID ${userId} not found.")
+        }
     }
 
     protected fun validateUser(userInfo: RegisterRequestBody) {
