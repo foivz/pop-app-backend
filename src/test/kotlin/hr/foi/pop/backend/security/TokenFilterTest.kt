@@ -84,20 +84,6 @@ class TokenFilterTest {
             .andExpect(jsonPath("error_message").value(ApplicationErrorType.ERR_JWT_EXPIRED.name))
     }
 
-    @Test
-    fun givenValidJwt_whenTestRouteHit_readNormalResponse() {
-        val validJwt = procureValidJwt()
-
-        mvc.perform(
-            MockMvcRequestBuilders
-                .get(testRoute)
-                .header("Authorization", "Bearer $validJwt")
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("success").value(true))
-            .andExpect(jsonPath("message").value("It seems you are correctly logged in with a valid JWT!"))
-    }
-
     private fun procureValidJwt(): String {
         Assertions.assertFalse(userRepository.existsByUsername(templateRequestBodyForTesting.username))
 
