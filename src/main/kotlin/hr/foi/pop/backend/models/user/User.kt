@@ -53,12 +53,19 @@ class User : UserDetails {
 
     @Column(name = "is_accepted")
     var isAccepted: Boolean = false
+
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
-        return mutableListOf<GrantedAuthority>(
-            object : GrantedAuthority {
-                override fun getAuthority() = role.name
-            }
-        )
+        var listOfGrantedAuthorities = mutableListOf<GrantedAuthority>()
+
+        if (isAccepted) {
+            listOfGrantedAuthorities.add(
+                object : GrantedAuthority {
+                    override fun getAuthority() = role.name
+                }
+            )
+        }
+
+        return listOfGrantedAuthorities
     }
 
     override fun getUsername() = username
