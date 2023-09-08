@@ -1,5 +1,7 @@
 package hr.foi.pop.backend.services
 
+import hr.foi.pop.backend.definitions.ApplicationErrorType
+import hr.foi.pop.backend.exceptions.ChangeUserStatusException
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserBuilder
 import hr.foi.pop.backend.repositories.EventRepository
@@ -45,7 +47,30 @@ class UserService {
         return user
     }
 
+    fun activateUser(userId: Int): User {
+        val user: User = userRepository.getReferenceById(userId)
+
+        if (user.isAccepted)
+            throw ChangeUserStatusException(ApplicationErrorType.ERR_ALREADY_ACTIVATED)
+
+        user.isAccepted = true
+
+        return userRepository.save(user)
+    }
+
+    fun deactivateUser(userId: Int): User {
+        val user: User = userRepository.getReferenceById(userId)
+
+        if (!user.isAccepted)
+            throw ChangeUserStatusException(ApplicationErrorType.ERR_ALREADY_DEACTIVATED)
+
+        user.isAccepted = false
+
+        return userRepository.save(user)
+    }
+
     protected fun validateUser(userInfo: RegisterRequestBody) {
         UserChecker(userInfo, userRepository).validateUserProperties()
     }
+
 }
