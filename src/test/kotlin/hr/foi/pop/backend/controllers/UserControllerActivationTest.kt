@@ -122,7 +122,7 @@ class UserControllerActivationTest {
     }
 
     @Test
-    fun onDeactivateRequest_whenAlreadyDeactivated_status200() {
+    fun onDeactivateRequest_whenAlreadyDeactivated_status400() {
         val body = mapOf("is_accepted" to false)
         val mockUserIdOfNotActivatedUser = 4
 
