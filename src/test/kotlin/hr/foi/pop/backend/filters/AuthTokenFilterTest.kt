@@ -10,7 +10,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 @SpringBootTest
 class AuthTokenFilterTest : AuthTokenFilter(listOf(AntPathRequestMatcher("/api/v2/auth/**"))) {
     @Test
-    fun givenCorrectJWT_WhenReceived_ParseNormally() {
+    fun givenCorrectJWT_whenReceived_parseNormally() {
         val mockJwt = "eyJhbGciOiJIUzI1NiJ9." +
                 "eyJzdWIiOiJjdmVsYXNxdWV6IiwiaWF0IjoxNjkyMzAyMjU2LCJleHAiOjE2OTIzMDM0NTZ9." +
                 "vKDqFIAWK1lmfK-pWo1lUQPePCT-pihqKGQFn7rdO_k"
@@ -28,7 +28,7 @@ class AuthTokenFilterTest : AuthTokenFilter(listOf(AntPathRequestMatcher("/api/v
     }
 
     @Test
-    fun givenInvalidJWT_WhenReceived_ThrowException() {
+    fun givenInvalidJWT_whenReceived_throwException() {
         val request = MockHttpServletRequest()
         request.addHeader(
             "Authorization", "I am JWT without a 'Bearer' prefix!"

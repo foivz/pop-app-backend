@@ -11,7 +11,7 @@ class ProductMapperTest {
     val productMapper = ProductMapper()
 
     @Test
-    fun whenProductDTOMapped_CheckProductAttributes_AreEqual() {
+    fun whenProductDTOMapped_checkProductAttributes_areEqual() {
         val product = MockEntitiesHelper.generateProductEntity()
 
         val productDto = productMapper.mapDto(product)
@@ -20,7 +20,7 @@ class ProductMapperTest {
     }
 
     @Test
-    fun whenProductDTOMapped_CheckForNullImage_IsDefaultImagePath() {
+    fun whenProductDTOMapped_checkForNullImage_isDefaultImagePath() {
         val product = MockEntitiesHelper.generateProductEntityWithNoImage()
 
         product.imageUrl = null

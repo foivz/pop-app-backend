@@ -11,7 +11,7 @@ class InvoiceMapperTest {
     val invoiceMapper = InvoiceMapper()
 
     @Test
-    fun whenInvoiceDTOMapped_CheckInvoiceAttributes_AreEqual() {
+    fun whenInvoiceDTOMapped_checkInvoiceAttributes_areEqual() {
         val invoice = MockEntitiesHelper.generateInvoiceEntity()
 
         val invoiceDTO = invoiceMapper.mapDto(invoice)

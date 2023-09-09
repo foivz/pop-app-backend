@@ -7,13 +7,13 @@ import org.springframework.boot.test.context.SpringBootTest
 @SpringBootTest
 class UserBuilderExceptionTest {
     @Test
-    fun givenExceptionCreatedWithOnePropertyName_WhenExceptionMessageChecked_MakesSense() {
+    fun givenExceptionCreatedWithOnePropertyName_whenExceptionMessageChecked_makesSense() {
         val mockException = UserBuilderException("username")
         Assertions.assertEquals("User has no username set!", mockException.message)
     }
 
     @Test
-    fun givenExceptionCreatedWithTwoPropertyNames_WhenExceptionMessageChecked_MakesSense() {
+    fun givenExceptionCreatedWithTwoPropertyNames_whenExceptionMessageChecked_makesSense() {
         val mockException = UserBuilderException("username", "password")
         Assertions.assertEquals("User has no username, password set!", mockException.message)
     }

@@ -30,7 +30,7 @@ class UserRegistrationTest {
         MockObjectsHelper.getMockRegisterRequestBody("registration-tester", "test@registration.com")
 
     @BeforeAll
-    fun givenValidUserInformation_OnRegister_NewRecordPersistedWithCorrectData() {
+    fun givenValidUserInformation_onRegister_newRecordPersistedWithCorrectData() {
         Assertions.assertFalse(userRepository.existsByUsername(templateRequestBodyForTesting.username))
 
         userService.registerUser(templateRequestBodyForTesting)
@@ -70,7 +70,7 @@ class UserRegistrationTest {
     }
 
     @Test
-    fun givenUserWithBadUsername_OnRegister_ThrowUserCheckException() {
+    fun givenUserWithBadUsername_onRegister_throwUserCheckException() {
         val userWithBadUsername = templateRequestBodyForTesting.copy(username = "bad")
         assertThrows<UserCheckException> { userService.registerUser(userWithBadUsername) }
     }

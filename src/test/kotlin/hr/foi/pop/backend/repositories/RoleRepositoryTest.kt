@@ -14,18 +14,18 @@ class RoleRepositoryTest {
     lateinit var roleRepository: RoleRepository
 
     @Test
-    fun getRoleById_CheckRoleName_IsCorrect() {
+    fun getRoleById_checkRoleName_isCorrect() {
         val role: Role = roleRepository.getRoleById(3)
 
         Assertions.assertTrue(role.name == "admin")
     }
 
-    @Before("getRoleByName_CheckRoleId_IsCorrect")
+    @Before("getRoleByName_checkRoleId_isCorrect")
 
     @Test
-    fun getRoleByName_CheckRoleId_IsCorrect() {
+    fun getRoleByName_checkRoleId_isCorrect() {
         val buyerRoleId = 1
-        
+
         val role: Role = roleRepository.getRoleById(buyerRoleId)
         assert(role.name == "buyer")
 

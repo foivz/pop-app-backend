@@ -15,7 +15,7 @@ class BackendApplicationTests {
     val password = "admin"
 
     @Test
-    fun insertMockDataInH2_20ProductsInserted_True() {
+    fun insertMockDataInH2_20ProductsInserted_true() {
         val connection: Connection = DriverManager.getConnection(url, username, password)
         val statement: Statement = connection.createStatement()
         val query = "SELECT COUNT(*) as products_count FROM POPAPP_DB.PRODUCTS "

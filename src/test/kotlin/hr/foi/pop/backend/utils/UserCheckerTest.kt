@@ -29,13 +29,13 @@ class UserCheckerTest(@Autowired userRepository: UserRepository) :
     }
 
     @BeforeEach
-    fun ifUserOk_WhenChecked_NothingHappens() {
+    fun ifUserOk_whenChecked_nothingHappens() {
         super.user = templateRequestBodyForTesting
         assertDoesNotThrow { super.validateUserProperties() }
     }
 
     @Test
-    fun ifUserHasBadFirstName_WhenChecked_Throws() {
+    fun ifUserHasBadFirstName_whenChecked_throws() {
         val firstNameOf1Char = "a"
         super.user = super.user.copy(firstName = firstNameOf1Char)
 
@@ -48,7 +48,7 @@ class UserCheckerTest(@Autowired userRepository: UserRepository) :
     }
 
     @Test
-    fun ifUserHasBadLastName_WhenChecked_Throws() {
+    fun ifUserHasBadLastName_whenChecked_throws() {
         val lastNameOf1Char = "b"
         super.user = super.user.copy(lastName = lastNameOf1Char)
 
@@ -61,7 +61,7 @@ class UserCheckerTest(@Autowired userRepository: UserRepository) :
     }
 
     @Test
-    fun ifUserHasBadUsername_WhenChecked_Throws() {
+    fun ifUserHasBadUsername_whenChecked_throws() {
         val usernameSmallerThan4Chars = "bad"
         super.user = super.user.copy(username = usernameSmallerThan4Chars)
 
@@ -70,7 +70,7 @@ class UserCheckerTest(@Autowired userRepository: UserRepository) :
     }
 
     @Test
-    fun ifUsernameMixedWithNumbers_WhenChecked_NothingHappens() {
+    fun ifUsernameMixedWithNumbers_whenChecked_nothingHappens() {
         val correctUsernameStartsWithNumbers = "123_its_ok"
         super.user = super.user.copy(username = correctUsernameStartsWithNumbers)
 
@@ -88,7 +88,7 @@ class UserCheckerTest(@Autowired userRepository: UserRepository) :
     }
 
     @Test
-    fun ifUsernameWithoutChars_WhenChecked_Throws() {
+    fun ifUsernameWithoutChars_whenChecked_throws() {
         val invalidUsernameOnlyNumbers = "134580"
         super.user = super.user.copy(username = invalidUsernameOnlyNumbers)
 
@@ -107,7 +107,7 @@ class UserCheckerTest(@Autowired userRepository: UserRepository) :
     }
 
     @Test
-    fun ifUserHasUsernameAlreadyInUse_WhenChecked_Throws() {
+    fun ifUserHasUsernameAlreadyInUse_whenChecked_throws() {
         val mockUsernameInUse = actualUserFromDatabase.username
         super.user = super.user.copy(username = mockUsernameInUse)
 
@@ -120,7 +120,7 @@ class UserCheckerTest(@Autowired userRepository: UserRepository) :
     }
 
     @Test
-    fun ifUserPasswordTooShort_WhenChecked_Throws() {
+    fun ifUserPasswordTooShort_whenChecked_throws() {
         val badPassword = "bad"
         super.user = super.user.copy(password = badPassword)
 
@@ -129,7 +129,7 @@ class UserCheckerTest(@Autowired userRepository: UserRepository) :
     }
 
     @Test
-    fun ifUserPasswordWithoutNumericDigits_WhenChecked_Throws() {
+    fun ifUserPasswordWithoutNumericDigits_whenChecked_throws() {
         val badPassword = "longpasswordwithoutnumbers"
         super.user = super.user.copy(password = badPassword)
 
@@ -142,7 +142,7 @@ class UserCheckerTest(@Autowired userRepository: UserRepository) :
     }
 
     @Test
-    fun ifEmailValid_WhenChecked_Ok() {
+    fun ifEmailValid_whenChecked_isOk() {
         val usedEmail = "ihorvat@student.foi.hr"
         super.user = super.user.copy(email = usedEmail)
 
@@ -150,7 +150,7 @@ class UserCheckerTest(@Autowired userRepository: UserRepository) :
     }
 
     @Test
-    fun ifEmailInvalid_WhenChecked_Throws() {
+    fun ifEmailInvalid_whenChecked_throws() {
         val invalidEmail = "longpasswordwithoutnumbers"
         super.user = super.user.copy(email = invalidEmail)
 
@@ -159,7 +159,7 @@ class UserCheckerTest(@Autowired userRepository: UserRepository) :
     }
 
     @Test
-    fun ifEmailUsed_WhenChecked_Throws() {
+    fun ifEmailUsed_whenChecked_throws() {
         val usedEmail = actualUserFromDatabase.email
         super.user = super.user.copy(email = usedEmail)
 
@@ -176,7 +176,7 @@ class UserCheckerTest(@Autowired userRepository: UserRepository) :
     }
 
     @Test
-    fun ifRoleInvalid_WhenChecked_Throws() {
+    fun ifRoleInvalid_whenChecked_throws() {
         val nonExistingRole = "bad_role"
         super.user = super.user.copy(role = nonExistingRole)
 

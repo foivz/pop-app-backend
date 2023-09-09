@@ -11,7 +11,7 @@ class PackageMapperTest {
     val packageMapper = PackageMapper()
 
     @Test
-    fun whenPackageDTOMapped_CheckPackageAttributes_AreEqual() {
+    fun whenPackageDTOMapped_checkPackageAttributes_areEqual() {
         val packageEntity = MockEntitiesHelper.generatePackageEntityWithoutProducts()
 
         val packageDto = packageMapper.mapDto(packageEntity)
@@ -20,7 +20,7 @@ class PackageMapperTest {
     }
 
     @Test
-    fun whenPackageDTOMapped_CheckProducts_AreEqual() {
+    fun whenPackageDTOMapped_checkProducts_areEqual() {
         val packageEntity = MockEntitiesHelper.generatePackageEntityWithTwoProducts()
 
         val packageDto = packageMapper.mapDto(packageEntity)

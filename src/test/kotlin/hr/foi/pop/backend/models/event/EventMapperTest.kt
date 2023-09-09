@@ -10,7 +10,7 @@ class EventMapperTest {
     val eventMapper = EventMapper()
 
     @Test
-    fun whenEventDTOMapped_CheckEventAttributes_AreEqual() {
+    fun whenEventDTOMapped_checkEventAttributes_areEqual() {
         val event = MockEntitiesHelper.generateEventEntity()
 
         val eventDTO = eventMapper.mapDto(event)

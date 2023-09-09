@@ -53,21 +53,21 @@ class AuthenticationControllerRegistrationTest {
     private val badJSON = "{\"random\": \"Object\"}"
 
     @Test
-    fun onRegisterRequest_WhenNoRequestSent_Status400() {
+    fun onRegisterRequest_whenNoRequestSent_status400() {
         mvc.perform(
             MockMvcRequestBuilders.post(registerRoute).with(csrf())
         ).andExpect(status().isBadRequest)
     }
 
     @Test
-    fun onRegisterRequest_WhenBadRequestSent_Status400() {
+    fun onRegisterRequest_whenBadRequestSent_status400() {
         val request = jsonRequester.getRequestWithJsonBody(badJSON)
 
         mvc.perform(request).andExpect(status().isBadRequest)
     }
 
     @Test
-    fun onInvalidUserData_WhenRequestSent_Status400WithMessage() {
+    fun onInvalidUserData_whenRequestSent_status400WithMessage() {
         val mockedUserWithNoLastName = mockRegisterBodyAsObject.copy(lastName = "")
         val request = jsonRequester.getRequestWithJsonBody(mockedUserWithNoLastName)
 
@@ -79,7 +79,7 @@ class AuthenticationControllerRegistrationTest {
     }
 
     @Test
-    fun onRegisterRequest_WhenRequestIsComplete_ThenAppropriateSuccessMessage() {
+    fun onRegisterRequest_whenRequestIsComplete_thenAppropriateSuccessMessage() {
         val body = mockRegisterBodyAsObject
         val request = jsonRequester.getRequestWithJsonBody(body)
 

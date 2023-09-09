@@ -21,7 +21,7 @@ class UserBuilderTest {
     lateinit var passwordEncoder: PasswordEncoder
 
     @Test
-    fun givenCorrectUserInfo_WhenBuiltViaBuilder_PropertiesEqual() {
+    fun givenCorrectUserInfo_whenBuiltViaBuilder_propertiesEqual() {
         val userBuilder = getBuilderForMockUser()
         val user = userBuilder.build()
 
@@ -48,7 +48,7 @@ class UserBuilderTest {
     }
 
     @Test
-    fun givenBadUserInfo_OnAttemptToBuildViaBuilder_ThrowsUserBuilderException() {
+    fun givenBadUserInfo_onAttemptToBuildViaBuilder_throwsUserBuilderException() {
         val userBuilder = getBuilderForMockUser()
 
         userBuilder.setUsername("")
@@ -61,7 +61,7 @@ class UserBuilderTest {
     }
 
     @Test
-    fun givenEmptyBuilder_OnAttemptToBuild_ThrowsUserBuilderExceptionAfterFirstNameAttribute() {
+    fun givenEmptyBuilder_onAttemptToBuild_throwsUserBuilderExceptionAfterFirstNameAttribute() {
         val thrownException = assertThrows<UserBuilderException> {
             UserBuilder().build()
         }
@@ -69,7 +69,7 @@ class UserBuilderTest {
     }
 
     @Test
-    fun givenBuilderWithEmptyStrings_OnAttemptToBuild_ThrowsUserBuilderExceptionWithAllAttributesListed() {
+    fun givenBuilderWithEmptyStrings_onAttemptToBuild_throwsUserBuilderExceptionWithAllAttributesListed() {
         val thrownException = assertThrows<UserBuilderException> {
             UserBuilder()
                 .setFirstName("")
