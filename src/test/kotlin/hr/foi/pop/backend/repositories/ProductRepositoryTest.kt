@@ -13,14 +13,14 @@ class ProductRepositoryTest {
     lateinit var productRepository: ProductRepository
 
     @Test
-    fun getProductById_CheckProductName_IsCorrect() {
+    fun getProductById_checkProductName_isCorrect() {
         val product: Product = productRepository.getProductById(3)
 
         Assertions.assertTrue(product.name == "Product 3")
     }
 
     @Test
-    fun getProductsById_CheckProductStore_IsCorrect() {
+    fun getProductsById_checkProductStore_isCorrect() {
         val productFromStore1: Product = productRepository.getProductById(1)
         val productFromStore2: Product = productRepository.getProductById(9)
         val productFromStore3: Product = productRepository.getProductById(17)

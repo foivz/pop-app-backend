@@ -31,7 +31,7 @@ class BadRequestHandlerTest {
 
     @Test
     @WithMockUser("tester")
-    fun givenNonParseableJsonObjectForUserRegistrationRequest_WhenCatched_ProperMessageReturned() {
+    fun givenNonParseableJsonObjectForUserRegistrationRequest_whenCatched_properMessageReturned() {
         val request = buildPostRequest()
 
         mockMvc.perform(request)

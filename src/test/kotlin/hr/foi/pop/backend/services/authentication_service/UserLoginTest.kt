@@ -13,7 +13,6 @@ import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
-import java.util.*
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -39,7 +38,7 @@ class UserLoginTest {
     }
 
     @Test
-    fun whenUserWantsToLogInWithCorrectPasswordButIsNotActivated_OnLogin_ThrowException() {
+    fun whenUserWantsToLogInWithCorrectPasswordButIsNotActivated_onLogin_throwException() {
         val notAcceptedUser = userRepository.getUserByUsername(templateRequestBodyForTesting.username)
         Assertions.assertNotNull(notAcceptedUser)
         Assertions.assertFalse(notAcceptedUser!!.isAccepted)
@@ -53,7 +52,7 @@ class UserLoginTest {
     }
 
     @Test
-    fun whenUserWantsToLogInWithCorrectPassword_OnLogin_GetValidJWT() {
+    fun whenUserWantsToLogInWithCorrectPassword_onLogin_getValidJWT() {
         acceptUser(templateRequestBodyForTesting.username)
 
         val correctUsername = templateRequestBodyForTesting.username
@@ -73,7 +72,7 @@ class UserLoginTest {
     }
 
     @Test
-    fun whenUserWantsToLogInWithIncorrectPassword_OnLoginAttempt_ThrowException() {
+    fun whenUserWantsToLogInWithIncorrectPassword_onLoginAttempt_throwException() {
         val correctUsername = templateRequestBodyForTesting.username
         val badPassword = "bad password"
 
@@ -81,7 +80,7 @@ class UserLoginTest {
     }
 
     @Test
-    fun whenNonExistentUserTriesToLogIn_OnLoginAttempt_ThrowException() {
+    fun whenNonExistentUserTriesToLogIn_onLoginAttempt_throwException() {
         val nonExistentUsername = "nonexistent tester user"
         val password = "password of non existent user"
 
@@ -103,7 +102,7 @@ class UserLoginTest {
     }
 
     @Test
-    fun whenUserFromAnotherEventTriesToLogIn_OnLoginAttempt_InactiveEventExceptionThrown() {
+    fun whenUserFromAnotherEventTriesToLogIn_onLoginAttempt_inactiveEventExceptionThrown() {
         deactivateUsersEventButActivateUser(templateRequestBodyForTesting)
 
         val mockUsername = templateRequestBodyForTesting.username

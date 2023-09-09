@@ -13,14 +13,14 @@ class PackageRepositoryTest {
     lateinit var packageRepository: PackageRepository
 
     @Test
-    fun getPackageById_CheckPackageName_IsTrue() {
+    fun getPackageById_checkPackageName_isTrue() {
         val packageEntity: PackageEntity = packageRepository.getPackageById(3)
 
         Assertions.assertTrue(packageEntity.name == "Package 3")
     }
 
     @Test
-    fun getPackageById_CheckContainedProducts_AreEqual() {
+    fun getPackageById_checkContainedProducts_areEqual() {
         val packageEntity: PackageEntity = packageRepository.getPackageById(1)
 
         val products = packageEntity.products
@@ -39,7 +39,7 @@ class PackageRepositoryTest {
 
 
     @Test
-    fun getPackagesById_CheckPackageStore_IsCorrect() {
+    fun getPackagesById_checkPackageStore_isCorrect() {
         val packageFromStore1: PackageEntity = packageRepository.getPackageById(1)
         val packageFromStore2: PackageEntity = packageRepository.getPackageById(3)
         val packageFromStore3: PackageEntity = packageRepository.getPackageById(5)

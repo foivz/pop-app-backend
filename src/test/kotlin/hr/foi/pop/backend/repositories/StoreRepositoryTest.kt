@@ -22,7 +22,7 @@ class StoreRepositoryTest {
     }
 
     @Test
-    fun givenStoreExists_WhenRetrievedById_ShouldReturnStore() {
+    fun givenStoreExists_whenRetrievedById_shouldReturnStore() {
         val store = MockEntitiesHelper.generateStoreEntity()
 
         storeRepository.save(store)

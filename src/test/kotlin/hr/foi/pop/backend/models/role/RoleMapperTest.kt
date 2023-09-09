@@ -11,7 +11,7 @@ class RoleMapperTest {
     val roleMapper = RoleMapper()
 
     @Test
-    fun whenRoleDTOMapped_CheckRoleAttributes_AreEqual() {
+    fun whenRoleDTOMapped_checkRoleAttributes_areEqual() {
         val role = MockEntitiesHelper.generateRoleEntity()
 
         val roleDto = roleMapper.mapDto(role)

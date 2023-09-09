@@ -11,7 +11,7 @@ class StoreMapperTest {
     val storeMapper = StoreMapper()
 
     @Test
-    fun whenStoreDTOMapped_CheckStoreAttributes_AreEqual() {
+    fun whenStoreDTOMapped_checkStoreAttributes_areEqual() {
         val store = MockEntitiesHelper.generateStoreEntity()
 
         val storeDto = storeMapper.mapDto(store)

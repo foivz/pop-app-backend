@@ -91,7 +91,7 @@ class AuthenticationControllerLoginTest {
             .andExpect(
                 jsonPath("message").value(
                     Matchers.matchesPattern(
-                        "User \"${mockLoginUser.username}\" is not accepted yet by the admin!"
+                        "User \"${mockLoginUser.username}\" is not accepted by the admin!"
                     )
                 )
             )

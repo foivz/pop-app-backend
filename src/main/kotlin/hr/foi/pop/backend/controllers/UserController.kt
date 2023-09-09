@@ -2,20 +2,17 @@ package hr.foi.pop.backend.controllers
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.ChangeUserStatusException
-import hr.foi.pop.backend.exceptions.UserCheckException
+import hr.foi.pop.backend.exceptions.UserNotFoundException
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserDTO
 import hr.foi.pop.backend.models.user.UserMapper
 import hr.foi.pop.backend.request_bodies.ActivateUserRequestBody
-import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.responses.ErrorResponse
 import hr.foi.pop.backend.responses.SuccessResponse
 import hr.foi.pop.backend.services.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.http.converter.HttpMessageNotReadableException
-import org.springframework.orm.jpa.JpaObjectRetrievalFailureException
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -24,91 +21,47 @@ class UserController {
     @Autowired
     lateinit var userService: UserService
 
-    @PostMapping
-    fun registerUser(@RequestBody request: RegisterRequestBody?): ResponseEntity<*> {
-
-        return try {
-
-            val requestBody = request!!
-            val savedUser = userService.registerUser(requestBody)
-            val userDTO = UserMapper().mapDto(savedUser)
-
-            ResponseEntity.status(HttpStatus.CREATED).body(
-                SuccessResponse("User \"${savedUser.username}\" registered with ID ${savedUser.id}.", userDTO)
-            )
-
-        } catch (ex: NullPointerException) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse("User not in correct format!", ApplicationErrorType.ERR_BAD_BODY))
-        }
-
-    }
-
     @PatchMapping("/{userId}/activate")
     fun activateUser(
         @PathVariable userId: String,
         @RequestBody request: ActivateUserRequestBody
     ): ResponseEntity<*> {
-        return try {
-            val newStatus = request.activated
-            val parsedUserId = Integer.parseInt(userId)
+        val newStatus = request.isAccepted!!
+        val parsedUserId = Integer.parseInt(userId)
 
-            if (newStatus) {
-                val user: User = userService.activateUser(parsedUserId)
-                val userDTO: UserDTO = UserMapper().mapDto(user)
-
-                ResponseEntity.status(HttpStatus.OK).body(
-                    SuccessResponse(
-                        "User '${user.username}' activated.",
-                        userDTO
-                    )
-                )
-            } else {
-                val user: User = userService.deactivateUser(parsedUserId)
-                val userDTO: UserDTO = UserMapper().mapDto(user)
-
-                ResponseEntity.status(HttpStatus.OK).body(
-                    SuccessResponse(
-                        "User '${user.username}' deactivated.",
-                        userDTO
-                    )
-                )
-            }
-        } catch (exception: NullPointerException) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                ErrorResponse("Request body is not in correct format", ApplicationErrorType.ERR_BAD_BODY)
-            )
-        } catch (exception: ChangeUserStatusException) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                ErrorResponse(exception.message, exception.error)
-            )
-        } catch (exception: NumberFormatException) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                ErrorResponse(
-                    "User with provided user id does not exist in application.",
-                    ApplicationErrorType.ERR_USER_INVALID
-                )
-            )
-        } catch (exception: JpaObjectRetrievalFailureException) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                ErrorResponse(
-                    "User with provided user id does not exist in application.",
-                    ApplicationErrorType.ERR_USER_INVALID
-                )
-            )
+        return if (newStatus) {
+            val user: User = userService.activateUser(parsedUserId)
+            getOkResponse("User '${user.username}' activated.", user)
+        } else {
+            val user: User = userService.deactivateUser(parsedUserId)
+            getOkResponse("User '${user.username}' deactivated.", user)
         }
     }
 
-    @ExceptionHandler(UserCheckException::class)
-    fun handleBadRegistrationRequestBody(ex: UserCheckException): ResponseEntity<ErrorResponse> {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse("Could not register user!", ex.error))
+    private fun getOkResponse(responseMessage: String, user: User): ResponseEntity<SuccessResponse> {
+        val userDTO: UserDTO = UserMapper().mapDto(user)
+        return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse(responseMessage, userDTO))
     }
 
-    @ExceptionHandler(HttpMessageNotReadableException::class)
-    fun handleJacksonConverterBadRequestBody(ex: HttpMessageNotReadableException): ResponseEntity<ErrorResponse> {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse("Invalid request body. Please check request body.", ApplicationErrorType.ERR_BAD_BODY))
-    }
+    @ExceptionHandler(ChangeUserStatusException::class)
+    fun handleChangeUserException(ex: ChangeUserStatusException) =
+        getBadRequestResponse(ex.message, ex.error)
 
+
+    @ExceptionHandler(NumberFormatException::class)
+    fun handleNumberFormatException(ex: NumberFormatException) =
+        getBadRequestResponse(
+            "User with provided user ID not found.",
+            ApplicationErrorType.ERR_USER_INVALID
+        )
+
+    private fun getBadRequestResponse(message: String, error: ApplicationErrorType) =
+        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse(message, error))
+
+    @ExceptionHandler(UserNotFoundException::class)
+    fun handleJpaObjectRetrievalFailureException(ex: UserNotFoundException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+            ErrorResponse(ex.message ?: "User not found", ApplicationErrorType.ERR_USER_INVALID)
+        )
+    }
 }

@@ -28,7 +28,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    fun findById_WhenGivenIdOfMockUser_ExpectMockUser() {
+    fun findById_whenGivenIdOfMockUser_expectMockUser() {
         val optionalUserObject: Optional<User> = userRepository.findById(mockUser.id)
         Assertions.assertTrue(optionalUserObject.isPresent)
         val user = optionalUserObject.get()

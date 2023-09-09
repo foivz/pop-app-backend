@@ -13,7 +13,7 @@ class PasswordHasherTest {
     lateinit var passwordEncoder: PasswordEncoder
 
     @Test
-    fun givenEncoderReady_whenStringEncoded_ThenExpectBCryptFormat() {
+    fun givenEncoderReady_whenStringEncoded_thenExpectBCryptFormat() {
         val encodedValue1 = passwordEncoder.encode("Secret string 1")
         assertValueInBCryptFormat(encodedValue1)
 
@@ -27,7 +27,7 @@ class PasswordHasherTest {
 
 
     @Test
-    fun givenEncodedValue_whenDecoded_SameAsOriginal() {
+    fun givenEncodedValue_whenDecoded_sameAsOriginal() {
         val secretString1 = "Secret string 1"
         val encodedValue1 = passwordEncoder.encode(secretString1)
         assert(passwordEncoder.matches(secretString1, encodedValue1))
