@@ -138,4 +138,45 @@ class StoreControllerCreationTest {
         Assertions.assertEquals("buyer", mockBuyerUser.role.name)
         return mockBuyerUser
     }
+
+    @Test
+    fun givenProperUserWithStoreAlreadyAttached_onAttemptToCreateStoreWithPostRequest_return400() {
+        val mockSellerUserWithStore = getPersistedMockSellerUserWithStore()
+
+        val accessTokenOfMockBuyerUser =
+            authenticationService.authenticateAndGenerateTokenPair(
+                mockSellerUserWithStore.username,
+                mockUsersPassword
+            ).accessToken
+
+        val requestBody = mapOf("store_name" to "NewStoreImNotAllowedToHave")
+
+        val request = createAuthorizedRequestWithBody(requestBody, accessTokenOfMockBuyerUser)
+
+        mvc.perform(request)
+            .andExpect(status().isConflict)
+            .andExpect(jsonPath("success").value(false))
+            .andExpect(jsonPath("message").value("User already has a store!"))
+            .andExpect(jsonPath("error_code").value(ApplicationErrorType.ERR_SELLER_ALREADY_HAS_STORE.code))
+            .andExpect(jsonPath("error_message").value(ApplicationErrorType.ERR_SELLER_ALREADY_HAS_STORE.name))
+    }
+
+    private fun getPersistedMockSellerUserWithStore(): User {
+        val mockSellerUserWithStore =
+            MockEntitiesHelper
+                .generateUserEntityWithStore(
+                    StoreControllerCreationTest::class, mockUsersPassword
+                )
+
+        mockSellerUserWithStore.apply {
+            username = "StoreControllerCreationTesterSellerWithStore"
+            role = MockEntitiesHelper.generateSellerRoleEntity()
+        }
+
+        userRepository.save(mockSellerUserWithStore)
+        Assertions.assertEquals("seller", mockSellerUserWithStore.role.name)
+        Assertions.assertNotNull(mockSellerUserWithStore.store)
+
+        return mockSellerUserWithStore
+    }
 }

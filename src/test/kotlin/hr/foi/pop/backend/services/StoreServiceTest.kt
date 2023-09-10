@@ -3,20 +3,22 @@ package hr.foi.pop.backend.services
 import hr.foi.pop.backend.exceptions.BadRoleException
 import hr.foi.pop.backend.exceptions.InvalidStoreNameException
 import hr.foi.pop.backend.exceptions.UsedStoreNameException
+import hr.foi.pop.backend.exceptions.UserHasStoreException
 import hr.foi.pop.backend.models.store.Store
+import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.repositories.EventRepository
 import hr.foi.pop.backend.repositories.StoreRepository
+import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.utils.MockEntitiesHelper
 import jakarta.transaction.Transactional
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.test.context.support.WithMockUser
 
 @SpringBootTest
 @Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class StoreServiceTest {
     @Autowired
     lateinit var storeService: StoreService
@@ -27,18 +29,34 @@ class StoreServiceTest {
     @Autowired
     lateinit var eventRepository: EventRepository
 
+    @Autowired
+    lateinit var userRepository: UserRepository
+
     private val properAndUniqueStoreName = "${StoreServiceTest::class.simpleName} Store"
+
+    lateinit var mockUser: User
+
+    @BeforeAll
+    fun setup() {
+        mockUser = MockEntitiesHelper.generateUserEntityWithoutStore(StoreServiceTest::class)
+        mockUser.apply { username = "StoreServiceTester" }
+        userRepository.save(mockUser)
+    }
 
     @Test
     @WithMockUser(username = "StoreServiceTester", authorities = ["seller"])
     fun givenProperAndUniqueStoreName_whenUserIsSeller_returnNewStoreEntityObject() {
-        val existsByStoreName = storeRepository.existsByStoreName(properAndUniqueStoreName)
-        Assertions.assertFalse(existsByStoreName)
+        assertStoreDoesntExist(properAndUniqueStoreName)
 
         val newStoreEntity: Store = storeService.createStore(properAndUniqueStoreName)
 
         assertStoreRetrieveableFromRepositoryById(newStoreEntity)
         assertStoreHasPropertyValuesCorrectlySet(properAndUniqueStoreName, newStoreEntity)
+    }
+
+    private fun assertStoreDoesntExist(properAndUniqueStoreName: String) {
+        val existsByStoreName = storeRepository.existsByStoreName(properAndUniqueStoreName)
+        Assertions.assertFalse(existsByStoreName)
     }
 
     private fun assertStoreRetrieveableFromRepositoryById(newStoreEntity: Store) {
@@ -84,11 +102,33 @@ class StoreServiceTest {
         }
     }
 
-    private fun persistStoreWithName(usedStoreName: String) {
-        storeRepository.save(Store().apply {
+    private fun persistStoreWithName(usedStoreName: String): Store {
+        val createdStore = storeRepository.save(Store().apply {
             storeName = usedStoreName
             event = MockEntitiesHelper.generateEventEntity()
         })
         Assertions.assertTrue(storeRepository.existsByStoreName(usedStoreName))
+
+        return createdStore
+    }
+
+    @Test
+    @WithMockUser(username = "evilTesterUserWhoWantsTwoStores", authorities = ["seller"])
+    fun givenUserWithStore_onAttemptToCreateAnotherStore_throwUserHasStoreException() {
+        assertMockUserHasStore()
+
+        assertThrows<UserHasStoreException> {
+            storeService.createStore("a new store")
+        }
+    }
+
+    private fun assertMockUserHasStore() {
+        val newStoreEntity: Store = persistStoreWithName("alreadyExistingStore")
+        val mockUserWithStore = mockUser.apply {
+            username = "evilTesterUserWhoWantsTwoStores"
+            store = storeRepository.save(newStoreEntity)
+        }
+        val savedUser = userRepository.save(mockUserWithStore)
+        Assertions.assertNotNull(savedUser.store)
     }
 }

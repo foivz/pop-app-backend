@@ -3,6 +3,7 @@ package hr.foi.pop.backend.controllers
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.BadRoleException
 import hr.foi.pop.backend.exceptions.InvalidStoreNameException
+import hr.foi.pop.backend.exceptions.UserHasStoreException
 import hr.foi.pop.backend.models.store.StoreMapper
 import hr.foi.pop.backend.request_bodies.CreateStoreRequestBody
 import hr.foi.pop.backend.responses.ErrorResponse
@@ -41,6 +42,13 @@ class StoreController {
     fun handleBadRoleException(ex: BadRoleException): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
             ErrorResponse(ex.message ?: "Invalid role for this request.", ApplicationErrorType.ERR_ROLE_NOT_APPLICABLE)
+        )
+    }
+
+    @ExceptionHandler(UserHasStoreException::class)
+    fun handleUserHasStoreException(ex: UserHasStoreException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+            ErrorResponse("User already has a store!", ApplicationErrorType.ERR_SELLER_ALREADY_HAS_STORE)
         )
     }
 }
