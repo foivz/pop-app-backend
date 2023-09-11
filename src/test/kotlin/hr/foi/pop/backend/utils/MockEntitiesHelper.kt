@@ -21,14 +21,21 @@ class MockEntitiesHelper {
             }
         }
 
-        fun generateRoleEntity(): Role {
+        fun generateBuyerRoleEntity(): Role {
             return Role().apply {
                 this.id = 1
                 this.name = "buyer"
             }
         }
 
-        fun generateUserEntityWithStore(callerClass: KClass<*>, password: String = "test123"): User {
+        fun generateSellerRoleEntity(): Role {
+            return Role().apply {
+                this.id = 2
+                this.name = "seller"
+            }
+        }
+
+        fun generateUserEntityWithoutStore(callerClass: KClass<*>, password: String = "test123"): User {
             val callerName = callerClass.simpleName!!
             val encoder = PasswordEncoderBean().passwordEncoder()
             return User().apply {
@@ -40,10 +47,17 @@ class MockEntitiesHelper {
                 this.username = "${callerName.take(38)}-tester"
                 this.isAccepted = true
                 this.balance = 300
-                this.role = generateRoleEntity()
+                this.role = generateBuyerRoleEntity()
                 this.event = generateEventEntity()
-                this.store = generateStoreEntity()
+                this.store = null
                 this.dateOfRegister = LocalDateTime.now()
+            }
+        }
+
+        fun generateUserEntityWithStore(callerClass: KClass<*>, password: String = "test123"): User {
+            val generatedUserWithoutStore = generateUserEntityWithoutStore(callerClass, password)
+            return generatedUserWithoutStore.apply {
+                store = generateStoreEntity()
             }
         }
 
