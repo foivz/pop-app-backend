@@ -1,4 +1,4 @@
-package hr.foi.pop.backend.controllers
+package hr.foi.pop.backend.controllers.store_controller
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.models.user.User
@@ -25,11 +25,6 @@ import org.springframework.web.context.WebApplicationContext
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
 class StoreControllerCreationTest {
-    companion object {
-        val route = "/api/v2/stores"
-    }
-
-    lateinit var mvc: MockMvc
 
     @Autowired
     lateinit var context: WebApplicationContext
@@ -47,6 +42,8 @@ class StoreControllerCreationTest {
     private val mockUsersPassword = "test123"
 
     private val mockNewStoreName = "SuperStore"
+
+    lateinit var mvc: MockMvc
 
     @BeforeAll
     fun setup() {
@@ -90,7 +87,7 @@ class StoreControllerCreationTest {
     }
 
     private fun createAuthorizedRequestWithBody(requestBody: Any, accessToken: String): MockHttpServletRequestBuilder {
-        val request = JsonMockRequestGenerator(route).getRequestWithJsonBody(requestBody)
+        val request = JsonMockRequestGenerator(STORE_ROUTE).getRequestWithJsonBody(requestBody)
         request.header("Authorization", "Bearer $accessToken")
         return request
     }
