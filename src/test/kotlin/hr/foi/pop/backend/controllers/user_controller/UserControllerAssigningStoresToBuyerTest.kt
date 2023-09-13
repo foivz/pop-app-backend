@@ -1,12 +1,12 @@
 package hr.foi.pop.backend.controllers.user_controller
 
-import hr.foi.pop.backend.controllers.store_controller.STORE_ROUTE
 import hr.foi.pop.backend.controllers.store_controller.StoreControllerCreationTest
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.services.AuthenticationService
 import hr.foi.pop.backend.utils.JsonMockRequestGenerator
 import hr.foi.pop.backend.utils.MockMvcBuilderManager
+import jakarta.transaction.Transactional
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
@@ -22,6 +22,7 @@ import org.springframework.web.context.WebApplicationContext
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
 class UserControllerAssigningStoresToBuyerTest {
 
     @Autowired
@@ -64,11 +65,8 @@ class UserControllerAssigningStoresToBuyerTest {
 
     @Test
     fun givenActivatedBuyerWithoutStore_whenPatchRequestSent_thenStatus200() {
-        Assertions.assertTrue(mockActivatedBuyer.isAccepted)
-        Assertions.assertEquals("buyer", mockActivatedBuyer.role.name)
-
         val requestBody = mapOf("store_name" to mockNewStoreName)
-        val request = createAuthorizedPatchRequestWithBody(requestBody, accessTokenBuyer)
+        val request = createAuthorizedPatchRequestWithBodyForBuyer(requestBody)
 
         mvc.perform(request)
             .andExpect(MockMvcResultMatchers.status().isCreated())
@@ -81,12 +79,14 @@ class UserControllerAssigningStoresToBuyerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("data[0].store_name").value(mockNewStoreName))
     }
 
-    private fun createAuthorizedPatchRequestWithBody(
-        requestBody: Any,
-        accessToken: String
-    ): MockHttpServletRequestBuilder {
-        val request = JsonMockRequestGenerator(STORE_ROUTE, HttpMethod.PATCH).getRequestWithJsonBody(requestBody)
-        request.header("Authorization", "Bearer $accessToken")
+    private fun createAuthorizedPatchRequestWithBodyForBuyer(requestBody: Any): MockHttpServletRequestBuilder {
+        Assertions.assertTrue(mockActivatedBuyer.isAccepted)
+        Assertions.assertEquals("buyer", mockActivatedBuyer.role.name)
+
+        val request =
+            JsonMockRequestGenerator(getRouteForUser(mockActivatedBuyer.id), HttpMethod.PATCH)
+                .getRequestWithJsonBody(requestBody)
+        request.header("Authorization", "Bearer $accessTokenBuyer")
         return request
     }
 }
