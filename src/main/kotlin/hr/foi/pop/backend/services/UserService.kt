@@ -7,6 +7,7 @@ import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserBuilder
 import hr.foi.pop.backend.repositories.EventRepository
 import hr.foi.pop.backend.repositories.RoleRepository
+import hr.foi.pop.backend.repositories.StoreRepository
 import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.utils.UserChecker
@@ -28,6 +29,9 @@ class UserService {
 
     @Autowired
     private lateinit var passwordEncoder: PasswordEncoder
+
+    @Autowired
+    private lateinit var storeRepository: StoreRepository
 
     fun registerUser(userInfo: RegisterRequestBody): User {
         validateUser(userInfo)
@@ -82,6 +86,16 @@ class UserService {
 
     protected fun validateUser(userInfo: RegisterRequestBody) {
         UserChecker(userInfo, userRepository).validateUserProperties()
+    }
+
+    fun assignStore(buyerId: Int, storeName: String): User {
+        val user = userRepository.getReferenceById(buyerId)
+
+        val storeFoundByName = storeRepository.getStoreByStoreName(storeName)
+        user.store = storeFoundByName
+        userRepository.save(user)
+
+        return user
     }
 
 }
