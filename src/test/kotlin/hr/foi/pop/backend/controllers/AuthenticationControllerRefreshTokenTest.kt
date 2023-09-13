@@ -43,7 +43,7 @@ class AuthenticationControllerRefreshTokenTest {
     lateinit var context: WebApplicationContext
 
     private final val mockPassword = "test123"
-    val mockUser = MockEntitiesHelper.generateUserEntityWithStore(
+    val mockUser = MockEntitiesHelper.generateBuyerUserEntityWithStore(
         this::class,
         mockPassword
     )

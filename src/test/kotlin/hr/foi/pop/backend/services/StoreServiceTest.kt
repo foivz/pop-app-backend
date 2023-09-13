@@ -38,7 +38,7 @@ class StoreServiceTest {
 
     @BeforeAll
     fun setup() {
-        mockUser = MockEntitiesHelper.generateUserEntityWithoutStore(StoreServiceTest::class)
+        mockUser = MockEntitiesHelper.generateBuyerUserEntityWithoutStore(StoreServiceTest::class)
         mockUser.apply { username = "StoreServiceTester" }
         userRepository.save(mockUser)
     }

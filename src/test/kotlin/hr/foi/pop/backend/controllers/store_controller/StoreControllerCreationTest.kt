@@ -50,7 +50,10 @@ class StoreControllerCreationTest {
         mvc = MockMvcBuilderManager.getMockMvc(context, StoreControllerCreationTest::class)
 
         val generatedMockUser =
-            MockEntitiesHelper.generateUserEntityWithoutStore(StoreControllerCreationTest::class, mockUsersPassword)
+            MockEntitiesHelper.generateBuyerUserEntityWithoutStore(
+                StoreControllerCreationTest::class,
+                mockUsersPassword
+            )
         generatedMockUser.apply {
             role = MockEntitiesHelper.generateSellerRoleEntity()
         }
@@ -129,7 +132,10 @@ class StoreControllerCreationTest {
 
     private fun getPersistedMockBuyerUser(): User {
         val mockBuyerUser =
-            MockEntitiesHelper.generateUserEntityWithoutStore(StoreControllerCreationTest::class, mockUsersPassword)
+            MockEntitiesHelper.generateBuyerUserEntityWithoutStore(
+                StoreControllerCreationTest::class,
+                mockUsersPassword
+            )
         mockBuyerUser.apply { username = "StoreControllerCreationTesterBuyerUser" }
         userRepository.save(mockBuyerUser)
         Assertions.assertEquals("buyer", mockBuyerUser.role.name)
@@ -161,7 +167,7 @@ class StoreControllerCreationTest {
     private fun getPersistedMockSellerUserWithStore(): User {
         val mockSellerUserWithStore =
             MockEntitiesHelper
-                .generateUserEntityWithStore(
+                .generateBuyerUserEntityWithStore(
                     StoreControllerCreationTest::class, mockUsersPassword
                 )
 

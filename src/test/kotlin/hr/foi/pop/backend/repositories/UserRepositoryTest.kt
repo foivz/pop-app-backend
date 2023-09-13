@@ -17,7 +17,7 @@ class UserRepositoryTest {
     @Autowired
     lateinit var userRepository: UserRepository
 
-    private var mockUser = MockEntitiesHelper.generateUserEntityWithStore(this::class)
+    private var mockUser = MockEntitiesHelper.generateBuyerUserEntityWithStore(this::class)
 
     @BeforeAll
     fun addMockUserToDatabase() {
