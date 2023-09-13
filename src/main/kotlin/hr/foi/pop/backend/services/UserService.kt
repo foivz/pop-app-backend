@@ -1,8 +1,7 @@
 package hr.foi.pop.backend.services
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
-import hr.foi.pop.backend.exceptions.ChangeUserStatusException
-import hr.foi.pop.backend.exceptions.UserNotFoundException
+import hr.foi.pop.backend.exceptions.*
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserBuilder
 import hr.foi.pop.backend.repositories.EventRepository
@@ -89,13 +88,34 @@ class UserService {
     }
 
     fun assignStore(buyerId: Int, storeName: String): User {
-        val user = userRepository.getReferenceById(buyerId)
+        val user = tryToGetUserById(buyerId)
+        ensureUserIsAccepted(user)
+        ensureUserIsNotSeller(user)
+        ensureStoreExistsByName(storeName)
 
         val storeFoundByName = storeRepository.getStoreByStoreName(storeName)
         user.store = storeFoundByName
         userRepository.save(user)
 
         return user
+    }
+
+    private fun ensureUserIsNotSeller(user: User) {
+        if (user.role.name == "seller") {
+            throw BadRoleException("seller")
+        }
+    }
+
+    private fun ensureStoreExistsByName(storeName: String) {
+        if (!storeRepository.existsByStoreName(storeName)) {
+            throw StoreNotFoundException(storeName)
+        }
+    }
+
+    private fun ensureUserIsAccepted(user: User) {
+        if (!user.isAccepted) {
+            throw UserNotAcceptedException(user.username)
+        }
     }
 
 }
