@@ -67,6 +67,7 @@ class UserStoreAssigningTest {
         val storeName = "some store"
 
         val ex = assertThrows<UserNotFoundException> { userService.assignStore(nonExistentUserId, storeName) }
+        Assertions.assertEquals("User with ID $nonExistentUserId not found.", ex.message)
     }
 
     @Test
