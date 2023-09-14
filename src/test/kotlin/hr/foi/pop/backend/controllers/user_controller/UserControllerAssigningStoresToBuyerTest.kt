@@ -1,13 +1,13 @@
 package hr.foi.pop.backend.controllers.user_controller
 
 import hr.foi.pop.backend.controllers.store_controller.StoreControllerCreationTest
+import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.services.AuthenticationService
 import hr.foi.pop.backend.utils.JsonMockRequestGenerator
 import hr.foi.pop.backend.utils.MockMvcBuilderManager
 import jakarta.transaction.Transactional
-import org.hamcrest.Matchers
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -44,7 +44,7 @@ class UserControllerAssigningStoresToBuyerTest {
 
     lateinit var accessTokenSeller: String
 
-    private val mockNewStoreName = "SuperStore"
+    private val mockNewStoreName = "Store 1"
 
     @BeforeAll
     fun setup() {
@@ -69,14 +69,12 @@ class UserControllerAssigningStoresToBuyerTest {
         val request = createAuthorizedPatchRequestWithBodyForBuyer(requestBody)
 
         mvc.perform(request)
-            .andExpect(MockMvcResultMatchers.status().isCreated())
+            .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("success").value(true))
             .andExpect(
                 MockMvcResultMatchers.jsonPath("message")
-                    .value(Matchers.matchesPattern("Store \"$mockNewStoreName\" created with ID \\d+."))
+                    .value("User \"${mockActivatedBuyer.username}\" assigned to store \"Store 1\".")
             )
-            .andExpect(MockMvcResultMatchers.jsonPath("data[0].id").isNumber)
-            .andExpect(MockMvcResultMatchers.jsonPath("data[0].store_name").value(mockNewStoreName))
     }
 
     private fun createAuthorizedPatchRequestWithBodyForBuyer(requestBody: Any): MockHttpServletRequestBuilder {
@@ -84,9 +82,35 @@ class UserControllerAssigningStoresToBuyerTest {
         Assertions.assertEquals("buyer", mockActivatedBuyer.role.name)
 
         val request =
-            JsonMockRequestGenerator(getRouteForUser(mockActivatedBuyer.id), HttpMethod.PATCH)
+            JsonMockRequestGenerator("${getRouteForUser(mockActivatedBuyer.id)}/store", HttpMethod.PATCH)
                 .getRequestWithJsonBody(requestBody)
         request.header("Authorization", "Bearer $accessTokenBuyer")
         return request
+    }
+
+    @Test
+    fun givenActivatedBuyerWithStore_whenPatchRequestSent_thenStatus403() {
+        val requestBody = mapOf("store_name" to mockNewStoreName)
+        val request = createAuthorizedPatchRequestWithBodyForBuyer(requestBody)
+
+        mvc.perform(request)
+
+        mvc.perform(request)
+            .andExpect(MockMvcResultMatchers.status().isForbidden)
+            .andExpect(MockMvcResultMatchers.jsonPath("success").value(false))
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("error_message")
+                    .value(ApplicationErrorType.ERR_USER_ALREADY_HAS_STORE.name)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("error_code")
+                    .value(ApplicationErrorType.ERR_USER_ALREADY_HAS_STORE.code)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("message")
+                    .value(
+                        "User \"dhuff\" already belongs to store \"Store 1\"!"
+                    )
+            )
     }
 }

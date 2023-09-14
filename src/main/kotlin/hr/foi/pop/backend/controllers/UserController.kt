@@ -2,11 +2,13 @@ package hr.foi.pop.backend.controllers
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.ChangeUserStatusException
+import hr.foi.pop.backend.exceptions.UserHasStoreException
 import hr.foi.pop.backend.exceptions.UserNotFoundException
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserDTO
 import hr.foi.pop.backend.models.user.UserMapper
 import hr.foi.pop.backend.request_bodies.ActivateUserRequestBody
+import hr.foi.pop.backend.request_bodies.AssignStoreRequestBody
 import hr.foi.pop.backend.responses.ErrorResponse
 import hr.foi.pop.backend.responses.SuccessResponse
 import hr.foi.pop.backend.services.UserService
@@ -38,6 +40,19 @@ class UserController {
         }
     }
 
+    @PatchMapping("/{userId}/store")
+    fun assignStore(
+        @PathVariable userId: String,
+        @RequestBody request: AssignStoreRequestBody
+    ): ResponseEntity<SuccessResponse> {
+        val receivedStoreName = request.storeName!!
+        val parsedUserId = Integer.parseInt(userId)
+
+        val user: User = userService.assignStore(parsedUserId, receivedStoreName)
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(SuccessResponse("User \"${user.username}\" assigned to store \"${user.store!!.storeName}\"."))
+    }
+
     private fun getOkResponse(responseMessage: String, user: User): ResponseEntity<SuccessResponse> {
         val userDTO: UserDTO = UserMapper().mapDto(user)
         return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse(responseMessage, userDTO))
@@ -62,6 +77,13 @@ class UserController {
     fun handleJpaObjectRetrievalFailureException(ex: UserNotFoundException): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
             ErrorResponse(ex.message ?: "User not found", ApplicationErrorType.ERR_USER_INVALID)
+        )
+    }
+
+    @ExceptionHandler(UserHasStoreException::class)
+    fun handleUserHasStoreException(ex: UserHasStoreException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+            ErrorResponse(ex.message, ApplicationErrorType.ERR_USER_ALREADY_HAS_STORE)
         )
     }
 }

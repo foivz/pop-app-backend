@@ -48,7 +48,7 @@ class StoreController {
     @ExceptionHandler(UserHasStoreException::class)
     fun handleUserHasStoreException(ex: UserHasStoreException): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
-            ErrorResponse("User already has a store!", ApplicationErrorType.ERR_SELLER_ALREADY_HAS_STORE)
+            ErrorResponse("User already has a store!", ApplicationErrorType.ERR_USER_ALREADY_HAS_STORE)
         )
     }
 }
