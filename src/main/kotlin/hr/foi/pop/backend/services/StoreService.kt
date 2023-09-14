@@ -49,7 +49,7 @@ class StoreService {
         }
 
         if (foundForbiddenRole != null) {
-            throw BadRoleException("User of type \"${foundForbiddenRole.authority}\" cannot create stores!")
+            throw BadRoleException(foundForbiddenRole.authority)
         }
     }
 
@@ -63,7 +63,7 @@ class StoreService {
             throw UserNotFoundException("User could not be determined! Couldn't proceed with creating a store.")
         }
         if (userEntityObject.store != null) {
-            throw UserHasStoreException()
+            throw UserHasStoreException(userEntityObject.username, userEntityObject.store!!.storeName)
         }
     }
 

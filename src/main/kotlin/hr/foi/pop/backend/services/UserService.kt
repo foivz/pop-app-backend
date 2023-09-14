@@ -92,6 +92,7 @@ class UserService {
         ensureUserIsAccepted(user)
         ensureUserIsNotSeller(user)
         ensureStoreExistsByName(storeName)
+        ensureUserHasNoStore(user)
 
         val storeFoundByName = storeRepository.getStoreByStoreName(storeName)
         user.store = storeFoundByName
@@ -115,6 +116,12 @@ class UserService {
     private fun ensureUserIsAccepted(user: User) {
         if (!user.isAccepted) {
             throw UserNotAcceptedException(user.username)
+        }
+    }
+
+    private fun ensureUserHasNoStore(user: User) {
+        if (user.store != null) {
+            throw UserHasStoreException(user.username, user.store!!.storeName)
         }
     }
 

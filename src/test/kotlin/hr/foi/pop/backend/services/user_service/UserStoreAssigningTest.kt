@@ -1,9 +1,6 @@
 package hr.foi.pop.backend.services.user_service
 
-import hr.foi.pop.backend.exceptions.BadRoleException
-import hr.foi.pop.backend.exceptions.StoreNotFoundException
-import hr.foi.pop.backend.exceptions.UserNotAcceptedException
-import hr.foi.pop.backend.exceptions.UserNotFoundException
+import hr.foi.pop.backend.exceptions.*
 import hr.foi.pop.backend.repositories.StoreRepository
 import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.services.UserService
@@ -30,7 +27,7 @@ class UserStoreAssigningTest {
     @Test
     @WithMockUser(username = "UserServiceTester", authorities = ["admin"])
     fun givenValidBuyerIdAndExistingStoreName_whenAssignedStore_buyerIsAddedToTheStore() {
-        val validBuyerId = getValidBuyerId()
+        val validBuyerId = getValidBuyerIdWithoutStore()
         val existingStoreName = getExistingStoreName()
 
         userService.assignStore(validBuyerId, existingStoreName)
@@ -46,16 +43,17 @@ class UserStoreAssigningTest {
         return existingStoreName
     }
 
-    private fun getValidBuyerId(): Int {
+    private fun getValidBuyerIdWithoutStore(): Int {
         val validBuyerId = 2
         val validBuyer = userRepository.getReferenceById(validBuyerId)
         Assertions.assertEquals("buyer", validBuyer.role.name)
+        Assertions.assertNull(validBuyer.store)
         return validBuyer.id
     }
 
     @Test
     fun givenValidBuyerIdAndNonExistentStoreName_onStoreAssignAttempt_throwStoreNotFoundException() {
-        val validBuyerId = getValidBuyerId()
+        val validBuyerId = getValidBuyerIdWithoutStore()
         val nonExistentStoreName = "test - store that doesn't exist"
 
         val ex = assertThrows<StoreNotFoundException> { userService.assignStore(validBuyerId, nonExistentStoreName) }
@@ -104,5 +102,16 @@ class UserStoreAssigningTest {
         Assertions.assertTrue(seller.isAccepted)
 
         return sellerId
+    }
+
+    @Test
+    fun givenBuyerIdOfBuyerWithStore_onStoreAssignAttempt_throwUserHasStoreException() {
+        val buyerUserId: Int = getValidBuyerIdWithoutStore()
+        val storeName = getExistingStoreName()
+
+        userService.assignStore(buyerUserId, storeName)
+
+        val ex = assertThrows<UserHasStoreException> { userService.assignStore(buyerUserId, storeName) }
+        Assertions.assertEquals("User \"dhuff\" already belongs to store \"$storeName\"!", ex.message)
     }
 }
