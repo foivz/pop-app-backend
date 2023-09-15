@@ -2,6 +2,7 @@ package hr.foi.pop.backend.controllers
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.ChangeUserStatusException
+import hr.foi.pop.backend.exceptions.StoreNotFoundException
 import hr.foi.pop.backend.exceptions.UserHasStoreException
 import hr.foi.pop.backend.exceptions.UserNotFoundException
 import hr.foi.pop.backend.models.user.User
@@ -58,6 +59,7 @@ class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse(responseMessage, userDTO))
     }
 
+
     @ExceptionHandler(ChangeUserStatusException::class)
     fun handleChangeUserException(ex: ChangeUserStatusException) =
         getBadRequestResponse(ex.message, ex.error)
@@ -80,10 +82,17 @@ class UserController {
         )
     }
 
+    @ExceptionHandler(StoreNotFoundException::class)
+    fun handleStoreNotFoundException(ex: StoreNotFoundException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+            ErrorResponse(ex.message, ApplicationErrorType.ERR_STORE_NOT_AVAILABLE)
+        )
+    }
+
     @ExceptionHandler(UserHasStoreException::class)
     fun handleUserHasStoreException(ex: UserHasStoreException): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-            ErrorResponse(ex.message, ApplicationErrorType.ERR_USER_ALREADY_HAS_STORE)
+            ErrorResponse(ex.message, ApplicationErrorType.ERR_BUYER_ALREADY_HAS_STORE)
         )
     }
 }

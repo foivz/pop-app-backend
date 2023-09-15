@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpMethod
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
+import org.springframework.test.web.servlet.RequestBuilder
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.web.context.WebApplicationContext
 
@@ -77,7 +77,30 @@ class UserControllerAssigningStoresToBuyerTest {
             )
     }
 
-    private fun createAuthorizedPatchRequestWithBodyForBuyer(requestBody: Any): MockHttpServletRequestBuilder {
+    @Test
+    fun givenActivatedBuyerWithoutStore_whenPatchRequestSentWithNonexistentStoreName_thenStatus404() {
+        val nonExistentStoreName = "Nonexistent test store name"
+        val requestBody = mapOf("store_name" to nonExistentStoreName)
+        val request = createAuthorizedPatchRequestWithBodyForBuyer(requestBody)
+
+        mvc.perform(request)
+            .andExpect(MockMvcResultMatchers.status().isNotFound)
+            .andExpect(MockMvcResultMatchers.jsonPath("success").value(false))
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("error_message")
+                    .value(ApplicationErrorType.ERR_STORE_NOT_AVAILABLE.name)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("error_code")
+                    .value(ApplicationErrorType.ERR_STORE_NOT_AVAILABLE.code)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("message")
+                    .value("Store \"$nonExistentStoreName\" not found!")
+            )
+    }
+
+    private fun createAuthorizedPatchRequestWithBodyForBuyer(requestBody: Any): RequestBuilder {
         Assertions.assertTrue(mockActivatedBuyer.isAccepted)
         Assertions.assertEquals("buyer", mockActivatedBuyer.role.name)
 
@@ -100,17 +123,48 @@ class UserControllerAssigningStoresToBuyerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("success").value(false))
             .andExpect(
                 MockMvcResultMatchers.jsonPath("error_message")
-                    .value(ApplicationErrorType.ERR_USER_ALREADY_HAS_STORE.name)
+                    .value(ApplicationErrorType.ERR_BUYER_ALREADY_HAS_STORE.name)
             )
             .andExpect(
                 MockMvcResultMatchers.jsonPath("error_code")
-                    .value(ApplicationErrorType.ERR_USER_ALREADY_HAS_STORE.code)
+                    .value(ApplicationErrorType.ERR_BUYER_ALREADY_HAS_STORE.code)
             )
             .andExpect(
                 MockMvcResultMatchers.jsonPath("message")
-                    .value(
-                        "User \"dhuff\" already belongs to store \"Store 1\"!"
-                    )
+                    .value("User \"dhuff\" already belongs to store \"Store 1\"!")
             )
+    }
+
+    @Test
+    fun givenActivatedSeller_whenPatchRequestSent_thenStatus403() {
+        val requestBody = mapOf("store_name" to mockNewStoreName)
+        val request = createAuthorizedPatchRequestWithBodyForSeller(requestBody)
+
+        mvc.perform(request)
+            .andExpect(MockMvcResultMatchers.status().isForbidden)
+            .andExpect(MockMvcResultMatchers.jsonPath("success").value(false))
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("error_message")
+                    .value(ApplicationErrorType.ERR_ROLE_NOT_APPLICABLE.name)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("error_code")
+                    .value(ApplicationErrorType.ERR_ROLE_NOT_APPLICABLE.code)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("message")
+                    .value("User with role \"seller\" cannot execute this operation!")
+            )
+    }
+
+    private fun createAuthorizedPatchRequestWithBodyForSeller(requestBody: Any): RequestBuilder {
+        Assertions.assertTrue(mockActivatedSeller.isAccepted)
+        Assertions.assertEquals("seller", mockActivatedSeller.role.name)
+
+        val request =
+            JsonMockRequestGenerator("${getRouteForUser(mockActivatedSeller.id)}/store", HttpMethod.PATCH)
+                .getRequestWithJsonBody(requestBody)
+        request.header("Authorization", "Bearer $accessTokenSeller")
+        return request
     }
 }

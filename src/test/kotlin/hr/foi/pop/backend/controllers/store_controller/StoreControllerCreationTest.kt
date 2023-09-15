@@ -160,8 +160,8 @@ class StoreControllerCreationTest {
             .andExpect(status().isConflict)
             .andExpect(jsonPath("success").value(false))
             .andExpect(jsonPath("message").value("User already has a store!"))
-            .andExpect(jsonPath("error_code").value(ApplicationErrorType.ERR_USER_ALREADY_HAS_STORE.code))
-            .andExpect(jsonPath("error_message").value(ApplicationErrorType.ERR_USER_ALREADY_HAS_STORE.name))
+            .andExpect(jsonPath("error_code").value(ApplicationErrorType.ERR_SELLER_ALREADY_HAS_STORE.code))
+            .andExpect(jsonPath("error_message").value(ApplicationErrorType.ERR_SELLER_ALREADY_HAS_STORE.name))
     }
 
     private fun getPersistedMockSellerUserWithStore(): User {
