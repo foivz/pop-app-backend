@@ -40,19 +40,29 @@ class UserControllerSetBalanceTest {
 
     lateinit var mockAdminAccessToken: String
 
+    lateinit var mockNonAdminAccessToken: String
+
     private lateinit var mvc: MockMvc
 
     @BeforeAll
     fun setup() {
         mvc = MockMvcBuilderManager.getMockMvc(context, UserControllerActivationTest::class)
 
-        val mockAdminUserId = 1
-        val user = userRepository.getReferenceById(mockAdminUserId)
         val mockUserPredefinedPassword = "test123"
 
+        val mockAdminUserId = 1
+        val adminUser = userRepository.getReferenceById(mockAdminUserId)
         mockAdminAccessToken =
             authenticationService.authenticateAndGenerateTokenPair(
-                user.username,
+                adminUser.username,
+                mockUserPredefinedPassword
+            ).accessToken
+
+        val mockNonAdminUserId = 2
+        val nonAdminUser = userRepository.getReferenceById(mockNonAdminUserId)
+        mockNonAdminAccessToken =
+            authenticationService.authenticateAndGenerateTokenPair(
+                nonAdminUser.username,
                 mockUserPredefinedPassword
             ).accessToken
     }
@@ -72,5 +82,19 @@ class UserControllerSetBalanceTest {
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("success").value(true))
             .andExpect(MockMvcResultMatchers.jsonPath("message").value("New balance set for buyer \"dhuff\": 45.91"))
+    }
+
+    @Test
+    fun givenNonAdminPrivileges_onSetBalanceRequest_status403() {
+        val body = mapOf("amount" to 4591)
+        val mockBuyerId = 2
+
+        val request = JsonMockRequestGenerator(
+            getRouteForUser(mockBuyerId),
+            HttpMethod.PATCH
+        ).getRequestWithJsonBody(body)
+        request.header("Authorization", "Bearer $mockNonAdminAccessToken")
+
+        mvc.perform(request).andExpect(MockMvcResultMatchers.status().isForbidden)
     }
 }

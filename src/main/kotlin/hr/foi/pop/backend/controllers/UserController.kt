@@ -54,7 +54,7 @@ class UserController {
 
         val user: User = userService.setBalance(parsedUserId, newBalance)
         return ResponseEntity.status(HttpStatus.OK)
-            .body(SuccessResponse("New balance set for buyer \"${user.username}\": ${user.balance / 100}."))
+            .body(SuccessResponse("New balance set for buyer \"${user.username}\": ${user.balance / 100f}"))
     }
 
     @ExceptionHandler(ChangeUserStatusException::class)
