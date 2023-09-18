@@ -2,7 +2,6 @@ package hr.foi.pop.backend.services.user_service
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.BadAmountException
-import hr.foi.pop.backend.exceptions.BadRoleException
 import hr.foi.pop.backend.exceptions.UserNotFoundException
 import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.services.UserService
@@ -32,14 +31,6 @@ class UserSetBalanceTest {
         val buyer = userRepository.getReferenceById(validBuyerId)
 
         Assertions.assertEquals(newBalance, buyer.balance)
-    }
-
-    @Test
-    fun givenSellerId_onAttemptToSetBalance_throwBadRoleException() {
-        val validSellerId = 1
-        val newBalance = 500
-
-        assertThrows<BadRoleException> { userService.setBalance(validSellerId, newBalance) }
     }
 
     @Test

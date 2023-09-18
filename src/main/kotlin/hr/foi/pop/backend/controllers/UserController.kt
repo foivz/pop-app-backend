@@ -2,7 +2,6 @@ package hr.foi.pop.backend.controllers
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.BadAmountException
-import hr.foi.pop.backend.exceptions.BadRoleException
 import hr.foi.pop.backend.exceptions.ChangeUserStatusException
 import hr.foi.pop.backend.exceptions.UserNotFoundException
 import hr.foi.pop.backend.models.user.User
@@ -78,16 +77,6 @@ class UserController {
     fun handleJpaObjectRetrievalFailureException(ex: UserNotFoundException): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
             ErrorResponse(ex.message ?: "User not found", ApplicationErrorType.ERR_USER_INVALID)
-        )
-    }
-
-    @ExceptionHandler(BadRoleException::class)
-    fun handleBadRoleException(ex: BadRoleException): ResponseEntity<ErrorResponse> {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-            ErrorResponse(
-                ex.message ?: "User has invalid role for this request!",
-                ApplicationErrorType.ERR_BAD_BODY
-            )
         )
     }
 

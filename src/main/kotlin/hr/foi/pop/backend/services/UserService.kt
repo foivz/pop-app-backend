@@ -2,7 +2,6 @@ package hr.foi.pop.backend.services
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.BadAmountException
-import hr.foi.pop.backend.exceptions.BadRoleException
 import hr.foi.pop.backend.exceptions.ChangeUserStatusException
 import hr.foi.pop.backend.exceptions.UserNotFoundException
 import hr.foi.pop.backend.models.user.User
@@ -88,7 +87,6 @@ class UserService {
 
     fun setBalance(buyerId: Int, newBalance: Int): User {
         val user: User = tryToGetUserById(buyerId)
-        ensureUserIsBuyer(user)
 
         ensureNewBalanceIsOk(newBalance)
 
@@ -96,12 +94,6 @@ class UserService {
         userRepository.save(user)
 
         return user
-    }
-
-    private fun ensureUserIsBuyer(user: User) {
-        if (user.role.name != "buyer") {
-            throw BadRoleException("Balance can only be set to users with role \"buyer\"!")
-        }
     }
 
     private fun ensureNewBalanceIsOk(amount: Int) {

@@ -112,22 +112,6 @@ class UserControllerSetBalanceTest {
     }
 
     @Test
-    fun givenSellerUser_onAttemptToSetBalance_status400() {
-        val mockSellerId = 8
-        val body = mapOf("amount" to 4591)
-
-        val request = getRequestWithBody(body, mockSellerId)
-        request.header("Authorization", "Bearer $mockAdminAccessToken")
-
-        mvc.perform(request)
-            .andExpect(MockMvcResultMatchers.status().isBadRequest)
-            .andExpect(MockMvcResultMatchers.jsonPath("success").value(false))
-            .andExpect(
-                MockMvcResultMatchers.jsonPath("message").value("Balance can only be set to users with role \"buyer\"!")
-            )
-    }
-
-    @Test
     fun onSetBalanceRequest_whenAmountTooLarge_status400() {
         val maxBalanceAmount = 999999
         val body = mapOf("amount" to maxBalanceAmount + 1)
