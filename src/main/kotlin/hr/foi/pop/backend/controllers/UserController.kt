@@ -7,6 +7,7 @@ import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserDTO
 import hr.foi.pop.backend.models.user.UserMapper
 import hr.foi.pop.backend.request_bodies.ActivateUserRequestBody
+import hr.foi.pop.backend.request_bodies.SetUserBalanceRequestBody
 import hr.foi.pop.backend.responses.ErrorResponse
 import hr.foi.pop.backend.responses.SuccessResponse
 import hr.foi.pop.backend.services.UserService
@@ -41,6 +42,19 @@ class UserController {
     private fun getOkResponse(responseMessage: String, user: User): ResponseEntity<SuccessResponse> {
         val userDTO: UserDTO = UserMapper().mapDto(user)
         return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse(responseMessage, userDTO))
+    }
+
+    @PatchMapping("/{userId}/balance")
+    fun activateUser(
+        @PathVariable userId: String,
+        @RequestBody request: SetUserBalanceRequestBody
+    ): ResponseEntity<SuccessResponse> {
+        val newBalance = request.amount!!
+        val parsedUserId = Integer.parseInt(userId)
+
+        val user: User = userService.setBalance(parsedUserId, newBalance)
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(SuccessResponse("New balance set for buyer \"${user.username}\": ${user.balance / 100}."))
     }
 
     @ExceptionHandler(ChangeUserStatusException::class)
