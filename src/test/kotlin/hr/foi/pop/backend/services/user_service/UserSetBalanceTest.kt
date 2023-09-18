@@ -1,5 +1,7 @@
 package hr.foi.pop.backend.services.user_service
 
+import hr.foi.pop.backend.definitions.ApplicationErrorType
+import hr.foi.pop.backend.exceptions.BadAmountException
 import hr.foi.pop.backend.exceptions.BadRoleException
 import hr.foi.pop.backend.exceptions.UserNotFoundException
 import hr.foi.pop.backend.repositories.UserRepository
@@ -46,5 +48,27 @@ class UserSetBalanceTest {
         val newBalance = 500
 
         assertThrows<UserNotFoundException> { userService.setBalance(invalidUserId, newBalance) }
+    }
+
+    @Test
+    fun givenBuyerIdAndTooLargeAmount_onAttemptToSetBalance_throwBadAmountException() {
+        val validBuyerId = 2
+        val maxBalanceAmount = 999999
+
+        userService.setBalance(validBuyerId, maxBalanceAmount)
+
+        val tooBigBalanceAmount = maxBalanceAmount + 1
+
+        val ex = assertThrows<BadAmountException> { userService.setBalance(validBuyerId, tooBigBalanceAmount) }
+        Assertions.assertEquals(ApplicationErrorType.ERR_AMOUNT_TOO_LARGE, ex.error)
+    }
+
+    @Test
+    fun givenBuyerIdAnNegativeAmount_onAttemptToSetBalance_throwBadAmountException() {
+        val validBuyerId = 2
+        val negativeBalanceAmount = -1
+
+        val ex = assertThrows<BadAmountException> { userService.setBalance(validBuyerId, negativeBalanceAmount) }
+        Assertions.assertEquals(ApplicationErrorType.ERR_AMOUNT_NEGATIVE, ex.error)
     }
 }

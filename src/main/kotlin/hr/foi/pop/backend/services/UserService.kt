@@ -1,6 +1,7 @@
 package hr.foi.pop.backend.services
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
+import hr.foi.pop.backend.exceptions.BadAmountException
 import hr.foi.pop.backend.exceptions.BadRoleException
 import hr.foi.pop.backend.exceptions.ChangeUserStatusException
 import hr.foi.pop.backend.exceptions.UserNotFoundException
@@ -89,6 +90,8 @@ class UserService {
         val user: User = tryToGetUserById(buyerId)
         ensureUserIsBuyer(user)
 
+        ensureNewBalanceIsOk(newBalance)
+
         user.balance = newBalance
         userRepository.save(user)
 
@@ -98,6 +101,23 @@ class UserService {
     private fun ensureUserIsBuyer(user: User) {
         if (user.role.name != "buyer") {
             throw BadRoleException("Balance can only be set to users with role \"buyer\"!")
+        }
+    }
+
+    private fun ensureNewBalanceIsOk(amount: Int) {
+        ensureAmountNotTooLarge(amount)
+        ensureAmountNotNegative(amount)
+    }
+
+    private fun ensureAmountNotTooLarge(amount: Int) {
+        if (amount > 999999) {
+            throw BadAmountException(ApplicationErrorType.ERR_AMOUNT_TOO_LARGE)
+        }
+    }
+
+    private fun ensureAmountNotNegative(amount: Int) {
+        if (amount < 0) {
+            throw BadAmountException(ApplicationErrorType.ERR_AMOUNT_NEGATIVE)
         }
     }
 
