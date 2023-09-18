@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpMethod
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.context.WebApplicationContext
@@ -44,6 +45,8 @@ class UserControllerSetBalanceTest {
 
     private lateinit var mvc: MockMvc
 
+    val mockBuyerId = 2
+
     @BeforeAll
     fun setup() {
         mvc = MockMvcBuilderManager.getMockMvc(context, UserControllerActivationTest::class)
@@ -58,7 +61,7 @@ class UserControllerSetBalanceTest {
                 mockUserPredefinedPassword
             ).accessToken
 
-        val mockNonAdminUserId = 2
+        val mockNonAdminUserId = mockBuyerId
         val nonAdminUser = userRepository.getReferenceById(mockNonAdminUserId)
         mockNonAdminAccessToken =
             authenticationService.authenticateAndGenerateTokenPair(
@@ -70,12 +73,8 @@ class UserControllerSetBalanceTest {
     @Test
     fun onSetBalanceRequest_withValidBody_status200() {
         val body = mapOf("amount" to 4591)
-        val mockBuyerId = 2
 
-        val request = JsonMockRequestGenerator(
-            getRouteForUser(mockBuyerId),
-            HttpMethod.PATCH
-        ).getRequestWithJsonBody(body)
+        val request = getRequestWithBody(body)
         request.header("Authorization", "Bearer $mockAdminAccessToken")
 
         mvc.perform(request)
@@ -87,14 +86,43 @@ class UserControllerSetBalanceTest {
     @Test
     fun givenNonAdminPrivileges_onSetBalanceRequest_status403() {
         val body = mapOf("amount" to 4591)
-        val mockBuyerId = 2
 
-        val request = JsonMockRequestGenerator(
-            getRouteForUser(mockBuyerId),
-            HttpMethod.PATCH
-        ).getRequestWithJsonBody(body)
+        val request = getRequestWithBody(body)
         request.header("Authorization", "Bearer $mockNonAdminAccessToken")
 
         mvc.perform(request).andExpect(MockMvcResultMatchers.status().isForbidden)
+    }
+
+    @Test
+    fun givenAdminPrivileges_onInvalidSetBalanceRequest_status400() {
+        val body = mapOf("amount" to "not an integer")
+
+        val request = getRequestWithBody(body)
+        request.header("Authorization", "Bearer $mockAdminAccessToken")
+
+        mvc.perform(request).andExpect(MockMvcResultMatchers.status().isBadRequest)
+    }
+
+    private fun getRequestWithBody(body: Any, userId: Int = mockBuyerId): MockHttpServletRequestBuilder {
+        return JsonMockRequestGenerator(
+            getRouteForUser(userId),
+            HttpMethod.PATCH
+        ).getRequestWithJsonBody(body)
+    }
+
+    @Test
+    fun givenSellerUser_onAttemptToSetBalance_status400() {
+        val mockSellerId = 8
+        val body = mapOf("amount" to 4591)
+
+        val request = getRequestWithBody(body, mockSellerId)
+        request.header("Authorization", "Bearer $mockAdminAccessToken")
+
+        mvc.perform(request)
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
+            .andExpect(MockMvcResultMatchers.jsonPath("success").value(false))
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("message").value("Balance can only be set to users with role \"buyer\"!")
+            )
     }
 }

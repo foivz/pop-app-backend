@@ -97,7 +97,7 @@ class UserService {
 
     private fun ensureUserIsBuyer(user: User) {
         if (user.role.name != "buyer") {
-            throw BadRoleException("User must have role \"buyer\" in order to change their balance!")
+            throw BadRoleException("Balance can only be set to users with role \"buyer\"!")
         }
     }
 
