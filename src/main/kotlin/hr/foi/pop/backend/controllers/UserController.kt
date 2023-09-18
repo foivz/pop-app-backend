@@ -1,6 +1,7 @@
 package hr.foi.pop.backend.controllers
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
+import hr.foi.pop.backend.exceptions.BadAmountException
 import hr.foi.pop.backend.exceptions.BadRoleException
 import hr.foi.pop.backend.exceptions.ChangeUserStatusException
 import hr.foi.pop.backend.exceptions.UserNotFoundException
@@ -88,5 +89,11 @@ class UserController {
                 ApplicationErrorType.ERR_BAD_BODY
             )
         )
+    }
+
+    @ExceptionHandler(BadAmountException::class)
+    fun handleBadAmountException(ex: BadAmountException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse("Balance could not be changed.", ex.error))
     }
 }

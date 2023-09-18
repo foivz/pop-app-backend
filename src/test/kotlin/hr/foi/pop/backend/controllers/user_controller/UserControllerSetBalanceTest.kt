@@ -1,5 +1,6 @@
 package hr.foi.pop.backend.controllers.user_controller
 
+import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.services.AuthenticationService
 import hr.foi.pop.backend.services.UserService
@@ -123,6 +124,45 @@ class UserControllerSetBalanceTest {
             .andExpect(MockMvcResultMatchers.jsonPath("success").value(false))
             .andExpect(
                 MockMvcResultMatchers.jsonPath("message").value("Balance can only be set to users with role \"buyer\"!")
+            )
+    }
+
+    @Test
+    fun onSetBalanceRequest_whenAmountTooLarge_status400() {
+        val maxBalanceAmount = 999999
+        val body = mapOf("amount" to maxBalanceAmount + 1)
+
+        val request = getRequestWithBody(body)
+        request.header("Authorization", "Bearer $mockAdminAccessToken")
+
+        mvc.perform(request)
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
+            .andExpect(MockMvcResultMatchers.jsonPath("success").value(false))
+            .andExpect(MockMvcResultMatchers.jsonPath("message").value("Balance could not be changed."))
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("error_code").value(ApplicationErrorType.ERR_AMOUNT_TOO_LARGE.code)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("error_message").value(ApplicationErrorType.ERR_AMOUNT_TOO_LARGE.name)
+            )
+    }
+
+    @Test
+    fun onSetBalanceRequest_whenAmountNegative_status400() {
+        val body = mapOf("amount" to -1)
+
+        val request = getRequestWithBody(body)
+        request.header("Authorization", "Bearer $mockAdminAccessToken")
+
+        mvc.perform(request)
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
+            .andExpect(MockMvcResultMatchers.jsonPath("success").value(false))
+            .andExpect(MockMvcResultMatchers.jsonPath("message").value("Balance could not be changed."))
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("error_code").value(ApplicationErrorType.ERR_AMOUNT_NEGATIVE.code)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("error_message").value(ApplicationErrorType.ERR_AMOUNT_NEGATIVE.name)
             )
     }
 }
