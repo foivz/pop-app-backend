@@ -84,4 +84,13 @@ class UserService {
         UserChecker(userInfo, userRepository).validateUserProperties()
     }
 
+    fun setBalance(buyerId: Int, newBalance: Int): User {
+        val user: User = tryToGetUserById(buyerId)
+
+        user.balance = newBalance
+        userRepository.save(user)
+
+        return user
+    }
+
 }
