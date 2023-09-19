@@ -42,7 +42,7 @@ class UserRoleChangeTest {
     }
 
     @Test
-    fun givenNonActivatedBuyerWithStoreSelected_whenRequestedRoleChange_changeRole() {
+    fun givenNonActivatedBuyerWithStoreSelected_whenRequestedRoleChange_throwUserNotAcceptedException() {
         val nonActivatedBuyerId = 4
 
         assertThrows<UserNotAcceptedException> { userService.changeRole(nonActivatedBuyerId, "buyer") }
