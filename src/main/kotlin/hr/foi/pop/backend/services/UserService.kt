@@ -86,11 +86,11 @@ class UserService {
         UserChecker(userInfo, userRepository).validateUserProperties()
     }
 
-    fun changeRole(validSellerId: Int): User {
+    fun changeRole(validSellerId: Int, newRole: String): User {
         val user = tryToGetUserById(validSellerId)
         ensureUserIsAccepted(user)
 
-        switchUserRole(user)
+        setUserRole(user, newRole)
 
         return userRepository.save(user)
     }
@@ -101,11 +101,11 @@ class UserService {
         }
     }
 
-    private fun switchUserRole(user: User) {
-        val newRole = when (user.role.name) {
-            "buyer" -> roleRepository.getRoleByName("seller")
-            "seller" -> roleRepository.getRoleByName("buyer")
-            else -> throw BadRoleException("Only \"buyer\" and \"seller\" users can switch roles!")
+    private fun setUserRole(user: User, role: String) {
+        val newRole = when (role) {
+            "buyer" -> roleRepository.getRoleByName(role)
+            "seller" -> roleRepository.getRoleByName(role)
+            else -> throw BadRoleException("Cannot give user \"${user.username}\" role \"$role\"!")
         }
         user.role = newRole
     }

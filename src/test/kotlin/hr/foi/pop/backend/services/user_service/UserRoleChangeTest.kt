@@ -19,7 +19,7 @@ class UserRoleChangeTest {
     fun givenActivatedBuyerWithStoreSelected_whenRequestedRoleChange_changeRole() {
         val validBuyerId = 2
 
-        val user: User = userService.changeRole(validBuyerId)
+        val user: User = userService.changeRole(validBuyerId, "seller")
 
         Assertions.assertEquals("seller", user.role.name)
     }
@@ -28,7 +28,7 @@ class UserRoleChangeTest {
     fun givenActivatedSellerWithStoreSelected_whenRequestedRoleChange_changeRole() {
         val validSellerId = 8
 
-        val user: User = userService.changeRole(validSellerId)
+        val user: User = userService.changeRole(validSellerId, "buyer")
 
         Assertions.assertEquals("buyer", user.role.name)
     }
@@ -37,7 +37,7 @@ class UserRoleChangeTest {
     fun givenAdmin_onRoleRequestChange_throwBadRoleException() {
         val adminUserId = 1
 
-        val ex = assertThrows<BadRoleException> { userService.changeRole(adminUserId) }
+        val ex = assertThrows<BadRoleException> { userService.changeRole(adminUserId, "buyer") }
         Assertions.assertEquals("Only \"buyer\" and \"seller\" users can switch roles!", ex.message)
     }
 
@@ -45,6 +45,6 @@ class UserRoleChangeTest {
     fun givenNonActivatedBuyerWithStoreSelected_whenRequestedRoleChange_changeRole() {
         val nonActivatedBuyerId = 4
 
-        assertThrows<UserNotAcceptedException> { userService.changeRole(nonActivatedBuyerId) }
+        assertThrows<UserNotAcceptedException> { userService.changeRole(nonActivatedBuyerId, "buyer") }
     }
 }
