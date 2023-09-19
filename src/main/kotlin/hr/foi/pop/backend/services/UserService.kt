@@ -1,7 +1,9 @@
 package hr.foi.pop.backend.services
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
+import hr.foi.pop.backend.exceptions.BadRoleException
 import hr.foi.pop.backend.exceptions.ChangeUserStatusException
+import hr.foi.pop.backend.exceptions.UserNotAcceptedException
 import hr.foi.pop.backend.exceptions.UserNotFoundException
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserBuilder
@@ -82,6 +84,30 @@ class UserService {
 
     protected fun validateUser(userInfo: RegisterRequestBody) {
         UserChecker(userInfo, userRepository).validateUserProperties()
+    }
+
+    fun changeRole(validSellerId: Int): User {
+        val user = tryToGetUserById(validSellerId)
+        ensureUserIsAccepted(user)
+
+        switchUserRole(user)
+
+        return userRepository.save(user)
+    }
+
+    private fun ensureUserIsAccepted(user: User) {
+        if (!user.isAccepted) {
+            throw UserNotAcceptedException("This user needs to be accepted by the admin!")
+        }
+    }
+
+    private fun switchUserRole(user: User) {
+        val newRole = when (user.role.name) {
+            "buyer" -> roleRepository.getRoleByName("seller")
+            "seller" -> roleRepository.getRoleByName("buyer")
+            else -> throw BadRoleException("Only \"buyer\" and \"seller\" users can switch roles!")
+        }
+        user.role = newRole
     }
 
 }
