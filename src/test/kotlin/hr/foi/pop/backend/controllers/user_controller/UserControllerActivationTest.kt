@@ -1,4 +1,4 @@
-package hr.foi.pop.backend.controllers
+package hr.foi.pop.backend.controllers.user_controller
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.repositories.UserRepository
