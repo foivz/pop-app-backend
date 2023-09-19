@@ -7,6 +7,7 @@ import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserDTO
 import hr.foi.pop.backend.models.user.UserMapper
 import hr.foi.pop.backend.request_bodies.ActivateUserRequestBody
+import hr.foi.pop.backend.request_bodies.ChangeRoleRequestBody
 import hr.foi.pop.backend.responses.ErrorResponse
 import hr.foi.pop.backend.responses.SuccessResponse
 import hr.foi.pop.backend.services.UserService
@@ -41,6 +42,20 @@ class UserController {
     private fun getOkResponse(responseMessage: String, user: User): ResponseEntity<SuccessResponse> {
         val userDTO: UserDTO = UserMapper().mapDto(user)
         return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse(responseMessage, userDTO))
+    }
+
+    @PatchMapping("/{userId}/role")
+    fun changeRole(
+        @PathVariable userId: String,
+        @RequestBody request: ChangeRoleRequestBody
+    ): ResponseEntity<SuccessResponse> {
+        val newRole = request.role!!
+        val parsedUserId = Integer.parseInt(userId)
+
+        val user = userService.changeRole(parsedUserId, newRole)
+
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(SuccessResponse("User \"${user.username}\" switched to the new role: \"${user.role.name}\"."))
     }
 
     @ExceptionHandler(ChangeUserStatusException::class)
