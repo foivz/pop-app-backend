@@ -99,7 +99,7 @@ class UserService {
 
     private fun ensureLoggedUserIsAuthorizedToChangeGivenUser(user: User) {
         val principal = SecurityContextHolder.getContext().authentication.principal as UserDetails
-        if (principal.username != user.username) {
+        if (!principal.authorities.contains(GrantedAuthority { "admin" }) && principal.username != user.username) {
             throw NotAuthorizedException("You are not permitted to edit selected user!")
         }
     }

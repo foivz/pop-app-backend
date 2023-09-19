@@ -1,10 +1,7 @@
 package hr.foi.pop.backend.controllers
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
-import hr.foi.pop.backend.exceptions.ChangeUserStatusException
-import hr.foi.pop.backend.exceptions.NotAuthorizedException
-import hr.foi.pop.backend.exceptions.UserNotAcceptedException
-import hr.foi.pop.backend.exceptions.UserNotFoundException
+import hr.foi.pop.backend.exceptions.*
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserDTO
 import hr.foi.pop.backend.models.user.UserMapper
@@ -96,6 +93,13 @@ class UserController {
                 ex.message ?: "You lack permission for this action!",
                 ApplicationErrorType.ERR_AUTHORIZATION_NOT_SUFFICIENT
             )
+        )
+    }
+
+    @ExceptionHandler(BadRoleException::class)
+    fun handleBadRoleException(ex: BadRoleException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+            ErrorResponse(ex.message ?: "You lack permission for this action!", ex.error)
         )
     }
 }

@@ -48,6 +48,10 @@ class UserControllerRoleChangeTest {
 
     lateinit var mockBuyerAccessToken: String
 
+    val mockAdminId = 1
+
+    lateinit var mockAdminAccessToken: String
+
     private lateinit var mvc: MockMvc
 
     @BeforeAll
@@ -69,17 +73,19 @@ class UserControllerRoleChangeTest {
                 mockBuyer.username,
                 mockUserPredefinedPassword
             ).accessToken
+
+        val mockAdmin = userRepository.getReferenceById(mockAdminId)
+        mockAdminAccessToken =
+            authenticationService.authenticateAndGenerateTokenPair(
+                mockAdmin.username,
+                mockUserPredefinedPassword
+            ).accessToken
     }
 
     @Test
     fun givenValidJsonBodyAndSellerObject_whenChangeRoleRequestSent_status200() {
         val body = mapOf("role" to "buyer")
-
-        val request = JsonMockRequestGenerator(
-            getRouteForUser(mockSellerId),
-            HttpMethod.PATCH
-        ).getRequestWithJsonBody(body)
-        request.header("Authorization", "Bearer $mockSellerAccessToken")
+        val request = generateValidRequestForSeller(body)
 
         val changedUser = userRepository.getReferenceById(mockSellerId)
 
@@ -90,6 +96,15 @@ class UserControllerRoleChangeTest {
                 MockMvcResultMatchers.jsonPath("message")
                     .value("User \"${changedUser.username}\" switched to the new role: \"${changedUser.role.name}\".")
             )
+    }
+
+    private fun generateValidRequestForSeller(body: Map<String, String>): MockHttpServletRequestBuilder {
+        val request = JsonMockRequestGenerator(
+            getRouteForUser(mockSellerId),
+            HttpMethod.PATCH
+        ).getRequestWithJsonBody(body)
+        request.header("Authorization", "Bearer $mockSellerAccessToken")
+        return request
     }
 
     @Test
@@ -117,6 +132,53 @@ class UserControllerRoleChangeTest {
             HttpMethod.PATCH
         ).getRequestWithJsonBody(body)
         request.header("Authorization", "Bearer $mockBuyerAccessToken")
+        return request
+    }
+
+    @Test
+    fun givenNonExistentRole_whenChangeRoleRequestSent_status404() {
+        val body = mapOf("role" to "non existent role")
+
+        val request = generateValidRequestForSeller(body)
+
+        mvc.perform(request)
+            .andExpect(MockMvcResultMatchers.status().isForbidden)
+            .andExpect(MockMvcResultMatchers.jsonPath("success").value(false))
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("message")
+                    .value("Cannot give user \"sbarry\" role \"non existent role\"!")
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("error_message")
+                    .value(ApplicationErrorType.ERR_ROLE_NOT_AVAILABLE.name)
+            )
+    }
+
+    @Test
+    fun givenAdminUser_whenChangeRoleRequestSent_status403() {
+        val body = mapOf("role" to "buyer")
+
+        val request = generateRequestForAdmin(body)
+
+        mvc.perform(request)
+            .andExpect(MockMvcResultMatchers.status().isForbidden)
+            .andExpect(MockMvcResultMatchers.jsonPath("success").value(false))
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("message")
+                    .value("Cannot change admin user!")
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("error_message")
+                    .value(ApplicationErrorType.ERR_CANNOT_CHANGE_ADMIN_ROLE.name)
+            )
+    }
+
+    private fun generateRequestForAdmin(body: Map<String, String>): MockHttpServletRequestBuilder {
+        val request = JsonMockRequestGenerator(
+            getRouteForUser(mockAdminId),
+            HttpMethod.PATCH
+        ).getRequestWithJsonBody(body)
+        request.header("Authorization", "Bearer $mockAdminAccessToken")
         return request
     }
 }
