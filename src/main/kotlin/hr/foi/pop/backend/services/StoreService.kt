@@ -1,5 +1,6 @@
 package hr.foi.pop.backend.services
 
+import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.*
 import hr.foi.pop.backend.models.store.Store
 import hr.foi.pop.backend.repositories.EventRepository
@@ -49,7 +50,10 @@ class StoreService {
         }
 
         if (foundForbiddenRole != null) {
-            throw BadRoleException("User of type \"${foundForbiddenRole.authority}\" cannot create stores!")
+            throw BadRoleException(
+                "User of type \"${foundForbiddenRole.authority}\" cannot create stores!",
+                ApplicationErrorType.ERR_ROLE_NOT_APPLICABLE
+            )
         }
     }
 

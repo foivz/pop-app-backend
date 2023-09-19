@@ -11,6 +11,7 @@ import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.utils.UserChecker
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.orm.jpa.JpaObjectRetrievalFailureException
+import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -111,7 +112,7 @@ class UserService {
 
     private fun ensureUserIsNotAdmin(user: User) {
         if (user.role.name == "admin") {
-            throw BadRoleException("Cannot change admin user!")
+            throw BadRoleException("Cannot change admin user!", ApplicationErrorType.ERR_CANNOT_CHANGE_ADMIN_ROLE)
         }
     }
 
@@ -119,7 +120,10 @@ class UserService {
         val newRole = when (role) {
             "buyer" -> roleRepository.getRoleByName(role)
             "seller" -> roleRepository.getRoleByName(role)
-            else -> throw BadRoleException("Cannot give user \"${user.username}\" role \"$role\"!")
+            else -> throw BadRoleException(
+                "Cannot give user \"${user.username}\" role \"$role\"!",
+                ApplicationErrorType.ERR_ROLE_NOT_AVAILABLE
+            )
         }
         user.role = newRole
     }

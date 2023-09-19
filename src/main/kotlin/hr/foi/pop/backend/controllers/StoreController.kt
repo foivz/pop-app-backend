@@ -41,7 +41,7 @@ class StoreController {
     @ExceptionHandler(BadRoleException::class)
     fun handleBadRoleException(ex: BadRoleException): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-            ErrorResponse(ex.message ?: "Invalid role for this request.", ApplicationErrorType.ERR_ROLE_NOT_APPLICABLE)
+            ErrorResponse(ex.message ?: "Invalid role for this request.", ex.error)
         )
     }
 
