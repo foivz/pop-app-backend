@@ -2,6 +2,8 @@ package hr.foi.pop.backend.controllers
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.ChangeUserStatusException
+import hr.foi.pop.backend.exceptions.NotAuthorizedException
+import hr.foi.pop.backend.exceptions.UserNotAcceptedException
 import hr.foi.pop.backend.exceptions.UserNotFoundException
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserDTO
@@ -77,6 +79,23 @@ class UserController {
     fun handleJpaObjectRetrievalFailureException(ex: UserNotFoundException): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
             ErrorResponse(ex.message ?: "User not found", ApplicationErrorType.ERR_USER_INVALID)
+        )
+    }
+
+    @ExceptionHandler(UserNotAcceptedException::class)
+    fun handleUserNotAcceptedException(ex: UserNotAcceptedException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+            ErrorResponse(ex.message ?: "User not accepted!", ApplicationErrorType.ERR_NOT_ACTIVATED)
+        )
+    }
+
+    @ExceptionHandler(NotAuthorizedException::class)
+    fun handleNotAuthorizedException(ex: NotAuthorizedException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+            ErrorResponse(
+                ex.message ?: "You lack permission for this action!",
+                ApplicationErrorType.ERR_AUTHORIZATION_NOT_SUFFICIENT
+            )
         )
     }
 }

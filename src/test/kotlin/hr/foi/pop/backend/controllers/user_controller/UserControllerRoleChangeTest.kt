@@ -1,5 +1,6 @@
 package hr.foi.pop.backend.controllers.user_controller
 
+import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.services.AuthenticationService
 import hr.foi.pop.backend.services.UserService
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpMethod
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.context.WebApplicationContext
@@ -38,11 +40,13 @@ class UserControllerRoleChangeTest {
     @Autowired
     lateinit var userRepository: UserRepository
 
-    val mockSeller by lazy {
-        userRepository.getReferenceById(8)
-    }
+    val mockSellerId = 8
 
     lateinit var mockSellerAccessToken: String
+
+    val mockBuyerId = 2
+
+    lateinit var mockBuyerAccessToken: String
 
     private lateinit var mvc: MockMvc
 
@@ -52,9 +56,17 @@ class UserControllerRoleChangeTest {
 
         val mockUserPredefinedPassword = "test123"
 
+        val mockSeller = userRepository.getReferenceById(mockSellerId)
         mockSellerAccessToken =
             authenticationService.authenticateAndGenerateTokenPair(
                 mockSeller.username,
+                mockUserPredefinedPassword
+            ).accessToken
+
+        val mockBuyer = userRepository.getReferenceById(mockBuyerId)
+        mockBuyerAccessToken =
+            authenticationService.authenticateAndGenerateTokenPair(
+                mockBuyer.username,
                 mockUserPredefinedPassword
             ).accessToken
     }
@@ -64,12 +76,12 @@ class UserControllerRoleChangeTest {
         val body = mapOf("role" to "buyer")
 
         val request = JsonMockRequestGenerator(
-            getRouteForUser(mockSeller.id),
+            getRouteForUser(mockSellerId),
             HttpMethod.PATCH
         ).getRequestWithJsonBody(body)
         request.header("Authorization", "Bearer $mockSellerAccessToken")
 
-        val changedUser = userRepository.getReferenceById(mockSeller.id)
+        val changedUser = userRepository.getReferenceById(mockSellerId)
 
         mvc.perform(request)
             .andExpect(MockMvcResultMatchers.status().isOk)
@@ -78,5 +90,33 @@ class UserControllerRoleChangeTest {
                 MockMvcResultMatchers.jsonPath("message")
                     .value("User \"${changedUser.username}\" switched to the new role: \"${changedUser.role.name}\".")
             )
+    }
+
+    @Test
+    fun givenOneUser_whenChangeRoleRequestSentForAnotherUser_status403() {
+        val body = mapOf("role" to "buyer")
+
+        val request = generateRequestForSellerUsingBuyersAuth(body)
+
+        mvc.perform(request)
+            .andExpect(MockMvcResultMatchers.status().isForbidden)
+            .andExpect(MockMvcResultMatchers.jsonPath("success").value(false))
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("message")
+                    .value("You are not permitted to edit selected user!")
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("error_message")
+                    .value(ApplicationErrorType.ERR_AUTHORIZATION_NOT_SUFFICIENT.name)
+            )
+    }
+
+    private fun generateRequestForSellerUsingBuyersAuth(body: Map<String, String>): MockHttpServletRequestBuilder {
+        val request = JsonMockRequestGenerator(
+            getRouteForUser(mockSellerId),
+            HttpMethod.PATCH
+        ).getRequestWithJsonBody(body)
+        request.header("Authorization", "Bearer $mockBuyerAccessToken")
+        return request
     }
 }

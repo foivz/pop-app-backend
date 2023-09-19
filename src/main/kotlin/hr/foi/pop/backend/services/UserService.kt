@@ -1,10 +1,7 @@
 package hr.foi.pop.backend.services
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
-import hr.foi.pop.backend.exceptions.BadRoleException
-import hr.foi.pop.backend.exceptions.ChangeUserStatusException
-import hr.foi.pop.backend.exceptions.UserNotAcceptedException
-import hr.foi.pop.backend.exceptions.UserNotFoundException
+import hr.foi.pop.backend.exceptions.*
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserBuilder
 import hr.foi.pop.backend.repositories.EventRepository
@@ -14,6 +11,8 @@ import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.utils.UserChecker
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.orm.jpa.JpaObjectRetrievalFailureException
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
@@ -88,12 +87,20 @@ class UserService {
 
     fun changeRole(validSellerId: Int, newRole: String): User {
         val user = tryToGetUserById(validSellerId)
+        ensureLoggedUserIsAuthorizedToChangeGivenUser(user)
         ensureUserIsAccepted(user)
         ensureUserIsNotAdmin(user)
 
         setUserRole(user, newRole)
 
         return userRepository.save(user)
+    }
+
+    private fun ensureLoggedUserIsAuthorizedToChangeGivenUser(user: User) {
+        val principal = SecurityContextHolder.getContext().authentication.principal as UserDetails
+        if (principal.username != user.username) {
+            throw NotAuthorizedException("You are not permitted to edit selected user!")
+        }
     }
 
     private fun ensureUserIsAccepted(user: User) {
