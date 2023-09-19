@@ -89,6 +89,7 @@ class UserService {
     fun changeRole(validSellerId: Int, newRole: String): User {
         val user = tryToGetUserById(validSellerId)
         ensureUserIsAccepted(user)
+        ensureUserIsNotAdmin(user)
 
         setUserRole(user, newRole)
 
@@ -98,6 +99,12 @@ class UserService {
     private fun ensureUserIsAccepted(user: User) {
         if (!user.isAccepted) {
             throw UserNotAcceptedException("This user needs to be accepted by the admin!")
+        }
+    }
+
+    private fun ensureUserIsNotAdmin(user: User) {
+        if (user.role.name == "admin") {
+            throw BadRoleException("Cannot change admin user!")
         }
     }
 

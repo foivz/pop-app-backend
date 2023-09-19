@@ -38,7 +38,7 @@ class UserRoleChangeTest {
         val adminUserId = 1
 
         val ex = assertThrows<BadRoleException> { userService.changeRole(adminUserId, "buyer") }
-        Assertions.assertEquals("Only \"buyer\" and \"seller\" users can switch roles!", ex.message)
+        Assertions.assertEquals("Cannot change admin user!", ex.message)
     }
 
     @Test
@@ -46,5 +46,14 @@ class UserRoleChangeTest {
         val nonActivatedBuyerId = 4
 
         assertThrows<UserNotAcceptedException> { userService.changeRole(nonActivatedBuyerId, "buyer") }
+    }
+
+    @Test
+    fun givenValidBuyer_whenRequestedRoleChangeToNonExistentRole_throwBadRoleException() {
+        val validBuyerId = 2
+        val nonExistentRoleName = "test role that doesn't exist"
+
+        val ex = assertThrows<BadRoleException> { userService.changeRole(validBuyerId, nonExistentRoleName) }
+        Assertions.assertEquals("Cannot give user \"dhuff\" role \"$nonExistentRoleName\"!", ex.message)
     }
 }
