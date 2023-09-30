@@ -19,7 +19,12 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
     @ExceptionHandler(NullPointerException::class)
     fun handleBadRequestBody(): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse("Request body JSON could not be parsed!", ApplicationErrorType.ERR_BAD_BODY))
+            .body(
+                ErrorResponse(
+                    "Request body is invalid and request was rejected!",
+                    ApplicationErrorType.ERR_BAD_BODY
+                )
+            )
     }
 
     @ExceptionHandler(JsonParseException::class)

@@ -83,7 +83,8 @@ class WebSecurityConfigurer {
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers(HttpMethod.POST, "/api/v2/auth/**").permitAll()
-                    .requestMatchers(HttpMethod.PATCH, "/api/v2/users/{itemId:[\\d]+}/activate").hasAuthority("admin")
+                    .requestMatchers(HttpMethod.PATCH, "/api/v2/users/{userId:[\\d]+}/activate").hasAuthority("admin")
+                    .requestMatchers(HttpMethod.PATCH, "/api/v2/users/{userId:[\\d]+}/balance").hasAuthority("admin")
                     .anyRequest().authenticated()
             }
 

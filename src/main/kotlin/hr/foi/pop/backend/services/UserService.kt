@@ -1,6 +1,7 @@
 package hr.foi.pop.backend.services
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
+import hr.foi.pop.backend.exceptions.BadAmountException
 import hr.foi.pop.backend.exceptions.ChangeUserStatusException
 import hr.foi.pop.backend.exceptions.UserNotFoundException
 import hr.foi.pop.backend.models.user.User
@@ -82,6 +83,34 @@ class UserService {
 
     protected fun validateUser(userInfo: RegisterRequestBody) {
         UserChecker(userInfo, userRepository).validateUserProperties()
+    }
+
+    fun setBalance(buyerId: Int, newBalance: Int): User {
+        val user: User = tryToGetUserById(buyerId)
+
+        ensureNewBalanceIsOk(newBalance)
+
+        user.balance = newBalance
+        userRepository.save(user)
+
+        return user
+    }
+
+    private fun ensureNewBalanceIsOk(amount: Int) {
+        ensureAmountNotTooLarge(amount)
+        ensureAmountNotNegative(amount)
+    }
+
+    private fun ensureAmountNotTooLarge(amount: Int) {
+        if (amount > 999999) {
+            throw BadAmountException(ApplicationErrorType.ERR_AMOUNT_TOO_LARGE)
+        }
+    }
+
+    private fun ensureAmountNotNegative(amount: Int) {
+        if (amount < 0) {
+            throw BadAmountException(ApplicationErrorType.ERR_AMOUNT_NEGATIVE)
+        }
     }
 
 }
