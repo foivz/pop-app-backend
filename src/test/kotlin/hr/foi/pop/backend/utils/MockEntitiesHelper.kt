@@ -35,7 +35,7 @@ class MockEntitiesHelper {
             }
         }
 
-        fun generateUserEntityWithoutStore(callerClass: KClass<*>, password: String = "test123"): User {
+        fun generateBuyerUserEntityWithoutStore(callerClass: KClass<*>, password: String = "test123"): User {
             val callerName = callerClass.simpleName!!
             val encoder = PasswordEncoderBean().passwordEncoder()
             return User().apply {
@@ -54,8 +54,8 @@ class MockEntitiesHelper {
             }
         }
 
-        fun generateUserEntityWithStore(callerClass: KClass<*>, password: String = "test123"): User {
-            val generatedUserWithoutStore = generateUserEntityWithoutStore(callerClass, password)
+        fun generateBuyerUserEntityWithStore(callerClass: KClass<*>, password: String = "test123"): User {
+            val generatedUserWithoutStore = generateBuyerUserEntityWithoutStore(callerClass, password)
             return generatedUserWithoutStore.apply {
                 store = generateStoreEntity()
             }
@@ -75,7 +75,7 @@ class MockEntitiesHelper {
                 this.id = 3
                 this.code = "INV003"
                 this.dateIssue = LocalDateTime.now()
-                this.user = generateUserEntityWithStore(this::class)
+                this.user = generateBuyerUserEntityWithStore(this::class)
                 this.store = generateStoreEntity()
                 this.total = 20
                 this.discount = 350

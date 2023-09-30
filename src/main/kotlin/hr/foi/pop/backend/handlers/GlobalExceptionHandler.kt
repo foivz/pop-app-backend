@@ -1,6 +1,7 @@
 package hr.foi.pop.backend.handlers
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
+import hr.foi.pop.backend.exceptions.BadRoleException
 import hr.foi.pop.backend.responses.ErrorResponse
 import org.springframework.boot.json.JsonParseException
 import org.springframework.http.HttpHeaders
@@ -36,5 +37,12 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
     ): ResponseEntity<Any>? {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse("Request body JSON could not be parsed!", ApplicationErrorType.ERR_BAD_BODY))
+    }
+
+    @ExceptionHandler(BadRoleException::class)
+    fun handleBadRoleException(ex: BadRoleException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+            ErrorResponse(ex.message, ApplicationErrorType.ERR_ROLE_NOT_APPLICABLE)
+        )
     }
 }

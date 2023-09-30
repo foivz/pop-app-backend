@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository
 interface StoreRepository : JpaRepository<Store, Int> {
     fun getStoreById(id: Int): Store
     fun existsByStoreName(storeName: String): Boolean
+    fun getStoreByStoreName(storeName: String): Store
 }

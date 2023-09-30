@@ -1,13 +1,12 @@
 package hr.foi.pop.backend.services
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
-import hr.foi.pop.backend.exceptions.BadAmountException
-import hr.foi.pop.backend.exceptions.ChangeUserStatusException
-import hr.foi.pop.backend.exceptions.UserNotFoundException
+import hr.foi.pop.backend.exceptions.*
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserBuilder
 import hr.foi.pop.backend.repositories.EventRepository
 import hr.foi.pop.backend.repositories.RoleRepository
+import hr.foi.pop.backend.repositories.StoreRepository
 import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.utils.UserChecker
@@ -29,6 +28,9 @@ class UserService {
 
     @Autowired
     private lateinit var passwordEncoder: PasswordEncoder
+
+    @Autowired
+    private lateinit var storeRepository: StoreRepository
 
     fun registerUser(userInfo: RegisterRequestBody): User {
         validateUser(userInfo)
@@ -85,6 +87,20 @@ class UserService {
         UserChecker(userInfo, userRepository).validateUserProperties()
     }
 
+    fun assignStore(buyerId: Int, storeName: String): User {
+        val user = tryToGetUserById(buyerId)
+        ensureUserIsAccepted(user)
+        ensureUserIsNotSeller(user)
+        ensureStoreExistsByName(storeName)
+        ensureUserHasNoStore(user)
+
+        val storeFoundByName = storeRepository.getStoreByStoreName(storeName)
+        user.store = storeFoundByName
+        userRepository.save(user)
+
+        return user
+    }
+
     fun setBalance(buyerId: Int, newBalance: Int): User {
         val user: User = tryToGetUserById(buyerId)
 
@@ -94,6 +110,30 @@ class UserService {
         userRepository.save(user)
 
         return user
+    }
+
+    private fun ensureUserIsNotSeller(user: User) {
+        if (user.role.name == "seller") {
+            throw BadRoleException("seller")
+        }
+    }
+
+    private fun ensureStoreExistsByName(storeName: String) {
+        if (!storeRepository.existsByStoreName(storeName)) {
+            throw StoreNotFoundException(storeName)
+        }
+    }
+
+    private fun ensureUserIsAccepted(user: User) {
+        if (!user.isAccepted) {
+            throw UserNotAcceptedException(user.username)
+        }
+    }
+
+    private fun ensureUserHasNoStore(user: User) {
+        if (user.store != null) {
+            throw UserHasStoreException(user.username, user.store!!.storeName)
+        }
     }
 
     private fun ensureNewBalanceIsOk(amount: Int) {

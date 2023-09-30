@@ -1,7 +1,6 @@
 package hr.foi.pop.backend.controllers
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
-import hr.foi.pop.backend.exceptions.BadRoleException
 import hr.foi.pop.backend.exceptions.InvalidStoreNameException
 import hr.foi.pop.backend.exceptions.UserHasStoreException
 import hr.foi.pop.backend.models.store.StoreMapper
@@ -35,13 +34,6 @@ class StoreController {
     fun handleInvalidStoreNameException(ex: InvalidStoreNameException): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
             ErrorResponse("Could not create a store with provided name!", ApplicationErrorType.ERR_STORE_NAME_INVALID)
-        )
-    }
-
-    @ExceptionHandler(BadRoleException::class)
-    fun handleBadRoleException(ex: BadRoleException): ResponseEntity<ErrorResponse> {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-            ErrorResponse(ex.message ?: "Invalid role for this request.", ApplicationErrorType.ERR_ROLE_NOT_APPLICABLE)
         )
     }
 

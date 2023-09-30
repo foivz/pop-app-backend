@@ -24,6 +24,8 @@ import org.springframework.web.context.WebApplicationContext
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
 class UserControllerActivationTest {
+    private fun getActivationRouteForUser(userId: Int) = "${getRouteForUser(userId)}/activate"
+
     companion object {
         fun getRouteForUser(userId: Int): String {
             return "/api/v2/users/${userId}/activate"
@@ -64,7 +66,8 @@ class UserControllerActivationTest {
     @Test
     fun onActivateRequest_whenInvalidHttpMethod_status405() {
         val requestBody = ActivateUserRequestBody(false)
-        val request = JsonMockRequestGenerator(getRouteForUser(1), HttpMethod.GET).getRequestWithJsonBody(requestBody)
+        val request =
+            JsonMockRequestGenerator(getActivationRouteForUser(1), HttpMethod.GET).getRequestWithJsonBody(requestBody)
         request.header("Authorization", "Bearer $mockAccessToken")
 
         mvc.perform(request).andExpect(status().isMethodNotAllowed)
@@ -81,7 +84,8 @@ class UserControllerActivationTest {
         val mockTokenForNonAdmin =
             authenticationService.authenticateAndGenerateTokenPair(user.username, mockNonAdminUserPassword).accessToken
 
-        val request = JsonMockRequestGenerator(getRouteForUser(1), HttpMethod.PATCH).getRequestWithJsonBody(body)
+        val request =
+            JsonMockRequestGenerator(getActivationRouteForUser(1), HttpMethod.PATCH).getRequestWithJsonBody(body)
         request.header("Authorization", "Bearer $mockTokenForNonAdmin")
 
         mvc.perform(request).andExpect(status().isForbidden)
@@ -91,7 +95,8 @@ class UserControllerActivationTest {
     fun onActivateRequest_whenInvalidRequestBody_status400() {
         val body = mapOf("random" to "object")
 
-        val request = JsonMockRequestGenerator(getRouteForUser(1), HttpMethod.PATCH).getRequestWithJsonBody(body)
+        val request =
+            JsonMockRequestGenerator(getActivationRouteForUser(1), HttpMethod.PATCH).getRequestWithJsonBody(body)
         request.header("Authorization", "Bearer $mockAccessToken")
 
         mvc.perform(request).andExpect(status().isBadRequest)
@@ -103,7 +108,7 @@ class UserControllerActivationTest {
         val mockUserIdOfNotActivatedUser = 4
 
         val request = JsonMockRequestGenerator(
-            getRouteForUser(mockUserIdOfNotActivatedUser),
+            getActivationRouteForUser(mockUserIdOfNotActivatedUser),
             HttpMethod.PATCH
         ).getRequestWithJsonBody(body)
         request.header("Authorization", "Bearer $mockAccessToken")
@@ -127,7 +132,7 @@ class UserControllerActivationTest {
         val mockUserIdOfNotActivatedUser = 4
 
         val request = JsonMockRequestGenerator(
-            getRouteForUser(mockUserIdOfNotActivatedUser),
+            getActivationRouteForUser(mockUserIdOfNotActivatedUser),
             HttpMethod.PATCH
         ).getRequestWithJsonBody(body)
         request.header("Authorization", "Bearer $mockAccessToken")

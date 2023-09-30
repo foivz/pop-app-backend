@@ -1,4 +1,4 @@
-package hr.foi.pop.backend.controllers
+package hr.foi.pop.backend.controllers.store_controller
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.models.user.User
@@ -25,11 +25,6 @@ import org.springframework.web.context.WebApplicationContext
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
 class StoreControllerCreationTest {
-    companion object {
-        val route = "/api/v2/stores"
-    }
-
-    lateinit var mvc: MockMvc
 
     @Autowired
     lateinit var context: WebApplicationContext
@@ -48,12 +43,17 @@ class StoreControllerCreationTest {
 
     private val mockNewStoreName = "SuperStore"
 
+    lateinit var mvc: MockMvc
+
     @BeforeAll
     fun setup() {
         mvc = MockMvcBuilderManager.getMockMvc(context, StoreControllerCreationTest::class)
 
         val generatedMockUser =
-            MockEntitiesHelper.generateUserEntityWithoutStore(StoreControllerCreationTest::class, mockUsersPassword)
+            MockEntitiesHelper.generateBuyerUserEntityWithoutStore(
+                StoreControllerCreationTest::class,
+                mockUsersPassword
+            )
         generatedMockUser.apply {
             role = MockEntitiesHelper.generateSellerRoleEntity()
         }
@@ -90,7 +90,7 @@ class StoreControllerCreationTest {
     }
 
     private fun createAuthorizedRequestWithBody(requestBody: Any, accessToken: String): MockHttpServletRequestBuilder {
-        val request = JsonMockRequestGenerator(route).getRequestWithJsonBody(requestBody)
+        val request = JsonMockRequestGenerator(STORE_ROUTE).getRequestWithJsonBody(requestBody)
         request.header("Authorization", "Bearer $accessToken")
         return request
     }
@@ -125,14 +125,17 @@ class StoreControllerCreationTest {
         mvc.perform(request)
             .andExpect(status().isForbidden)
             .andExpect(jsonPath("success").value(false))
-            .andExpect(jsonPath("message").value("User of type \"buyer\" cannot create stores!"))
+            .andExpect(jsonPath("message").value("User with role \"buyer\" cannot execute this operation!"))
             .andExpect(jsonPath("error_code").value(ApplicationErrorType.ERR_ROLE_NOT_APPLICABLE.code))
             .andExpect(jsonPath("error_message").value(ApplicationErrorType.ERR_ROLE_NOT_APPLICABLE.name))
     }
 
     private fun getPersistedMockBuyerUser(): User {
         val mockBuyerUser =
-            MockEntitiesHelper.generateUserEntityWithoutStore(StoreControllerCreationTest::class, mockUsersPassword)
+            MockEntitiesHelper.generateBuyerUserEntityWithoutStore(
+                StoreControllerCreationTest::class,
+                mockUsersPassword
+            )
         mockBuyerUser.apply { username = "StoreControllerCreationTesterBuyerUser" }
         userRepository.save(mockBuyerUser)
         Assertions.assertEquals("buyer", mockBuyerUser.role.name)
@@ -164,7 +167,7 @@ class StoreControllerCreationTest {
     private fun getPersistedMockSellerUserWithStore(): User {
         val mockSellerUserWithStore =
             MockEntitiesHelper
-                .generateUserEntityWithStore(
+                .generateBuyerUserEntityWithStore(
                     StoreControllerCreationTest::class, mockUsersPassword
                 )
 
