@@ -1,6 +1,7 @@
 package hr.foi.pop.backend.controllers
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
+import hr.foi.pop.backend.exceptions.BadAmountException
 import hr.foi.pop.backend.exceptions.ChangeUserStatusException
 import hr.foi.pop.backend.exceptions.StoreNotFoundException
 import hr.foi.pop.backend.exceptions.UserHasStoreException
@@ -10,6 +11,7 @@ import hr.foi.pop.backend.models.user.UserDTO
 import hr.foi.pop.backend.models.user.UserMapper
 import hr.foi.pop.backend.request_bodies.ActivateUserRequestBody
 import hr.foi.pop.backend.request_bodies.AssignStoreRequestBody
+import hr.foi.pop.backend.request_bodies.SetUserBalanceRequestBody
 import hr.foi.pop.backend.responses.ErrorResponse
 import hr.foi.pop.backend.responses.SuccessResponse
 import hr.foi.pop.backend.services.UserService
@@ -58,7 +60,19 @@ class UserController {
         val userDTO: UserDTO = UserMapper().mapDto(user)
         return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse(responseMessage, userDTO))
     }
+    
+    @PatchMapping("/{userId}/balance")
+    fun activateUser(
+        @PathVariable userId: String,
+        @RequestBody request: SetUserBalanceRequestBody
+    ): ResponseEntity<SuccessResponse> {
+        val newBalance = request.amount!!
+        val parsedUserId = Integer.parseInt(userId)
 
+        val user: User = userService.setBalance(parsedUserId, newBalance)
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(SuccessResponse("New balance set for buyer \"${user.username}\": ${user.balance / 100f}"))
+    }
 
     @ExceptionHandler(ChangeUserStatusException::class)
     fun handleChangeUserException(ex: ChangeUserStatusException) =
@@ -94,5 +108,10 @@ class UserController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
             ErrorResponse(ex.message, ApplicationErrorType.ERR_BUYER_ALREADY_HAS_STORE)
         )
+
+    @ExceptionHandler(BadAmountException::class)
+    fun handleBadAmountException(ex: BadAmountException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse("Balance could not be changed.", ex.error))
     }
 }

@@ -26,6 +26,12 @@ import org.springframework.web.context.WebApplicationContext
 class UserControllerActivationTest {
     private fun getActivationRouteForUser(userId: Int) = "${getRouteForUser(userId)}/activate"
 
+    companion object {
+        fun getRouteForUser(userId: Int): String {
+            return "/api/v2/users/${userId}/activate"
+        }
+    }
+
     @Autowired
     lateinit var context: WebApplicationContext
 

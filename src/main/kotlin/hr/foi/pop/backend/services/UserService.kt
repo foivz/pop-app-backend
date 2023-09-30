@@ -101,6 +101,17 @@ class UserService {
         return user
     }
 
+    fun setBalance(buyerId: Int, newBalance: Int): User {
+        val user: User = tryToGetUserById(buyerId)
+
+        ensureNewBalanceIsOk(newBalance)
+
+        user.balance = newBalance
+        userRepository.save(user)
+
+        return user
+    }
+
     private fun ensureUserIsNotSeller(user: User) {
         if (user.role.name == "seller") {
             throw BadRoleException("seller")
@@ -122,6 +133,23 @@ class UserService {
     private fun ensureUserHasNoStore(user: User) {
         if (user.store != null) {
             throw UserHasStoreException(user.username, user.store!!.storeName)
+        }
+    }
+
+    private fun ensureNewBalanceIsOk(amount: Int) {
+        ensureAmountNotTooLarge(amount)
+        ensureAmountNotNegative(amount)
+    }
+
+    private fun ensureAmountNotTooLarge(amount: Int) {
+        if (amount > 999999) {
+            throw BadAmountException(ApplicationErrorType.ERR_AMOUNT_TOO_LARGE)
+        }
+    }
+
+    private fun ensureAmountNotNegative(amount: Int) {
+        if (amount < 0) {
+            throw BadAmountException(ApplicationErrorType.ERR_AMOUNT_NEGATIVE)
         }
     }
 
