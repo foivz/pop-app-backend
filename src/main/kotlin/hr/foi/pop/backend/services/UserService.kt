@@ -105,11 +105,13 @@ class UserService {
         val principal = SecurityContextHolder.getContext().authentication.principal as UserDetails
         if (!principal.authorities.contains(GrantedAuthority { "admin" }) && principal.username != user.username) {
             throw NotAuthorizedException("You are not permitted to edit selected user!")
+        }
+    }
 
     fun assignStore(buyerId: Int, storeName: String): User {
         val user = tryToGetUserById(buyerId)
         ensureUserIsAccepted(user)
-        ensureUserIsNotSeller(user)
+        ensureUserIsCanBeAssignedAStore(user)
         ensureStoreExistsByName(storeName)
         ensureUserHasNoStore(user)
 
@@ -131,9 +133,9 @@ class UserService {
         return user
     }
 
-    private fun ensureUserIsNotSeller(user: User) {
+    private fun ensureUserIsCanBeAssignedAStore(user: User) {
         if (user.role.name == "seller") {
-            throw BadRoleException("seller")
+            throw BadRoleException("Cannot assign store to seller!", ApplicationErrorType.ERR_ROLE_NOT_APPLICABLE)
         }
     }
 

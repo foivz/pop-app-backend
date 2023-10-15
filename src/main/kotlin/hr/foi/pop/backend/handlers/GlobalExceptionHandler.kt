@@ -42,7 +42,7 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
     @ExceptionHandler(BadRoleException::class)
     fun handleBadRoleException(ex: BadRoleException): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-            ErrorResponse(ex.message, ApplicationErrorType.ERR_ROLE_NOT_APPLICABLE)
+            ErrorResponse(ex.message!!, ApplicationErrorType.ERR_ROLE_NOT_APPLICABLE)
         )
     }
 }
