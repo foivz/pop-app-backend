@@ -38,7 +38,7 @@ class StoreServiceTest {
 
     @BeforeAll
     fun setup() {
-        mockUser = MockEntitiesHelper.generateUserEntityWithoutStore(StoreServiceTest::class)
+        mockUser = MockEntitiesHelper.generateBuyerUserEntityWithoutStore(StoreServiceTest::class)
         mockUser.apply { username = "StoreServiceTester" }
         userRepository.save(mockUser)
     }
@@ -78,7 +78,7 @@ class StoreServiceTest {
             storeService.createStore(properAndUniqueStoreName)
         }
 
-        Assertions.assertEquals("User of type \"buyer\" cannot create stores!", ex.message)
+        Assertions.assertEquals("User with role \"buyer\" cannot execute this operation!", ex.message)
     }
 
     @Test

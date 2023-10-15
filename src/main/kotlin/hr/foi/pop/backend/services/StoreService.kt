@@ -67,7 +67,7 @@ class StoreService {
             throw UserNotFoundException("User could not be determined! Couldn't proceed with creating a store.")
         }
         if (userEntityObject.store != null) {
-            throw UserHasStoreException()
+            throw UserHasStoreException(userEntityObject.username, userEntityObject.store!!.storeName)
         }
     }
 

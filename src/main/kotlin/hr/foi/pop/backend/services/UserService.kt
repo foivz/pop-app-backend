@@ -6,6 +6,7 @@ import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserBuilder
 import hr.foi.pop.backend.repositories.EventRepository
 import hr.foi.pop.backend.repositories.RoleRepository
+import hr.foi.pop.backend.repositories.StoreRepository
 import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.utils.UserChecker
@@ -30,6 +31,9 @@ class UserService {
 
     @Autowired
     private lateinit var passwordEncoder: PasswordEncoder
+
+    @Autowired
+    private lateinit var storeRepository: StoreRepository
 
     fun registerUser(userInfo: RegisterRequestBody): User {
         validateUser(userInfo)
@@ -101,6 +105,41 @@ class UserService {
         val principal = SecurityContextHolder.getContext().authentication.principal as UserDetails
         if (!principal.authorities.contains(GrantedAuthority { "admin" }) && principal.username != user.username) {
             throw NotAuthorizedException("You are not permitted to edit selected user!")
+
+    fun assignStore(buyerId: Int, storeName: String): User {
+        val user = tryToGetUserById(buyerId)
+        ensureUserIsAccepted(user)
+        ensureUserIsNotSeller(user)
+        ensureStoreExistsByName(storeName)
+        ensureUserHasNoStore(user)
+
+        val storeFoundByName = storeRepository.getStoreByStoreName(storeName)
+        user.store = storeFoundByName
+        userRepository.save(user)
+
+        return user
+    }
+
+    fun setBalance(buyerId: Int, newBalance: Int): User {
+        val user: User = tryToGetUserById(buyerId)
+
+        ensureNewBalanceIsOk(newBalance)
+
+        user.balance = newBalance
+        userRepository.save(user)
+
+        return user
+    }
+
+    private fun ensureUserIsNotSeller(user: User) {
+        if (user.role.name == "seller") {
+            throw BadRoleException("seller")
+        }
+    }
+
+    private fun ensureStoreExistsByName(storeName: String) {
+        if (!storeRepository.existsByStoreName(storeName)) {
+            throw StoreNotFoundException(storeName)
         }
     }
 
@@ -126,6 +165,29 @@ class UserService {
             )
         }
         user.role = newRole
+    }
+
+    private fun ensureUserHasNoStore(user: User) {
+        if (user.store != null) {
+            throw UserHasStoreException(user.username, user.store!!.storeName)
+        }
+    }
+
+    private fun ensureNewBalanceIsOk(amount: Int) {
+        ensureAmountNotTooLarge(amount)
+        ensureAmountNotNegative(amount)
+    }
+
+    private fun ensureAmountNotTooLarge(amount: Int) {
+        if (amount > 999999) {
+            throw BadAmountException(ApplicationErrorType.ERR_AMOUNT_TOO_LARGE)
+        }
+    }
+
+    private fun ensureAmountNotNegative(amount: Int) {
+        if (amount < 0) {
+            throw BadAmountException(ApplicationErrorType.ERR_AMOUNT_NEGATIVE)
+        }
     }
 
 }
