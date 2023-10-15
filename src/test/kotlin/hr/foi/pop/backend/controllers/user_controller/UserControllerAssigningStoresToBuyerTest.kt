@@ -153,7 +153,7 @@ class UserControllerAssigningStoresToBuyerTest {
             )
             .andExpect(
                 MockMvcResultMatchers.jsonPath("message")
-                    .value("User with role \"seller\" cannot execute this operation!")
+                    .value("Cannot assign store to seller!")
             )
     }
 

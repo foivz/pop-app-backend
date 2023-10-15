@@ -1,6 +1,5 @@
 package hr.foi.pop.backend.exceptions
 
-class BadRoleException(private val badRoleName: String) : RuntimeException() {
-    override val message: String
-        get() = "User with role \"$badRoleName\" cannot execute this operation!"
-}
+import hr.foi.pop.backend.definitions.ApplicationErrorType
+
+class BadRoleException(message: String, val error: ApplicationErrorType) : RuntimeException(message)

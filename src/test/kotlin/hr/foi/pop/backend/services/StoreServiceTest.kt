@@ -78,7 +78,7 @@ class StoreServiceTest {
             storeService.createStore(properAndUniqueStoreName)
         }
 
-        Assertions.assertEquals("User with role \"buyer\" cannot execute this operation!", ex.message)
+        Assertions.assertEquals("User of type \"buyer\" cannot create stores!", ex.message)
     }
 
     @Test

@@ -1,15 +1,12 @@
 package hr.foi.pop.backend.controllers
 
 import hr.foi.pop.backend.definitions.ApplicationErrorType
-import hr.foi.pop.backend.exceptions.BadAmountException
-import hr.foi.pop.backend.exceptions.ChangeUserStatusException
-import hr.foi.pop.backend.exceptions.StoreNotFoundException
-import hr.foi.pop.backend.exceptions.UserHasStoreException
-import hr.foi.pop.backend.exceptions.UserNotFoundException
+import hr.foi.pop.backend.exceptions.*
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.models.user.UserDTO
 import hr.foi.pop.backend.models.user.UserMapper
 import hr.foi.pop.backend.request_bodies.ActivateUserRequestBody
+import hr.foi.pop.backend.request_bodies.ChangeRoleRequestBody
 import hr.foi.pop.backend.request_bodies.AssignStoreRequestBody
 import hr.foi.pop.backend.request_bodies.SetUserBalanceRequestBody
 import hr.foi.pop.backend.responses.ErrorResponse
@@ -74,6 +71,20 @@ class UserController {
             .body(SuccessResponse("New balance set for buyer \"${user.username}\": ${user.balance / 100f}"))
     }
 
+    @PatchMapping("/{userId}/role")
+    fun changeRole(
+        @PathVariable userId: String,
+        @RequestBody request: ChangeRoleRequestBody
+    ): ResponseEntity<SuccessResponse> {
+        val newRole = request.role!!
+        val parsedUserId = Integer.parseInt(userId)
+
+        val user = userService.changeRole(parsedUserId, newRole)
+
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(SuccessResponse("User \"${user.username}\" switched to the new role: \"${user.role.name}\"."))
+    }
+
     @ExceptionHandler(ChangeUserStatusException::class)
     fun handleChangeUserException(ex: ChangeUserStatusException) =
         getBadRequestResponse(ex.message, ex.error)
@@ -96,6 +107,30 @@ class UserController {
         )
     }
 
+    @ExceptionHandler(UserNotAcceptedException::class)
+    fun handleUserNotAcceptedException(ex: UserNotAcceptedException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+            ErrorResponse(ex.message ?: "User not accepted!", ApplicationErrorType.ERR_NOT_ACTIVATED)
+        )
+    }
+
+    @ExceptionHandler(NotAuthorizedException::class)
+    fun handleNotAuthorizedException(ex: NotAuthorizedException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+            ErrorResponse(
+                ex.message ?: "You lack permission for this action!",
+                ApplicationErrorType.ERR_AUTHORIZATION_NOT_SUFFICIENT
+            )
+        )
+    }
+
+    @ExceptionHandler(BadRoleException::class)
+    fun handleBadRoleException(ex: BadRoleException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+            ErrorResponse(ex.message ?: "You lack permission for this action!", ex.error)
+        )
+    }
+
     @ExceptionHandler(StoreNotFoundException::class)
     fun handleStoreNotFoundException(ex: StoreNotFoundException): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
@@ -108,6 +143,7 @@ class UserController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
             ErrorResponse(ex.message, ApplicationErrorType.ERR_BUYER_ALREADY_HAS_STORE)
         )
+    }
 
     @ExceptionHandler(BadAmountException::class)
     fun handleBadAmountException(ex: BadAmountException): ResponseEntity<ErrorResponse> {
