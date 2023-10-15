@@ -163,7 +163,7 @@ class AuthenticationControllerLoginTest {
     }
 
     private fun getStoredAcceptedUserWithStore(): User {
-        val validUser = MockEntitiesHelper.generateUserEntityWithStore(
+        val validUser = MockEntitiesHelper.generateBuyerUserEntityWithStore(
             this::class,
             mockLoginBodyAsObject.password
         )
