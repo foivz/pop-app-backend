@@ -125,7 +125,7 @@ class StoreControllerCreationTest {
         mvc.perform(request)
             .andExpect(status().isForbidden)
             .andExpect(jsonPath("success").value(false))
-            .andExpect(jsonPath("message").value("User with role \"buyer\" cannot execute this operation!"))
+            .andExpect(jsonPath("message").value("User of type \"buyer\" cannot create stores!"))
             .andExpect(jsonPath("error_code").value(ApplicationErrorType.ERR_ROLE_NOT_APPLICABLE.code))
             .andExpect(jsonPath("error_message").value(ApplicationErrorType.ERR_ROLE_NOT_APPLICABLE.name))
     }

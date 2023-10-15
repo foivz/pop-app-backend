@@ -93,7 +93,7 @@ class UserStoreAssigningTest {
         val storeName = getExistingStoreName()
 
         val ex = assertThrows<BadRoleException> { userService.assignStore(sellerUserId, storeName) }
-        Assertions.assertEquals("User with role \"seller\" cannot execute this operation!", ex.message)
+        Assertions.assertEquals("Cannot assign store to seller!", ex.message)
     }
 
     private fun getSellerUserId(): Int {

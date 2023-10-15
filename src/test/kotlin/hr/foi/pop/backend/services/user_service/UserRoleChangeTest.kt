@@ -4,13 +4,17 @@ import hr.foi.pop.backend.exceptions.BadRoleException
 import hr.foi.pop.backend.exceptions.UserNotAcceptedException
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.services.UserService
+import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.security.test.context.support.WithMockUser
 
 @SpringBootTest
+@WithMockUser(authorities = ["admin"])
+@Transactional
 class UserRoleChangeTest {
     @Autowired
     lateinit var userService: UserService
