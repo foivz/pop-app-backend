@@ -1,9 +1,11 @@
 package hr.foi.pop.backend.models.user
 
 import hr.foi.pop.backend.models.store.StoreAttributeDto
+import hr.foi.pop.backend.security.jwt.TokenPair
 
 data class UserLoginResponseDTO(
     private val userDto: UserDTO,
+    val tokenPair: TokenPair,
     val id: Int = userDto.id,
     val firstName: String = userDto.firstName,
     val lastName: String = userDto.lastName,
