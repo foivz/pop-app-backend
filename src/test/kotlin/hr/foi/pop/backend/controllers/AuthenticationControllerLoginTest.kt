@@ -156,10 +156,10 @@ class AuthenticationControllerLoginTest {
             .andExpect(jsonPath("message").value("User \"${mockLoginUser.username}\" logged in."))
             .andExpect(jsonPath("data[0].store.store_id").value(storedUser.store!!.id))
             .andExpect(jsonPath("data[0].store.store_name").value(storedUser.store!!.storeName))
-            .andExpect(jsonPath("data[1].access_token").isString)
-            .andExpect(jsonPath("data[1].refresh_token.token").isString)
-            .andExpect(jsonPath("data[1].refresh_token.valid_for.time_unit").value("minutes"))
-            .andExpect(jsonPath("data[1].refresh_token.valid_for.time_amount").isNumber)
+            .andExpect(jsonPath("data[0].token_pair.access_token").isString)
+            .andExpect(jsonPath("data[0].token_pair.refresh_token.token").isString)
+            .andExpect(jsonPath("data[0].token_pair.refresh_token.valid_for.time_unit").value("minutes"))
+            .andExpect(jsonPath("data[0].token_pair.refresh_token.valid_for.time_amount").isNumber)
     }
 
     private fun getStoredAcceptedUserWithStore(): User {

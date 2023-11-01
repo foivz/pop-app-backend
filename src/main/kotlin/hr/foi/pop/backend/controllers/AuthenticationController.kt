@@ -43,23 +43,16 @@ class AuthenticationController {
         val tokenPair = authenticationService.authenticateAndGenerateTokenPair(request.username, request.password)
         val userEntity = authenticationService.loadUserByUsername(request.username) as User
         val userDto = UserMapper().mapDto(userEntity)
-        val loginResponse = UserLoginResponseDTO(userDto)
+        val loginResponse = UserLoginResponseDTO(userDto, tokenPair)
 
         val responseBuilder = ResponseEntity.status(HttpStatus.OK)
         val baseMessage = "User \"${loginResponse.username}\" logged in"
 
         val response = if (loginResponse.store != null) {
-            responseBuilder.body(
-                SuccessResponse("$baseMessage.", loginResponse, tokenPair)
-            )
+            responseBuilder.body(SuccessResponse("$baseMessage.", loginResponse))
         } else {
             responseBuilder.body(
-                WarningResponse(
-                    ApplicationErrorType.WARN_STORE_NOT_SET,
-                    "$baseMessage with warnings.",
-                    loginResponse,
-                    tokenPair
-                )
+                WarningResponse(ApplicationErrorType.WARN_STORE_NOT_SET, "$baseMessage with warnings.", loginResponse)
             )
         }
 
@@ -89,7 +82,7 @@ class AuthenticationController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
             .body(
                 ErrorResponse(
-                    ex.message ?: "Deactivated user login attempt.",
+                    ex.message,
                     ApplicationErrorType.ERR_NOT_ACTIVATED
                 )
             )
