@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.env.Environment
 import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
@@ -34,20 +35,32 @@ class WebSecurityConfigurer {
     @Autowired
     lateinit var passwordEncoder: PasswordEncoder
 
+    @Autowired
+    private lateinit var environment: Environment
+
+    private fun isProductionProfile() = environment.activeProfiles[0] == "prod"
+
     private val excludedRoutesFromSpringSecurity = arrayOf(
-        AntPathRequestMatcher("/h2-console/**"),
         AntPathRequestMatcher("/favicon.ico"),
         AntPathRequestMatcher("/error")
     )
 
-    private val excludedRoutesForAuthTokenFiltering = listOf(
+    private val excludedRoutesForAuthTokenFiltering = arrayOf(
         *excludedRoutesFromSpringSecurity,
         AntPathRequestMatcher("/api/v2/auth/**"),
     )
 
     @Bean
     fun authenticationJwtTokenFilter(): AuthTokenFilter {
-        return AuthTokenFilter(excludedRoutesForAuthTokenFiltering)
+        return when (isProductionProfile()) {
+            true -> AuthTokenFilter(excludedRoutesForAuthTokenFiltering.toList())
+            false -> AuthTokenFilter(
+                listOf(
+                    *excludedRoutesForAuthTokenFiltering,
+                    AntPathRequestMatcher("/h2-console/**")
+                )
+            )
+        }
     }
 
     @Bean
@@ -66,16 +79,23 @@ class WebSecurityConfigurer {
     @Bean
     fun webSecurityCustomizer(): WebSecurityCustomizer? {
         return WebSecurityCustomizer { web: WebSecurity ->
-            web.ignoring().requestMatchers(
-                *excludedRoutesFromSpringSecurity
-            )
+            when (isProductionProfile()) {
+                true -> web.ignoring().requestMatchers(
+                    *excludedRoutesFromSpringSecurity
+                )
+
+                false -> web.ignoring().requestMatchers(
+                    *excludedRoutesFromSpringSecurity,
+                    AntPathRequestMatcher("/h2-console/**"),
+                )
+            }
         }
     }
 
     @Bean
     @Throws(Exception::class)
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
-        enableH2Console(http)
+        if (!isProductionProfile()) enableH2Console(http)
 
         http.csrf { csrf -> csrf.disable() }
             .exceptionHandling { exception -> exception.authenticationEntryPoint(unauthorizedHandler) }
