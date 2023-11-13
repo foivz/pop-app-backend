@@ -11,6 +11,7 @@ import hr.foi.pop.backend.utils.MockObjectsHelper
 import hr.foi.pop.backend.utils.TokenPairValidator
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
 
@@ -18,6 +19,9 @@ import org.springframework.transaction.annotation.Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
 class UserLoginTest {
+
+    @Value("\${hr.foi.pop.backend.auth.disable-activation}")
+    private var isAutomaticallyActivated: Boolean = false
 
     @Autowired
     lateinit var userRepository: UserRepository
@@ -39,6 +43,11 @@ class UserLoginTest {
 
     @Test
     fun whenUserWantsToLogInWithCorrectPasswordButIsNotActivated_onLogin_throwException() {
+        if (isAutomaticallyActivated) {
+            assert(true)
+            return
+        }
+
         val notAcceptedUser = userRepository.getUserByUsername(templateRequestBodyForTesting.username)
         Assertions.assertNotNull(notAcceptedUser)
         Assertions.assertFalse(notAcceptedUser!!.isAccepted)

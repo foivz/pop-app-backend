@@ -9,6 +9,7 @@ import hr.foi.pop.backend.utils.MockObjectsHelper
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import java.time.Duration
 import java.time.LocalDateTime
@@ -17,6 +18,9 @@ import java.time.LocalDateTime
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
 class UserRegistrationTest {
+    @Value("\${hr.foi.pop.backend.auth.disable-activation}")
+    private var isAutomaticallyActivated: Boolean = false
+
     @Autowired
     private lateinit var userRepository: UserRepository
 
@@ -41,7 +45,9 @@ class UserRegistrationTest {
             assertUserBelongsToCurrentEvent(user)
             assertUserRegisteredJustNow(user)
             assertUserHasNoBalance(user)
-            assertUserNotAccepted(user)
+            if (!isAutomaticallyActivated) {
+                assertUserNotAccepted(user)
+            }
         }
     }
 

@@ -11,6 +11,7 @@ import hr.foi.pop.backend.repositories.UserRepository
 import hr.foi.pop.backend.request_bodies.RegisterRequestBody
 import hr.foi.pop.backend.utils.UserChecker
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.orm.jpa.JpaObjectRetrievalFailureException
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
@@ -20,6 +21,9 @@ import org.springframework.stereotype.Service
 
 @Service
 class UserService {
+    @Value("\${hr.foi.pop.backend.auth.disable-activation}")
+    private var isAutomaticallyActivated: Boolean = false
+
     @Autowired
     private lateinit var userRepository: UserRepository
 
@@ -50,6 +54,10 @@ class UserService {
             .setCurrentEvent(currentEvent)
             .setPassword(userInfo.password, passwordEncoder)
             .build()
+
+        if (isAutomaticallyActivated) {
+            user.isAccepted = true
+        }
 
         userRepository.save(user)
         return user

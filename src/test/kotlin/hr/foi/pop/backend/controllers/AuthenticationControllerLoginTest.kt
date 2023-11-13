@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultActions
@@ -31,6 +32,9 @@ class AuthenticationControllerLoginTest {
     companion object {
         const val loginRoute = "/api/v2/auth/login"
     }
+
+    @Value("\${hr.foi.pop.backend.auth.disable-activation}")
+    private var isAutomaticallyActivated: Boolean = false
 
     @Autowired
     lateinit var context: WebApplicationContext
@@ -81,6 +85,11 @@ class AuthenticationControllerLoginTest {
 
     @Test
     fun givenNonAcceptedCorrectUser_whenLoginRouteHit_returnError() {
+        if (isAutomaticallyActivated) {
+            assert(true)
+            return
+        }
+
         val body = mockLoginBodyAsObject
         val request = jsonRequester.getRequestWithJsonBody(body)
 

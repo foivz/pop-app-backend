@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
@@ -37,6 +38,9 @@ class AuthenticationControllerRegistrationTest {
             "buyer"
         )
     }
+
+    @Value("\${hr.foi.pop.backend.auth.disable-activation}")
+    private var isAutomaticallyActivated: Boolean = false
 
     @Autowired
     lateinit var context: WebApplicationContext
@@ -100,6 +104,6 @@ class AuthenticationControllerRegistrationTest {
             .andExpect(jsonPath("data[0].username").value("rregistermann"))
             .andExpect(jsonPath("data[0].date_of_register", DateMatcher(mockRegDate, 500)))
             .andExpect(jsonPath("data[0].balance").value(0))
-            .andExpect(jsonPath("data[0].is_accepted").value(false))
+            .andExpect(jsonPath("data[0].is_accepted").value(isAutomaticallyActivated))
     }
 }
