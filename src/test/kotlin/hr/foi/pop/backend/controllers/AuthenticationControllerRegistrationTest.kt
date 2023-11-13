@@ -29,10 +29,10 @@ class AuthenticationControllerRegistrationTest {
         const val registerRoute = "/api/v2/auth/register"
 
         val mockRegisterBodyAsObject = RegisterRequestBody(
-            "Ivan",
-            "Horvat",
-            "ihorvat",
-            "ihorvat@foi.hr",
+            "Register",
+            "Registermann",
+            "rregistermann",
+            "rregistermann@foi.hr",
             "test123",
             "buyer"
         )
@@ -94,10 +94,10 @@ class AuthenticationControllerRegistrationTest {
             .andExpect(jsonPath("data[0].role").value("buyer"))
             .andExpect(jsonPath("data[0].store").value(null))
             .andExpect(jsonPath("data[0].event").value(userMockEventId))
-            .andExpect(jsonPath("data[0].first_name").value("Ivan"))
-            .andExpect(jsonPath("data[0].last_name").value("Horvat"))
-            .andExpect(jsonPath("data[0].email").value("ihorvat@foi.hr"))
-            .andExpect(jsonPath("data[0].username").value("ihorvat"))
+            .andExpect(jsonPath("data[0].first_name").value("Register"))
+            .andExpect(jsonPath("data[0].last_name").value("Registermann"))
+            .andExpect(jsonPath("data[0].email").value("rregistermann@foi.hr"))
+            .andExpect(jsonPath("data[0].username").value("rregistermann"))
             .andExpect(jsonPath("data[0].date_of_register", DateMatcher(mockRegDate, 500)))
             .andExpect(jsonPath("data[0].balance").value(0))
             .andExpect(jsonPath("data[0].is_accepted").value(false))
