@@ -3,6 +3,7 @@ package hr.foi.pop.backend.controllers
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.BadRoleException
 import hr.foi.pop.backend.exceptions.InvalidStoreNameException
+import hr.foi.pop.backend.exceptions.UsedStoreNameException
 import hr.foi.pop.backend.exceptions.UserHasStoreException
 import hr.foi.pop.backend.models.store.Store
 import hr.foi.pop.backend.models.store.StoreLocation
@@ -57,6 +58,16 @@ class StoreController {
     fun handleUserHasStoreException(ex: UserHasStoreException): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
             ErrorResponse("User already has a store!", ApplicationErrorType.ERR_SELLER_ALREADY_HAS_STORE)
+        )
+    }
+
+    @ExceptionHandler(UsedStoreNameException::class)
+    fun handleUsedStoreNameException(ex: UsedStoreNameException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+            ErrorResponse(
+                "A store with name ${ex.problematicStoreName} already exists!",
+                ApplicationErrorType.ERR_SELLER_ALREADY_HAS_STORE
+            )
         )
     }
 }
