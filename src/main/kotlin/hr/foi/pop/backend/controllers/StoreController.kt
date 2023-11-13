@@ -4,6 +4,8 @@ import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.BadRoleException
 import hr.foi.pop.backend.exceptions.InvalidStoreNameException
 import hr.foi.pop.backend.exceptions.UserHasStoreException
+import hr.foi.pop.backend.models.store.Store
+import hr.foi.pop.backend.models.store.StoreLocation
 import hr.foi.pop.backend.models.store.StoreMapper
 import hr.foi.pop.backend.request_bodies.CreateStoreRequestBody
 import hr.foi.pop.backend.responses.ErrorResponse
@@ -24,7 +26,13 @@ class StoreController {
     fun createStore(@RequestBody request: CreateStoreRequestBody): ResponseEntity<SuccessResponse> {
         val newStoreName = request.storeName!!
 
-        val newStore = storeService.createStore(newStoreName)
+        val newStore: Store = if (request.latitude == null && request.longitude == null) {
+            storeService.createStore(newStoreName)
+        } else {
+            val newLocation = StoreLocation(request.latitude, request.longitude)
+            storeService.createStore(newStoreName, newLocation)
+        }
+
         val newStoreDto = StoreMapper().mapDto(newStore)
 
         return ResponseEntity.status(HttpStatus.CREATED)
