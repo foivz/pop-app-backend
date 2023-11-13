@@ -47,7 +47,9 @@ VALUES (3, 1, NULL, 'Catherine', 'Velasquez', 'cvelasquez@pop.app', 'cvelasquez'
        (1, 2, 3, 'Connor', 'Kaufman', 'ckaufman@pop.app', 'ckaufman',
         '$2a$10$FfiydZ0lGFvgs288gbAhmeOBaF9h.kfgjmtkJcowuWUTdLB1Tl4gG', CURRENT_TIMESTAMP(), 70, 0),
        (2, 2, 3, 'Haven', 'Arroyo', 'harroyo@pop.app', 'harroyo',
-        '$2a$10$FfiydZ0lGFvgs288gbAhmeOBaF9h.kfgjmtkJcowuWUTdLB1Tl4gG', CURRENT_TIMESTAMP(), 0, 0);
+        '$2a$10$FfiydZ0lGFvgs288gbAhmeOBaF9h.kfgjmtkJcowuWUTdLB1Tl4gG', CURRENT_TIMESTAMP(), 0, 0),
+       (2, 1, NULL, 'Ivan', 'Horvat', 'ihorvat@pop.app', 'ihorvat',
+        '$2a$10$FfiydZ0lGFvgs288gbAhmeOBaF9h.kfgjmtkJcowuWUTdLB1Tl4gG', CURRENT_TIMESTAMP(), 0, 1);
 
 INSERT INTO `popapp_db`.`products` (`stores_id_store`, `name`, `description`, `image`, `price`, `quantity`)
 VALUES (1, 'Product 1', 'Description 1', 'image1.jpg', 10, 100),

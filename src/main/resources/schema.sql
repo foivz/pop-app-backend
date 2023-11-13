@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS `popapp_db`.`stores` (
     `events_id_event` INT NOT NULL,
     `store_name` VARCHAR(255) NOT NULL,
     `balance` INT NOT NULL DEFAULT 0,
+    `latitude` FLOAT NOT NULL DEFAULT 0.0,
+    `longitude` FLOAT NOT NULL DEFAULT 0.0,
     PRIMARY KEY (`id_store`),
     CONSTRAINT `fk_stores_events1`
       FOREIGN KEY (`events_id_event`)

@@ -5,6 +5,7 @@ import hr.foi.pop.backend.exceptions.InvalidStoreNameException
 import hr.foi.pop.backend.exceptions.UsedStoreNameException
 import hr.foi.pop.backend.exceptions.UserHasStoreException
 import hr.foi.pop.backend.models.store.Store
+import hr.foi.pop.backend.models.store.StoreLocation
 import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.repositories.EventRepository
 import hr.foi.pop.backend.repositories.StoreRepository
@@ -69,6 +70,29 @@ class StoreServiceTest {
         val currentEvent = eventRepository.getEventByIsActiveTrue()
         Assertions.assertEquals(currentEvent.id, newStoreEntity.event.id)
         Assertions.assertEquals(0, newStoreEntity.balance)
+        Assertions.assertEquals(46.307679, newStoreEntity.latitude)
+        Assertions.assertEquals(16.338106, newStoreEntity.longitude)
+    }
+
+    @Test
+    @WithMockUser(username = "StoreServiceTester", authorities = ["seller"])
+    fun givenStoreNameAndLocation_whenUserIsSeller_returnNewStoreEntityObjectWithCustomLocation() {
+        assertStoreDoesntExist(properAndUniqueStoreName)
+
+        val newStoreEntity: Store = storeService.createStore(
+            newStoreName = properAndUniqueStoreName,
+            newStoreLocation = StoreLocation(
+                latitude = 20.50123,
+                longitude = 10.35123
+            )
+        )
+
+        assertStoreHasCustomLocationCorrectlySet(newStoreEntity)
+    }
+
+    private fun assertStoreHasCustomLocationCorrectlySet(newStoreEntity: Store) {
+        Assertions.assertEquals(20.50123, newStoreEntity.latitude)
+        Assertions.assertEquals(10.35123, newStoreEntity.longitude)
     }
 
     @Test
