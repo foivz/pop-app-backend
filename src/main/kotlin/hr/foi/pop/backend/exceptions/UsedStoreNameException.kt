@@ -1,3 +1,3 @@
 package hr.foi.pop.backend.exceptions
 
-class UsedStoreNameException : RuntimeException()
+class UsedStoreNameException(val problematicStoreName: String) : RuntimeException()
