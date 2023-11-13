@@ -85,7 +85,7 @@ class StoreService {
 
     private fun ensureStoreNameIsUnique(newStoreName: String) {
         if (storeRepository.existsByStoreName(newStoreName)) {
-            throw UsedStoreNameException()
+            throw UsedStoreNameException(newStoreName)
         }
     }
 }
