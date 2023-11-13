@@ -38,16 +38,16 @@ class ProductController {
             .body(
                 SuccessResponse(
                     responseMessage,
-                    mappedProducts
+                    *mappedProducts
                 )
             )
     }
 
-    private fun getProductsDTOs(receivedProducts: List<Product>): List<ProductDTO> {
+    private fun getProductsDTOs(receivedProducts: List<Product>): Array<ProductDTO> {
         val productMapper = ProductMapper()
         val mappedProducts = receivedProducts.map {
             productMapper.mapDto(it)
         }
-        return mappedProducts
+        return mappedProducts.toTypedArray()
     }
 }
