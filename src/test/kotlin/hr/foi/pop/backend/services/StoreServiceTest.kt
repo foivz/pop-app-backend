@@ -69,6 +69,8 @@ class StoreServiceTest {
         val currentEvent = eventRepository.getEventByIsActiveTrue()
         Assertions.assertEquals(currentEvent.id, newStoreEntity.event.id)
         Assertions.assertEquals(0, newStoreEntity.balance)
+        Assertions.assertEquals(46.307679, newStoreEntity.latitude)
+        Assertions.assertEquals(16.338106, newStoreEntity.longitude)
     }
 
     @Test
