@@ -3,6 +3,7 @@ package hr.foi.pop.backend.services
 import hr.foi.pop.backend.definitions.ApplicationErrorType
 import hr.foi.pop.backend.exceptions.*
 import hr.foi.pop.backend.models.store.Store
+import hr.foi.pop.backend.models.store.StoreLocation
 import hr.foi.pop.backend.repositories.EventRepository
 import hr.foi.pop.backend.repositories.StoreRepository
 import hr.foi.pop.backend.repositories.UserRepository
@@ -24,7 +25,7 @@ class StoreService {
     @Autowired
     lateinit var userRepository: UserRepository
 
-    fun createStore(newStoreName: String): Store {
+    fun createStore(newStoreName: String, newStoreLocation: StoreLocation? = null): Store {
         ensureUserIsNotForbiddenToCreateStores()
         ensureStoreNameIsProper(newStoreName)
         ensureStoreNameIsUnique(newStoreName)
@@ -33,6 +34,11 @@ class StoreService {
             storeName = newStoreName
             event = eventRepository.getEventByIsActiveTrue()
             balance = 0
+        }
+
+        if (newStoreLocation?.longitude != null && newStoreLocation.latitude != null) {
+            newStore.longitude = newStoreLocation.longitude
+            newStore.latitude = newStoreLocation.latitude
         }
 
         return storeRepository.save(newStore)
