@@ -1,4 +1,4 @@
-package hr.foi.pop.backend.services
+package hr.foi.pop.backend.services.store_service
 
 import hr.foi.pop.backend.exceptions.BadRoleException
 import hr.foi.pop.backend.exceptions.InvalidStoreNameException
@@ -10,6 +10,7 @@ import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.repositories.EventRepository
 import hr.foi.pop.backend.repositories.StoreRepository
 import hr.foi.pop.backend.repositories.UserRepository
+import hr.foi.pop.backend.services.StoreService
 import hr.foi.pop.backend.utils.MockEntitiesHelper
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.*
@@ -20,7 +21,7 @@ import org.springframework.security.test.context.support.WithMockUser
 @SpringBootTest
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class StoreServiceTest {
+class CreateStoreTest {
     @Autowired
     lateinit var storeService: StoreService
 
@@ -33,13 +34,13 @@ class StoreServiceTest {
     @Autowired
     lateinit var userRepository: UserRepository
 
-    private val properAndUniqueStoreName = "${StoreServiceTest::class.simpleName} Store"
+    private val properAndUniqueStoreName = "${CreateStoreTest::class.simpleName} Store"
 
     lateinit var mockUser: User
 
     @BeforeAll
     fun setup() {
-        mockUser = MockEntitiesHelper.generateBuyerUserEntityWithoutStore(StoreServiceTest::class)
+        mockUser = MockEntitiesHelper.generateBuyerUserEntityWithoutStore(CreateStoreTest::class)
         mockUser.apply { username = "StoreServiceTester" }
         userRepository.save(mockUser)
     }
