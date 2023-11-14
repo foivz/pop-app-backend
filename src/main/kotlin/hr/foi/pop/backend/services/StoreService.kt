@@ -25,6 +25,31 @@ class StoreService {
     @Autowired
     lateinit var userRepository: UserRepository
 
+    fun getStores(): List<Store> {
+        ensureUserIsNotForbiddenToGetStores()
+
+        return storeRepository.findAll()
+    }
+
+    private fun ensureUserIsNotForbiddenToGetStores() {
+        val principal = SecurityContextHolder.getContext().authentication.principal as UserDetails
+
+        val foundForbiddenRole = principal.authorities.find {
+            checkForbiddenRolesForReadingStore(it)
+        }
+
+        if (foundForbiddenRole != null) {
+            throw BadRoleException(
+                "User of type \"${foundForbiddenRole.authority}\" cannot read stores!",
+                ApplicationErrorType.ERR_ROLE_NOT_APPLICABLE
+            )
+        }
+    }
+
+    private fun checkForbiddenRolesForReadingStore(it: GrantedAuthority): Boolean {
+        return it.authority == "seller"
+    }
+
     fun createStore(newStoreName: String, newStoreLocation: StoreLocation? = null): Store {
         ensureUserIsNotForbiddenToCreateStores()
         ensureStoreNameIsProper(newStoreName)
@@ -52,7 +77,7 @@ class StoreService {
 
     private fun ensureUserDoesntHaveRoleWhichPermitsStoreCreation(principal: UserDetails) {
         val foundForbiddenRole = principal.authorities.find {
-            checkForbiddenRoles(it)
+            checkForbiddenRolesForStoreCreation(it)
         }
 
         if (foundForbiddenRole != null) {
@@ -63,7 +88,7 @@ class StoreService {
         }
     }
 
-    private fun checkForbiddenRoles(it: GrantedAuthority): Boolean {
+    private fun checkForbiddenRolesForStoreCreation(it: GrantedAuthority): Boolean {
         return it.authority == "buyer"
     }
 

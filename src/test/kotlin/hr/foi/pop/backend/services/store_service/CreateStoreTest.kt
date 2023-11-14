@@ -1,4 +1,4 @@
-package hr.foi.pop.backend.services
+package hr.foi.pop.backend.services.store_service
 
 import hr.foi.pop.backend.exceptions.BadRoleException
 import hr.foi.pop.backend.exceptions.InvalidStoreNameException
@@ -10,6 +10,7 @@ import hr.foi.pop.backend.models.user.User
 import hr.foi.pop.backend.repositories.EventRepository
 import hr.foi.pop.backend.repositories.StoreRepository
 import hr.foi.pop.backend.repositories.UserRepository
+import hr.foi.pop.backend.services.StoreService
 import hr.foi.pop.backend.utils.MockEntitiesHelper
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.*
@@ -20,7 +21,7 @@ import org.springframework.security.test.context.support.WithMockUser
 @SpringBootTest
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class StoreServiceTest {
+class CreateStoreTest {
     @Autowired
     lateinit var storeService: StoreService
 
@@ -33,19 +34,19 @@ class StoreServiceTest {
     @Autowired
     lateinit var userRepository: UserRepository
 
-    private val properAndUniqueStoreName = "${StoreServiceTest::class.simpleName} Store"
+    private val properAndUniqueStoreName = "${CreateStoreTest::class.simpleName} Store"
 
     lateinit var mockUser: User
 
     @BeforeAll
     fun setup() {
-        mockUser = MockEntitiesHelper.generateBuyerUserEntityWithoutStore(StoreServiceTest::class)
-        mockUser.apply { username = "StoreServiceTester" }
+        mockUser = MockEntitiesHelper.generateBuyerUserEntityWithoutStore(CreateStoreTest::class)
+        mockUser.apply { username = "StoreCreatorTester" }
         userRepository.save(mockUser)
     }
 
     @Test
-    @WithMockUser(username = "StoreServiceTester", authorities = ["seller"])
+    @WithMockUser(username = "StoreCreatorTester", authorities = ["seller"])
     fun givenProperAndUniqueStoreName_whenUserIsSeller_returnNewStoreEntityObject() {
         assertStoreDoesntExist(properAndUniqueStoreName)
 
@@ -75,7 +76,7 @@ class StoreServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "StoreServiceTester", authorities = ["seller"])
+    @WithMockUser(username = "StoreCreatorTester", authorities = ["seller"])
     fun givenStoreNameAndLocation_whenUserIsSeller_returnNewStoreEntityObjectWithCustomLocation() {
         assertStoreDoesntExist(properAndUniqueStoreName)
 
@@ -96,7 +97,7 @@ class StoreServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "StoreServiceTester", authorities = ["buyer"])
+    @WithMockUser(username = "StoreCreatorTester", authorities = ["buyer"])
     fun givenUserThatIsNotAllowedToCreateStores_onAttemptToCreateStore_throwBadRoleException() {
         val ex = assertThrows<BadRoleException> {
             storeService.createStore(properAndUniqueStoreName)
@@ -106,7 +107,7 @@ class StoreServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "StoreServiceTester", authorities = ["seller"])
+    @WithMockUser(username = "StoreCreatorTester", authorities = ["seller"])
     fun givenAnInvalidStoreName_onAttemptToCreateStore_throwInvalidStoreNameException() {
         val invalidStoreName = " "
 
@@ -116,7 +117,7 @@ class StoreServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "StoreServiceTester", authorities = ["seller"])
+    @WithMockUser(username = "StoreCreatorTester", authorities = ["seller"])
     fun givenAUsedStoreName_onAttemptToCreateStore_throwUsedStoreNameException() {
         val usedStoreName = "a_used_name"
         persistStoreWithName(usedStoreName)

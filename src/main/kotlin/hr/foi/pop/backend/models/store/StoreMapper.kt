@@ -4,7 +4,7 @@ import hr.foi.pop.backend.utils.GenericMapper
 
 class StoreMapper : GenericMapper<StoreDTO, Store> {
     override fun mapDto(e: Store): StoreDTO {
-        return StoreDTO(e.id, e.event, e.storeName, e.balance)
+        return StoreDTO(e.id, e.event, e.storeName, e.balance, e.latitude, e.longitude)
     }
 
     override fun map(d: StoreDTO): Store {
@@ -13,6 +13,8 @@ class StoreMapper : GenericMapper<StoreDTO, Store> {
             event = d.event
             storeName = d.storeName
             balance = d.balance
+            latitude = d.latitude
+            longitude = d.longitude
         }
     }
 }
