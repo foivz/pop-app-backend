@@ -42,7 +42,9 @@ class WebSecurityConfigurer {
 
     private val excludedRoutesFromSpringSecurity = arrayOf(
         AntPathRequestMatcher("/favicon.ico"),
-        AntPathRequestMatcher("/error")
+        AntPathRequestMatcher("/error"),
+        AntPathRequestMatcher("/swagger-ui/**"),
+        AntPathRequestMatcher("/v3/api-docs/**")
     )
 
     private val excludedRoutesForAuthTokenFiltering = arrayOf(
