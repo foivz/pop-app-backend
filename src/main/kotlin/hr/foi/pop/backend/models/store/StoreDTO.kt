@@ -9,5 +9,7 @@ data class StoreDTO(
     val event: Event,
     val storeName: String,
     @JsonIgnore
-    val balance: Int
+    val balance: Int,
+    val latitude: Double,
+    val longitude: Double
 )
