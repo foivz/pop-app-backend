@@ -6,6 +6,7 @@ import hr.foi.pop.backend.exceptions.InvalidStoreNameException
 import hr.foi.pop.backend.exceptions.UsedStoreNameException
 import hr.foi.pop.backend.exceptions.UserHasStoreException
 import hr.foi.pop.backend.models.store.Store
+import hr.foi.pop.backend.models.store.StoreDTO
 import hr.foi.pop.backend.models.store.StoreLocation
 import hr.foi.pop.backend.models.store.StoreMapper
 import hr.foi.pop.backend.request_bodies.CreateStoreRequestBody
@@ -38,6 +39,21 @@ class StoreController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(SuccessResponse("Store \"${newStore.storeName}\" created with ID ${newStore.id}.", newStoreDto))
+    }
+
+    @GetMapping
+    fun getAllStores(): ResponseEntity<SuccessResponse> {
+        val allStores = storeService.getStores()
+        val mappedStores = getStoresDTOs(allStores)
+        return ResponseEntity.ok(SuccessResponse("Fetched stores.", *mappedStores))
+    }
+
+    private fun getStoresDTOs(allStores: List<Store>): Array<StoreDTO> {
+        val storeMapper = StoreMapper()
+        val mappedStores = allStores.map {
+            storeMapper.mapDto(it)
+        }
+        return mappedStores.toTypedArray()
     }
 
     @ExceptionHandler(InvalidStoreNameException::class)
