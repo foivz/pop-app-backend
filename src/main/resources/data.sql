@@ -4,10 +4,10 @@ VALUES ('Event 1', CURRENT_TIMESTAMP(), 1);
 INSERT INTO `popapp_db`.`events` (`name`, `date_created`, `is_active`)
 VALUES ('Event 2', CURRENT_TIMESTAMP(), 0);;
 
-INSERT INTO `popapp_db`.`stores` (`events_id_event`, `store_name`, `balance`)
-VALUES (1, 'Store 1', 0),
-       (1, 'Store 2', 0),
-       (2, 'Store 3', 0);
+INSERT INTO `popapp_db`.`stores` (`events_id_event`, `store_name`, `balance`, `latitude`, `longitude`)
+VALUES (1, 'Store 1', 0, 46.307679, 16.338106),
+       (1, 'Store 2', 0, 46.307679, 16.338106),
+       (2, 'Store 3', 0, 46.307679, 16.338106);
 
 INSERT INTO `popapp_db`.`roles` (`role_name`)
 VALUES ('buyer'),
