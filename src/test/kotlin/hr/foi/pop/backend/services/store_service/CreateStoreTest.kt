@@ -41,12 +41,12 @@ class CreateStoreTest {
     @BeforeAll
     fun setup() {
         mockUser = MockEntitiesHelper.generateBuyerUserEntityWithoutStore(CreateStoreTest::class)
-        mockUser.apply { username = "StoreServiceTester" }
+        mockUser.apply { username = "StoreCreatorTester" }
         userRepository.save(mockUser)
     }
 
     @Test
-    @WithMockUser(username = "StoreServiceTester", authorities = ["seller"])
+    @WithMockUser(username = "StoreCreatorTester", authorities = ["seller"])
     fun givenProperAndUniqueStoreName_whenUserIsSeller_returnNewStoreEntityObject() {
         assertStoreDoesntExist(properAndUniqueStoreName)
 
@@ -76,7 +76,7 @@ class CreateStoreTest {
     }
 
     @Test
-    @WithMockUser(username = "StoreServiceTester", authorities = ["seller"])
+    @WithMockUser(username = "StoreCreatorTester", authorities = ["seller"])
     fun givenStoreNameAndLocation_whenUserIsSeller_returnNewStoreEntityObjectWithCustomLocation() {
         assertStoreDoesntExist(properAndUniqueStoreName)
 
@@ -97,7 +97,7 @@ class CreateStoreTest {
     }
 
     @Test
-    @WithMockUser(username = "StoreServiceTester", authorities = ["buyer"])
+    @WithMockUser(username = "StoreCreatorTester", authorities = ["buyer"])
     fun givenUserThatIsNotAllowedToCreateStores_onAttemptToCreateStore_throwBadRoleException() {
         val ex = assertThrows<BadRoleException> {
             storeService.createStore(properAndUniqueStoreName)
@@ -107,7 +107,7 @@ class CreateStoreTest {
     }
 
     @Test
-    @WithMockUser(username = "StoreServiceTester", authorities = ["seller"])
+    @WithMockUser(username = "StoreCreatorTester", authorities = ["seller"])
     fun givenAnInvalidStoreName_onAttemptToCreateStore_throwInvalidStoreNameException() {
         val invalidStoreName = " "
 
@@ -117,7 +117,7 @@ class CreateStoreTest {
     }
 
     @Test
-    @WithMockUser(username = "StoreServiceTester", authorities = ["seller"])
+    @WithMockUser(username = "StoreCreatorTester", authorities = ["seller"])
     fun givenAUsedStoreName_onAttemptToCreateStore_throwUsedStoreNameException() {
         val usedStoreName = "a_used_name"
         persistStoreWithName(usedStoreName)
